@@ -49,6 +49,7 @@ export type TripDestinations = {
   first_day: number | null;
   last_day: number | null;
   name: string;
+  sequential_number: number;
 };
 
 export type Trips = {
