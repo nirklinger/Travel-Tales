@@ -12,10 +12,12 @@ import {
 import { LocalFile, NewTrip, ParsedDestination } from '../../types/types';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 
-const ImageFilePath = 'public\\img\\';
+const DEFAULT_COVER_PHOTO = process.env.NODE_ENV === 'development' ? '/travel-tales-local-s3/Tales/Default.jpg' : '/Tales/Default.jpg'; 
+const BUCKET_NAME = 'travel-tales-s3';
+const S3_REGION = 'us-east-1';
 
 const client = new S3Client({
-  region: 'us-east-1',
+  region: S3_REGION,
 });
 
 export async function getTales() {
@@ -28,15 +30,21 @@ export async function getTales() {
   return tales;
 }
 
-export const insertNewTale = async (tale: NewTrip) => {
+export const insertNewTale = async (tale: Omit<Trips, 'trip_id' | 'cover_photo_url'>) => {
   const newTale: Omit<Trips, 'trip_id'> = {
     title: tale.title,
     catch_phrase: tale.catch_phrase,
-    cover_photo_url: '/img/' + tale.cover_photo.name,
+    cover_photo_url: DEFAULT_COVER_PHOTO,
     created_by: tale.created_by,
     start_date: tale.start_date,
     end_date: tale.end_date,
   };
+  /* to do:
+  {
+    ...tale,
+    cover_photo_url: DEFAULT_COVER_PHOTO
+  }
+  */
   const connection = getConnection();
   const taleId = await connection.insert(newTale, 'trip_id').into(Table.Trips);
   const userLinkObj = { user_id: tale.created_by, trip_id: taleId[0].trip_id };
@@ -44,9 +52,10 @@ export const insertNewTale = async (tale: NewTrip) => {
   return taleId[0];
 };
 
-export const saveTaleCoverPhoto = async (coverPhoto: LocalFile) => {
+export const saveTaleCoverPhoto = async (coverPhoto: LocalFile, taleId: number) => {
   const base64Data = coverPhoto.data.replace(/^data:image\/jpeg;base64,/, '');
   const buffer = Buffer.from(base64Data, 'base64');
+  const coverPhotoFullName = ``;
   saveCoverPhoto(buffer, coverPhoto.name);
 };
 
@@ -59,14 +68,11 @@ const saveCoverPhoto = async (buffer: Buffer, fileName: string) => {
     await fs.promises.writeFile(filePath, buffer);
   } else {
     const command = new PutObjectCommand({
-      Bucket: 'travel-tales-s3',
-      Key: fileName,
+      Bucket: BUCKET_NAME,
+      Key: fileName, // /
       Body: buffer,
     });
     try {
-      console.log(
-        `############################################# aws response: #############################################`
-      );
       const response = await client.send(command);
       console.log(response);
     } catch (err) {
