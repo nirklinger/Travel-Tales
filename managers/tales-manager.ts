@@ -37,7 +37,7 @@ export async function fetchTaleStory(taleId: number): Promise<StoryResponse> {
   return (await res.json()) as StoryResponse;
 }
 
-export const createTale = async (taleToCreate: NewTrip): Promise<any> => {
+export const createTale = async (taleToCreate: Omit<Trips, 'trip_id' | 'cover_photo_url'>): Promise<any> => {
   const res = await fetchWrapper.post('/api/tales', taleToCreate);
   if (!res.ok) {
     switch (res.status) {
@@ -48,3 +48,13 @@ export const createTale = async (taleToCreate: NewTrip): Promise<any> => {
   const newTaleId = await res.json();
   return newTaleId.trip_id;
 };
+
+/*export const updateTalesCoverPhoto = async (): Promise<any> => {
+  const res = await fetchWrapper.put('/api/tales', updateCoverPhoto);
+  if(!res.ok) {
+    switch (res.status) {
+      default:
+        throw new Error('could not create a new tale');
+    }
+  }
+};*/
