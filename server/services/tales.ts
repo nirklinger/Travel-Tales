@@ -31,12 +31,10 @@ export async function getTaleStory(taleId: number) {
   };
 }
 
-export const createNewTale = async (newTale: NewTrip) => {
-  const newTaleId = await Promise.all([
-    insertNewTale(newTale),
-    saveTaleCoverPhoto(newTale.cover_photo),
-  ]);
-  return newTaleId[0];
+export const createNewTale = async (newTale: Omit<Trips, 'trip_id' | 'cover_photo_url'>) => {
+  const newTaleId = await insertNewTale(newTale);
+  
+  return newTaleId;
 }
 
 
