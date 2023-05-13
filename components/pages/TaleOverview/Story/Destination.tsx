@@ -1,7 +1,7 @@
 import { Activity } from './Activity';
 import { IonAccordion, IonButton, IonIcon, IonItem, IonReorder, useIonAlert } from '@ionic/react';
 import { todayOutline, trash } from 'ionicons/icons';
-import React from 'react';
+import React, { useState } from 'react';
 import { ActivitiesWithMedia, NewActivitiesWithMedia } from '../../../../types/types';
 import { TripDestinations } from '../../../../types/db-schema-definitions';
 import parse from 'postgres-interval';
@@ -13,8 +13,17 @@ interface DestinationProps {
   isEditMode?: boolean;
 }
 
-export function Destination({ activities, destination, isEditMode }: DestinationProps) {
+export function Destination({
+  activities: readOnlyActivities,
+  destination,
+  isEditMode,
+}: DestinationProps) {
   const [presentAlert] = useIonAlert();
+  const [activities, setActivities] = useState<ActivitiesWithMedia[]>(readOnlyActivities);
+
+  function handleDeleteActivity(id: number) {
+    setActivities([...activities.filter(act => act.id !== id)]);
+  }
 
   function handleDeleteDestination(e) {
     e.stopPropagation();
@@ -57,11 +66,16 @@ export function Destination({ activities, destination, isEditMode }: Destination
     };
 
     const newActivityId = await createActivity(activity);
-    activities.push({ ...activity, id: newActivityId });
+    setActivities([...activities, { ...activity, id: newActivityId }]);
   }
 
-  const actsToRender = activities.map((act, index) => (
-    <Activity key={act.id} activity={act} canEdit={isEditMode} />
+  const actsToRender = activities.map(act => (
+    <Activity
+      key={act.id}
+      activity={act}
+      canEdit={isEditMode}
+      onDeleteActivity={() => handleDeleteActivity(act.id)}
+    />
   ));
   return (
     <IonAccordion value={destination.name}>
@@ -87,10 +101,14 @@ export function Destination({ activities, destination, isEditMode }: Destination
         <IonReorder slot="end"></IonReorder>
       </IonItem>
       <div className="flex flex-col gap-8 bg-gray-50 py-4" slot="content">
-        {...actsToRender}
-        <IonButton onClick={handleAddActivity} fill={'outline'}>
-          Add an activity
-        </IonButton>
+        <>
+          {isEditMode && (
+            <IonButton onClick={handleAddActivity} fill={'outline'}>
+              Add an activity
+            </IonButton>
+          )}
+          {...actsToRender}
+        </>
       </div>
     </IonAccordion>
   );
