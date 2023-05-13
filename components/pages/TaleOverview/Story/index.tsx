@@ -1,61 +1,52 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import {
-  IonAccordion,
-  IonAccordionGroup,
-  IonContent,
-  IonIcon,
-  IonItem,
-  IonItemDivider,
-  IonItemGroup,
-  IonLabel,
-  IonList,
-  IonListHeader,
-  IonTextarea,
-} from '@ionic/react';
+import React, { useMemo } from 'react';
+import { IonAccordionGroup, IonReorderGroup, ItemReorderEventDetail } from '@ionic/react';
 import { StoryResponse } from '../../../../types/types';
-import { parseDuration } from '../../../../utils/converters';
-import { time, todayOutline } from 'ionicons/icons';
-import PostgresInterval from 'postgres-interval';
-import ImageTape from '../../../ui/ImageTape';
-import { Activity } from './Activity';
+import { Destination } from './Destination';
 
 type StoryProps = {
   story: StoryResponse;
+  isEditMode?: boolean;
 };
 
-function Story({ story }: StoryProps) {
+function Story({ story, isEditMode }: StoryProps) {
+  function handleReorder(event: CustomEvent<ItemReorderEventDetail>) {
+    // The `from` and `to` properties contain the index of the item
+    // when the drag started and ended, respectively
+    console.log('Dragged from index', event.detail.from, 'to', event.detail.to);
+
+    // Finish the reorder and position the item in the DOM based on
+    // where the gesture ended. This method can also be called directly
+    // by the reorder group
+    event.detail.complete();
+  }
+
   const destinations = useMemo(
     () =>
-      story.destinations.map(dest => {
-        const destActivities = story.activities
-          .filter(act => act.destination_id === dest.id)
-          .sort((act1, act2) => act1.sequential_number - act2.sequential_number);
-        const activities = destActivities.map((act, index) => (
-          <Activity key={act.id} activity={act} />
-        ));
-        return (
-          <IonAccordion key={dest.id} value={dest.name}>
-            <IonItem slot="header">
-              <h1>{dest.name}</h1>
-              <div
-                className={'h-full -mb-4 flex flex-row items-center gap-1 mx-4 text-lg font-medium'}
-              >
-                <span className={'underline italic'}>
-                  days: {dest.first_day}-{dest.last_day}
-                </span>
-                <IonIcon color={'tertiary'} icon={todayOutline} />
-              </div>
-            </IonItem>
-
-            <div className="flex flex-col gap-8 bg-gray-50 py-4" slot="content">
-              {...activities}
-            </div>
-          </IonAccordion>
-        );
-      }),
-    [story]
+      story.destinations
+        .slice()
+        .sort((dest1, dest2) => dest1.sequential_number - dest2.sequential_number)
+        .map(dest => {
+          const destActivities = story.activities
+            .filter(act => act.destination_id === dest.id)
+            .sort((act1, act2) => act1.sequential_number - act2.sequential_number);
+          return (
+            <Destination
+              key={dest.id}
+              destination={dest}
+              activities={destActivities}
+              isEditMode={isEditMode}
+            />
+          );
+        }),
+    [story, isEditMode]
   );
 
-  return <IonAccordionGroup>{...destinations}</IonAccordionGroup>;
+  return (
+    <IonAccordionGroup multiple>
+      <IonReorderGroup onIonItemReorder={handleReorder} disabled={!isEditMode}>
+        {...destinations}
+      </IonReorderGroup>
+    </IonAccordionGroup>
+  );
 }
 export default Story;
