@@ -12,7 +12,7 @@ import {
 import { LocalFile, NewTrip, ParsedDestination } from '../../types/types';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 
-const DEFAULT_COVER_PHOTO = process.env.NODE_ENV === 'development' ? '/travel-tales-local-s3/Tales/Default.jpg' : '/Tales/Default.jpg'; 
+const DEFAULT_COVER_PHOTO = '/Tales/Default.jpg'; 
 const BUCKET_NAME = 'travel-tales-s3';
 const S3_REGION = 'us-east-1';
 
