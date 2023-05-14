@@ -8,7 +8,7 @@ const withPWA = require('next-pwa')({
 module.exports = withPWA({
   basePath: '',
   images: {
-    domains: ['images.unsplash.com'],
+    domains: ['images.unsplash.com','travel-tales-s3.s3.amazonaws.com'],
   },
   transpilePackages: ['@ionic/react', '@ionic/core', '@stencil/core', 'ionicons'],
   swcMinify: true,
