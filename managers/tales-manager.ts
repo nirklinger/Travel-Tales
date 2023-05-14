@@ -1,7 +1,7 @@
 import { fetchWrapper } from '../utils/fetchWrapper';
 import { StatusCodes } from 'http-status-codes';
 import { Trips, Users } from '../types/db-schema-definitions';
-import { NewTrip, StoryResponse, Tale, TalesResponse } from '../types/types';
+import { LocalFile, NewTrip, StoryResponse, Tale, TalesResponse } from '../types/types';
 
 export async function fetchTales(): Promise<Tale[]> {
   const res = await fetchWrapper.get('/api/tales');
@@ -49,12 +49,12 @@ export const createTale = async (taleToCreate: Omit<Trips, 'trip_id' | 'cover_ph
   return newTaleId.trip_id;
 };
 
-/*export const updateTalesCoverPhoto = async (): Promise<any> => {
-  const res = await fetchWrapper.put('/api/tales', updateCoverPhoto);
-  if(!res.ok) {
-    switch (res.status) {
-      default:
-        throw new Error('could not create a new tale');
-    }
-  }
-};*/
+export const updateTaleCoverPhoto = async (taleToUpdate: Trips, coverPhoto: LocalFile): Promise<any> => {
+  console.log(`tale manager - update tale cover photo`);
+  const taleId = taleToUpdate.trip_id;
+  console.log(`tale manager - taleId: ${taleId}`);
+  const reqBody = {taleToUpdate, coverPhoto}
+  const res = await fetchWrapper.put(`/api/tales/${taleId}/coverPhoto`, reqBody);
+};
+
+

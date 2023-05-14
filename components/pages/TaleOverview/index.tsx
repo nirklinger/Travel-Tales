@@ -33,6 +33,7 @@ import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera
 import { Filesystem } from '@capacitor/filesystem';
 import { Directory } from '@capacitor/filesystem';
 import { LocalFile } from '../../../types/types';
+import { updateTaleCoverPhoto } from '../../../managers/tales-manager';
 
 enum Segments {
   thingsToDo = 'Things To Do',
@@ -53,6 +54,9 @@ const TaleOverview = () => {
   let { taleId } = useParams();
 
   useEffect(() => () => setCurrentTaleId(null), []);
+  useEffect(() => {
+    console.log(`this is the tale obj: ${JSON.stringify(tale)}`);
+  }, [tale]);
   useEffect(() => {
     loadPhoto();
   }, []);
@@ -132,6 +136,13 @@ const TaleOverview = () => {
     loadPhoto();
   }, [coverPhoto, loadPhoto]);
 
+  const uploadPhotoHandler = useCallback(async () => {
+    console.log(`trying to upload photo - upload button clicked`);
+    const taleToUpdate = {};
+    const newCoverPhoto = {};
+    await updateTaleCoverPhoto(tale, coverPhoto);
+  }, [coverPhoto]);
+
   if (currentTaleId != taleId) setCurrentTaleId(Number(taleId));
 
   if (!tale) {
@@ -142,6 +153,7 @@ const TaleOverview = () => {
     if (ev.detail.role === 'confirm') {
     }
   }
+
   const { title, catch_phrase, author, avatar_photo, cover_photo_url } = tale;
   
   return (
@@ -209,7 +221,7 @@ const TaleOverview = () => {
                 <IonButton onClick={deletePhotoHandler}>
                   Cancel <IonIcon icon={trash}></IonIcon>
                 </IonButton>
-                <IonButton>
+                <IonButton onClick={uploadPhotoHandler}>
                   Upload <IonIcon icon={cloudUpload}></IonIcon>
                 </IonButton>
               </IonButtons>

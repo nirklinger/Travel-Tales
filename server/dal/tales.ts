@@ -12,9 +12,13 @@ import {
 import { LocalFile, NewTrip } from '../../types/types';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 
-const DEFAULT_COVER_PHOTO = '/Tales/Default.jpg'; 
+const DEFAULT_COVER_PHOTO = '/Tales/Default.jpg';
 const BUCKET_NAME = 'travel-tales-s3';
 const S3_REGION = 'us-east-1';
+const PUBLIC_FOLDER = 'public';
+const TALES_FOLDER = 'Tales';
+const COVER_PHOTO_FILE_NAME = 'coverPhoto.jpg';
+const S3_URL = 'https://travel-tales-s3.s3.amazonaws.com';
 
 const client = new S3Client({
   region: S3_REGION,
@@ -22,11 +26,18 @@ const client = new S3Client({
 
 export async function getTales() {
   const connection = getConnection();
+  const isDevEnvironment = process.env.NODE_ENV === 'development';
   const tales = await connection
     .select<(Trips & Users)[]>([`${Table.Trips}.*`, `${Table.Users}.*`])
     .from(Table.Trips)
     .join(Table.UsersTrips, `${Table.Trips}.trip_id`, `${Table.UsersTrips}.trip_id`)
     .join(Table.Users, `${Table.Users}.user_id`, `${Table.UsersTrips}.user_id`);
+  if (!isDevEnvironment) {
+    const envFitTales = tales.map(taleObj => {
+      return { ...taleObj, cover_photo_url: `${S3_URL}${taleObj.cover_photo_url}` };
+    });
+    return envFitTales;
+  }
   return tales;
 }
 
@@ -64,7 +75,7 @@ const saveCoverPhoto = async (buffer: Buffer, fileName: string) => {
   if (!isDevEnvironment) {
     const ImageFilePath = path.join('public', 'img');
     const filePath = path.join(ImageFilePath, fileName);
-    
+
     await fs.promises.writeFile(filePath, buffer);
   } else {
     const command = new PutObjectCommand({
@@ -118,3 +129,45 @@ export async function getTaleActivityMedia(taleId: number) {
     .where(`${Table.TripDestinations}.trip_id`, taleId);
   return media;
 }
+
+export const uploadTaleCoverPhoto = async (taleId: number, coverPhoto: LocalFile) => {
+  console.log(`upload cover photo dal - updating cover photo`);
+  const isDevEnvironment = process.env.NODE_ENV === 'development';
+
+  const base64Data = coverPhoto.data.replace(/^data:image\/jpeg;base64,/, '');
+  const buffer = Buffer.from(base64Data, 'base64');
+  if (!isDevEnvironment) {
+    const taleFolderPath = path.join(TALES_FOLDER, taleId.toString());
+    const filePath = path.join(taleFolderPath, COVER_PHOTO_FILE_NAME);
+    const envFullFilePath = path.join(PUBLIC_FOLDER, filePath);
+    console.log(`upload cover photo dal - fullFilePath: ${envFullFilePath}`);
+    await fs.promises.writeFile(envFullFilePath, buffer);
+  } else {
+    const filePath = `Tales/${taleId.toString()}/${COVER_PHOTO_FILE_NAME}`;
+    console.log(`upload cover photo dal - fullFilePath: ${filePath}`);
+    const command = new PutObjectCommand({
+      Bucket: 'travel-tales-s3',
+      Key: filePath,
+      Body: buffer,
+    });
+    try {
+      console.log(
+        `############################################# aws response: #############################################`
+      );
+      const response = await client.send(command);
+      console.log(response);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+};
+
+export const updateTaleDbCoverPhoto = async (taleId: number) => {
+  console.log(`updateTaleDbCoverPhoto - taleId ${taleId}`);
+  const coverPhotoUrl = `/Tales/${taleId}/${COVER_PHOTO_FILE_NAME}`;
+  console.log(`updateTaleDbCoverPhoto - coverPhotoUrl ${coverPhotoUrl}`);
+  const connection = getConnection();
+  await connection(Table.Trips)
+    .where(`${Table.Trips}.trip_id`, taleId)
+    .update({ cover_photo_url: coverPhotoUrl });
+};
