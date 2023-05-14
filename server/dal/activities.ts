@@ -8,3 +8,8 @@ export const insertNewActivity = async (newActivity: Omit<NewActivitiesWithMedia
   const activityId = await connection.insert(newActivity, 'id').into(Table.Activities);
   return activityId[0];
 };
+
+export const deleteActivityAndMedia = async (activityId: number) => {
+  const connection = getConnection();
+  return connection(Table.Activities).where('id', activityId).delete(); // DELETE has cascade options deleting its media records
+};

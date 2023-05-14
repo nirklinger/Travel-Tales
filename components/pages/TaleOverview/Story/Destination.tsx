@@ -1,27 +1,46 @@
 import { Activity } from './Activity';
-import { IonAccordion, IonButton, IonIcon, IonItem, IonReorder, useIonAlert } from '@ionic/react';
+import {
+  IonAccordion,
+  IonButton,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonReorder,
+  IonSelect,
+  IonSelectOption,
+  useIonAlert,
+} from '@ionic/react';
 import { todayOutline, trash } from 'ionicons/icons';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { ActivitiesWithMedia, NewActivitiesWithMedia } from '../../../../types/types';
 import { TripDestinations } from '../../../../types/db-schema-definitions';
 import parse from 'postgres-interval';
-import { createActivity } from '../../../../managers/story-manager';
+import { createActivity, deleteActivity } from '../../../../managers/story-manager';
+import { useRecoilValue } from 'recoil';
+import { currentTale } from '../../../../states/explore';
 
 interface DestinationProps {
+  onDeleteDestination: () => void;
   activities: ActivitiesWithMedia[];
   destination: TripDestinations;
+  tripDurationInDays: number;
   isEditMode?: boolean;
 }
 
 export function Destination({
   activities: readOnlyActivities,
-  destination,
+  destination: readonlyDestination,
   isEditMode,
+  tripDurationInDays,
+  onDeleteDestination,
 }: DestinationProps) {
   const [presentAlert] = useIonAlert();
+  const [destination, setDestination] = useState<TripDestinations>(readonlyDestination);
   const [activities, setActivities] = useState<ActivitiesWithMedia[]>(readOnlyActivities);
 
-  function handleDeleteActivity(id: number) {
+  async function handleDeleteActivity(id: number) {
+    await deleteActivity(id);
     setActivities([...activities.filter(act => act.id !== id)]);
   }
 
@@ -36,16 +55,12 @@ export function Destination({
         {
           text: 'Cancel',
           role: 'cancel',
-          handler: () => {
-            // setHandlerMessage('Alert canceled');
-          },
+          handler: () => {},
         },
         {
           text: 'Delete',
           role: 'confirm',
-          handler: () => {
-            // delete api
-          },
+          handler: () => onDeleteDestination(),
         },
       ],
       onDidDismiss: (e: CustomEvent) => {
@@ -66,8 +81,21 @@ export function Destination({
     };
 
     const newActivityId = await createActivity(activity);
-    setActivities([...activities, { ...activity, id: newActivityId }]);
+    setActivities([{ ...activity, id: newActivityId }, ...activities]);
   }
+
+  const handleDestinationNameChange = useCallback(
+    e => setDestination({ ...destination, name: e.detail.value }),
+    [setDestination, destination]
+  );
+
+  const handleDestinationDayChange = useCallback(
+    (isFisrtDay, day) => {
+      if (isFisrtDay) setDestination({ ...destination, first_day: day });
+      else setDestination({ ...destination, last_day: day });
+    },
+    [setDestination, destination]
+  );
 
   const actsToRender = activities.map(act => (
     <Activity
@@ -77,8 +105,64 @@ export function Destination({
       onDeleteActivity={() => handleDeleteActivity(act.id)}
     />
   ));
+
+  const destinationName = isEditMode ? (
+    <div className={'w-max-10 text-xl font-medium'}>
+      <IonInput
+        placeholder="Enter destination name"
+        onIonChange={handleDestinationNameChange}
+        value={destination.name}
+      ></IonInput>
+    </div>
+  ) : (
+    <h1>{destination.name || '<Name missing>'}</h1>
+  );
+
+  const days = isEditMode ? (
+    <div className={'flex flex-row'}>
+      <IonItem>
+        <IonSelect
+          id={'firstDay'}
+          value={destination.first_day}
+          placeholder="first day"
+          onIonChange={({ detail }) => handleDestinationDayChange(true, detail.value)}
+        >
+          {Array(tripDurationInDays)
+            .fill(1)
+            .map((_, i) => i + 1)
+            .map(day => (
+              <IonSelectOption key={`firstDay-${day}`} value={day}>
+                {day}
+              </IonSelectOption>
+            ))}
+        </IonSelect>
+      </IonItem>
+      <IonItem>
+        <IonSelect
+          id={'lastDay'}
+          value={destination.last_day}
+          placeholder="last day"
+          onIonChange={({ detail }) => handleDestinationDayChange(false, detail.value)}
+        >
+          {Array(tripDurationInDays)
+            .fill(1)
+            .map((_, i) => i + 1)
+            .map(day => (
+              <IonSelectOption key={`lastDay-${day}`} value={day}>
+                {day}
+              </IonSelectOption>
+            ))}
+        </IonSelect>
+      </IonItem>
+    </div>
+  ) : (
+    <span className={'underline italic'}>
+      days: {destination.first_day}-{destination.last_day}
+    </span>
+  );
+
   return (
-    <IonAccordion value={destination.name}>
+    <IonAccordion value={`${destination.name}-${destination.id}`}>
       <IonItem slot="header">
         {isEditMode && (
           <div className={'text-xl'} onClickCapture={handleDeleteDestination}>
@@ -91,12 +175,16 @@ export function Destination({
             />
           </div>
         )}
-        <h1>{destination.name}</h1>
-        <div className={'h-full -mb-4 flex flex-row items-center gap-1 mx-4 text-lg font-medium'}>
-          <span className={'underline italic'}>
-            days: {destination.first_day}-{destination.last_day}
-          </span>
-          <IonIcon color={'tertiary'} icon={todayOutline} />
+        <div
+          className={` flex ${
+            isEditMode ? 'flex-col py-2' : 'flex-row gap-2 md:gap-4 items-center'
+          }`}
+        >
+          {destinationName}
+          <div className={'h-full -mb-4 flex flex-row items-center gap-1 text-lg font-medium'}>
+            {days}
+            <IonIcon color={'tertiary'} icon={todayOutline} />
+          </div>
         </div>
         <IonReorder slot="end"></IonReorder>
       </IonItem>

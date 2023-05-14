@@ -29,7 +29,6 @@ enum Segments {
 const TaleOverview = () => {
   const [edit, setEdit] = useState(false);
   const [currentTaleId, setCurrenetTaleId] = useRecoilState(currentTaleIdState);
-  const taleStory = useRecoilValue(currentTaleStory);
   const tale = useRecoilValue(currentTale);
   const [segment, setSegment] = useState<Segments>(Segments.story);
   let { taleId } = useParams();
@@ -74,7 +73,7 @@ const TaleOverview = () => {
             </IonSegmentButton>
           </IonSegment>
         </div>
-        {segment === Segments.story && <Story isEditMode={edit} story={taleStory} />}
+        {segment === Segments.story && <Story isEditMode={edit} />}
       </IonContent>
     </IonPage>
   );

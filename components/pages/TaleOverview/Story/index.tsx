@@ -1,28 +1,85 @@
-import React, { useMemo } from 'react';
-import { IonAccordionGroup, IonReorderGroup, ItemReorderEventDetail } from '@ionic/react';
-import { StoryResponse } from '../../../../types/types';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  IonAccordionGroup,
+  IonFab,
+  IonFabButton,
+  IonIcon,
+  IonItem,
+  IonReorderGroup,
+  ItemReorderEventDetail,
+} from '@ionic/react';
+import { ActivitiesWithMedia, NewTripDestination, StoryResponse } from '../../../../types/types';
 import { Destination } from './Destination';
+import { add } from 'ionicons/icons';
+import { currentTale, currentTaleIdState, currentTaleStory } from '../../../../states/explore';
+import { useRecoilRefresher_UNSTABLE, useRecoilValue } from 'recoil';
+import {
+  createDestination,
+  deleteActivity,
+  deleteDestination,
+} from '../../../../managers/story-manager';
+import { TripDestinations } from '../../../../types/db-schema-definitions';
 
 type StoryProps = {
-  story: StoryResponse;
   isEditMode?: boolean;
 };
 
-function Story({ story, isEditMode }: StoryProps) {
-  function handleReorder(event: CustomEvent<ItemReorderEventDetail>) {
-    // The `from` and `to` properties contain the index of the item
-    // when the drag started and ended, respectively
-    console.log('Dragged from index', event.detail.from, 'to', event.detail.to);
+function AddDestination({ handleAddDestination }) {
+  return (
+    <div className={'w-14 h-14 ml-2 p-2'}>
+      <IonFab>
+        <IonFabButton className={'rounded-md'} color={'tertiary'} onClick={handleAddDestination}>
+          <IonIcon icon={add}></IonIcon>
+        </IonFabButton>
+      </IonFab>
+    </div>
+  );
+}
 
-    // Finish the reorder and position the item in the DOM based on
-    // where the gesture ended. This method can also be called directly
-    // by the reorder group
+function Story({ isEditMode }: StoryProps) {
+  const story = useRecoilValue(currentTaleStory);
+  const taleId = useRecoilValue(currentTaleIdState);
+  const tale = useRecoilValue(currentTale);
+  const resetStory = useRecoilRefresher_UNSTABLE(currentTaleStory);
+  const [destinations, setDestinations] = useState<TripDestinations[]>([]);
+  const tripDurationInDays =
+    (tale.end_date.getTime() - tale.start_date.getTime()) / (1000 * 60 * 60 * 24);
+
+  useEffect(() => {
+    setDestinations(story.destinations);
+    return resetStory;
+  }, [story]);
+
+  function handleReorder(event: CustomEvent<ItemReorderEventDetail>) {
     event.detail.complete();
   }
 
-  const destinations = useMemo(
+  async function handleDeleteDestination(id: number) {
+    await deleteDestination(id);
+    setDestinations([...destinations.filter(act => act.id !== id)]);
+  }
+
+  async function handleAddDestination() {
+    const day = Math.min(
+      Math.max(...destinations.map(dest => dest.last_day)) + 1,
+      tripDurationInDays
+    );
+    const sequential_number = Math.max(...destinations.map(dest => dest.sequential_number)) + 1;
+    const dest: NewTripDestination = {
+      trip_id: taleId,
+      first_day: day,
+      last_day: day,
+      name: '',
+      sequential_number,
+    };
+
+    const newDestId = await createDestination(dest);
+    setDestinations([{ ...dest, id: newDestId }, ...destinations]);
+  }
+
+  const destinationsToRender = useMemo(
     () =>
-      story.destinations
+      destinations
         .slice()
         .sort((dest1, dest2) => dest1.sequential_number - dest2.sequential_number)
         .map(dest => {
@@ -35,18 +92,23 @@ function Story({ story, isEditMode }: StoryProps) {
               destination={dest}
               activities={destActivities}
               isEditMode={isEditMode}
+              tripDurationInDays={tripDurationInDays}
+              onDeleteDestination={() => handleDeleteDestination(dest.id)}
             />
           );
         }),
-    [story, isEditMode]
+    [story, destinations, isEditMode]
   );
 
   return (
-    <IonAccordionGroup multiple>
-      <IonReorderGroup onIonItemReorder={handleReorder} disabled={!isEditMode}>
-        {...destinations}
-      </IonReorderGroup>
-    </IonAccordionGroup>
+    <>
+      {isEditMode && <AddDestination handleAddDestination={handleAddDestination} />}
+      <IonAccordionGroup multiple>
+        <IonReorderGroup onIonItemReorder={handleReorder} disabled={!isEditMode}>
+          {...destinationsToRender}
+        </IonReorderGroup>
+      </IonAccordionGroup>
+    </>
   );
 }
 export default Story;
