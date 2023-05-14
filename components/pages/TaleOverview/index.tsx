@@ -175,7 +175,7 @@ const TaleOverview = () => {
             className="lg:h-96 lg:w-3/6 m-auto object-cover sm:h-full sm:w-48"
             src={cover_photo_url}
           />
-          <IonFabButton className="absolute bottom-0 right-0">
+          {edit ? <IonFabButton className="absolute bottom-0 right-0">
             <IonIcon
               id="open-modal"
               icon={pencil}
@@ -183,7 +183,7 @@ const TaleOverview = () => {
                 console.log('edit');
               }}
             />
-          </IonFabButton>
+          </IonFabButton> : <></>}
         </div>
         <div className={'w-full'}>
           <IonSegment
