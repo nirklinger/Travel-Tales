@@ -13,11 +13,7 @@ import { Destination } from './Destination';
 import { add } from 'ionicons/icons';
 import { currentTale, currentTaleIdState, currentTaleStory } from '../../../../states/explore';
 import { useRecoilRefresher_UNSTABLE, useRecoilValue } from 'recoil';
-import {
-  createDestination,
-  deleteActivity,
-  deleteDestination,
-} from '../../../../managers/story-manager';
+import { createDestination, deleteDestination } from '../../../../managers/destination-manager';
 import { TripDestinations } from '../../../../types/db-schema-definitions';
 
 type StoryProps = {

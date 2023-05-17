@@ -3,7 +3,6 @@ import {
   IonDatetimeButton,
   IonIcon,
   IonInput,
-  IonItem,
   IonLabel,
   IonModal,
   IonTextarea,
@@ -13,10 +12,11 @@ import { parseDuration } from '../../../../utils/converters';
 import PostgresInterval from 'postgres-interval';
 import { timeOutline, trash } from 'ionicons/icons';
 import ImageTape from '../../../ui/ImageTape';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { ActivitiesWithMedia } from '../../../../types/types';
 import parse from 'postgres-interval';
-import { cloneDeep } from 'lodash';
+import { debounce } from 'lodash';
+import { patchActivity } from '../../../../managers/activity-manager';
 
 interface ActivityProps {
   activity: ActivitiesWithMedia;
@@ -28,28 +28,35 @@ export function Activity({ activity: activityReadonly, canEdit, onDeleteActivity
   const [activity, setActivity] = useState<ActivitiesWithMedia>(activityReadonly);
   const [presentAlert] = useIonAlert();
 
+  const updateActivity = useCallback(
+    debounce(changes => patchActivity(activity.id, changes), 2000),
+    [activity.id]
+  );
+
   const handleActivityTimeChange = useCallback(
     e => {
       const date = new Date(e.detail.value);
       const duration = parse(date.toTimeString().split(' ')[0]);
       setActivity({ ...activity, duration });
-      console.log(e, activity);
+      updateActivity({ duration: duration.toPostgres() });
     },
-    [setActivity, activity]
+    [setActivity, activity, updateActivity]
   );
 
   const handleActivityNameChange = useCallback(
     e => {
       setActivity({ ...activity, name: e.detail.value });
+      updateActivity({ name: e.detail.value });
     },
-    [setActivity, activity]
+    [setActivity, activity, updateActivity]
   );
 
   const handleActivityDescriptionChange = useCallback(
     e => {
       setActivity({ ...activity, description: e.detail.value });
+      updateActivity({ description: e.detail.value });
     },
-    [setActivity, activity]
+    [setActivity, activity, updateActivity]
   );
 
   const activityName = canEdit ? (
@@ -75,15 +82,19 @@ export function Activity({ activity: activityReadonly, canEdit, onDeleteActivity
       </IonDatetimeButton>
       <IonIcon color={'tertiary'} icon={timeOutline} />
 
-      <IonModal keepContentsMounted={true}>
-        <IonDatetime
-          onIonChange={e => handleActivityTimeChange(e)}
-          showDefaultButtons={true}
-          id={`datetime-${activity.id}`}
-          presentation={'time'}
-          minuteValues={[0, 15, 30, 45]}
-          hourCycle={'h23'}
-        />
+      <IonModal id="hour-pick" keepContentsMounted={true}>
+        <div className={'w-80 flex flex-col items-stretch bg-purple-200'}>
+          <h3 className={'mx-auto'}>Set Activity duration.</h3>
+          <span className={'mx-auto pb-1'}>(Hours - Minutes)</span>
+          <IonDatetime
+            onIonChange={e => handleActivityTimeChange(e)}
+            showDefaultButtons={true}
+            id={`datetime-${activity.id}`}
+            presentation={'time'}
+            minuteValues={[0, 15, 30, 45]}
+            hourCycle={'h23'}
+          />
+        </div>
       </IonModal>
     </>
   ) : (

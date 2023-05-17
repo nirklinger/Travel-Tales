@@ -10,6 +10,14 @@ export const insertNewDestination = async (newTripDestination: NewTripDestinatio
   return destinationId[0];
 };
 
+export const updateDestinationById = async (id: number, patches: Partial<NewTripDestination>) => {
+  const connection = getConnection();
+  const changes = await connection(Table.TripDestinations)
+    .where('id', id)
+    .update(patches, Object.keys(patches));
+  return changes[0];
+};
+
 export const deleteDestinationAndActivity = async (destinationId: number) => {
   const connection = getConnection();
   return connection(Table.TripDestinations).where('id', destinationId).delete(); // DELETE has cascade options deleting its media records

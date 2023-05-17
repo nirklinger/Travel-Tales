@@ -16,9 +16,9 @@ import React, { useCallback, useState } from 'react';
 import { ActivitiesWithMedia, NewActivitiesWithMedia } from '../../../../types/types';
 import { TripDestinations } from '../../../../types/db-schema-definitions';
 import parse from 'postgres-interval';
-import { createActivity, deleteActivity } from '../../../../managers/story-manager';
-import { useRecoilValue } from 'recoil';
-import { currentTale } from '../../../../states/explore';
+import { createActivity, deleteActivity } from '../../../../managers/activity-manager';
+import { patchDestination } from '../../../../managers/destination-manager';
+import { debounce } from 'lodash';
 
 interface DestinationProps {
   onDeleteDestination: () => void;
@@ -84,17 +84,30 @@ export function Destination({
     setActivities([{ ...activity, id: newActivityId }, ...activities]);
   }
 
+  const updateDestination = useCallback(
+    debounce(changes => patchDestination(destination.id, changes), 2000),
+    [destination.id]
+  );
+
   const handleDestinationNameChange = useCallback(
-    e => setDestination({ ...destination, name: e.detail.value }),
-    [setDestination, destination]
+    e => {
+      setDestination({ ...destination, name: e.detail.value });
+      updateDestination({ name: e.detail.value });
+    },
+    [setDestination, destination, updateDestination]
   );
 
   const handleDestinationDayChange = useCallback(
     (isFisrtDay, day) => {
-      if (isFisrtDay) setDestination({ ...destination, first_day: day });
-      else setDestination({ ...destination, last_day: day });
+      if (isFisrtDay) {
+        setDestination({ ...destination, first_day: day });
+        updateDestination({ first_day: day });
+      } else {
+        setDestination({ ...destination, last_day: day });
+        updateDestination({ last_day: day });
+      }
     },
-    [setDestination, destination]
+    [setDestination, destination, updateDestination]
   );
 
   const actsToRender = activities.map(act => (

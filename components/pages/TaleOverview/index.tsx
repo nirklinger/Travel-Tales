@@ -51,7 +51,7 @@ const TaleOverview = () => {
           </IonButtons>
           <IonTitle className={'lg:text-center'}>{title + (edit ? ' (Edit Mode)' : '')}</IonTitle>
           <IonButton fill={'clear'} slot={'end'} onClick={() => setEdit(!edit)}>
-            {edit ? 'Save' : 'Edit'}
+            {edit ? 'Done' : 'Edit'}
           </IonButton>
         </IonToolbar>
       </IonHeader>
