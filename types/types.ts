@@ -7,11 +7,19 @@ export type StoryResponse = {
 
 export type ActivitiesWithMedia = Activities & { media: Omit<ActivityMedia, 'activity_id'>[] };
 
+export type NewActivitiesWithMedia = Omit<ActivitiesWithMedia, 'id'>;
+
+export type NewTripDestination = Omit<TripDestinations, 'id'>;
+
+export type CreateNewDestinationResponse = { id: number };
+
+export type CreateNewActivityResponse = { id: number };
+
 export type TalesResponse = {
   tales: (Trips & Users)[];
 };
 
-export type CreateTaleResponse = { 
+export type CreateTaleResponse = {
   trip_id: number;
 };
 
@@ -34,4 +42,4 @@ export interface NewTrip extends Omit<Trips, 'trip_id' | 'cover_photo_url'> {
   cover_photo: LocalFile;
 }
 
-
+export type Override<T1, T2> = Omit<T1, keyof T2> & T2;

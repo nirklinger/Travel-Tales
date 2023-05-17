@@ -30,7 +30,7 @@ const Tabs = () => {
               <TaleOverview />
             </Suspense>
           )}
-          exact={true}
+          exact={false}
         />
         <Route path="/tabs/tale/create" exact={true} render={() => <CreateTale />} />
         <Route

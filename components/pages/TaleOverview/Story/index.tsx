@@ -1,61 +1,110 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  IonAccordion,
   IonAccordionGroup,
-  IonContent,
+  IonFab,
+  IonFabButton,
   IonIcon,
   IonItem,
-  IonItemDivider,
-  IonItemGroup,
-  IonLabel,
-  IonList,
-  IonListHeader,
-  IonTextarea,
+  IonReorderGroup,
+  ItemReorderEventDetail,
 } from '@ionic/react';
-import { StoryResponse } from '../../../../types/types';
-import { parseDuration } from '../../../../utils/converters';
-import { time, todayOutline } from 'ionicons/icons';
-import PostgresInterval from 'postgres-interval';
-import ImageTape from '../../../ui/ImageTape';
-import { Activity } from './Activity';
+import { ActivitiesWithMedia, NewTripDestination, StoryResponse } from '../../../../types/types';
+import { Destination } from './Destination';
+import { add } from 'ionicons/icons';
+import { currentTale, currentTaleIdState, currentTaleStory } from '../../../../states/explore';
+import { useRecoilRefresher_UNSTABLE, useRecoilValue } from 'recoil';
+import { createDestination, deleteDestination } from '../../../../managers/destination-manager';
+import { TripDestinations } from '../../../../types/db-schema-definitions';
 
 type StoryProps = {
-  story: StoryResponse;
+  isEditMode?: boolean;
 };
 
-function Story({ story }: StoryProps) {
-  const destinations = useMemo(
-    () =>
-      story.destinations.map(dest => {
-        const destActivities = story.activities
-          .filter(act => act.destination_id === dest.id)
-          .sort((act1, act2) => act1.sequential_number - act2.sequential_number);
-        const activities = destActivities.map((act, index) => (
-          <Activity key={act.id} activity={act} />
-        ));
-        return (
-          <IonAccordion key={dest.id} value={dest.name}>
-            <IonItem slot="header">
-              <h1>{dest.name}</h1>
-              <div
-                className={'h-full -mb-4 flex flex-row items-center gap-1 mx-4 text-lg font-medium'}
-              >
-                <span className={'underline italic'}>
-                  days: {dest.first_day}-{dest.last_day}
-                </span>
-                <IonIcon color={'tertiary'} icon={todayOutline} />
-              </div>
-            </IonItem>
+function AddDestination({ handleAddDestination }) {
+  return (
+    <div className={'w-14 h-14 ml-2 p-2'}>
+      <IonFab>
+        <IonFabButton className={'rounded-md'} color={'tertiary'} onClick={handleAddDestination}>
+          <IonIcon icon={add}></IonIcon>
+        </IonFabButton>
+      </IonFab>
+    </div>
+  );
+}
 
-            <div className="flex flex-col gap-8 bg-gray-50 py-4" slot="content">
-              {...activities}
-            </div>
-          </IonAccordion>
-        );
-      }),
-    [story]
+function Story({ isEditMode }: StoryProps) {
+  const story = useRecoilValue(currentTaleStory);
+  const taleId = useRecoilValue(currentTaleIdState);
+  const tale = useRecoilValue(currentTale);
+  const resetStory = useRecoilRefresher_UNSTABLE(currentTaleStory);
+  const [destinations, setDestinations] = useState<TripDestinations[]>([]);
+  const tripDurationInDays =
+    (tale.end_date.getTime() - tale.start_date.getTime()) / (1000 * 60 * 60 * 24);
+
+  useEffect(() => {
+    setDestinations(story.destinations);
+    return resetStory;
+  }, [story]);
+
+  function handleReorder(event: CustomEvent<ItemReorderEventDetail>) {
+    event.detail.complete();
+  }
+
+  async function handleDeleteDestination(id: number) {
+    await deleteDestination(id);
+    setDestinations([...destinations.filter(act => act.id !== id)]);
+  }
+
+  async function handleAddDestination() {
+    const day = Math.min(
+      Math.max(...destinations.map(dest => dest.last_day)) + 1,
+      tripDurationInDays
+    );
+    const sequential_number = Math.max(...destinations.map(dest => dest.sequential_number)) + 1;
+    const dest: NewTripDestination = {
+      trip_id: taleId,
+      first_day: day,
+      last_day: day,
+      name: '',
+      sequential_number,
+    };
+
+    const newDestId = await createDestination(dest);
+    setDestinations([{ ...dest, id: newDestId }, ...destinations]);
+  }
+
+  const destinationsToRender = useMemo(
+    () =>
+      destinations
+        .slice()
+        .sort((dest1, dest2) => dest1.sequential_number - dest2.sequential_number)
+        .map(dest => {
+          const destActivities = story.activities
+            .filter(act => act.destination_id === dest.id)
+            .sort((act1, act2) => act1.sequential_number - act2.sequential_number);
+          return (
+            <Destination
+              key={dest.id}
+              destination={dest}
+              activities={destActivities}
+              isEditMode={isEditMode}
+              tripDurationInDays={tripDurationInDays}
+              onDeleteDestination={() => handleDeleteDestination(dest.id)}
+            />
+          );
+        }),
+    [story, destinations, isEditMode]
   );
 
-  return <IonAccordionGroup>{...destinations}</IonAccordionGroup>;
+  return (
+    <>
+      {isEditMode && <AddDestination handleAddDestination={handleAddDestination} />}
+      <IonAccordionGroup multiple>
+        <IonReorderGroup onIonItemReorder={handleReorder} disabled={!isEditMode}>
+          {...destinationsToRender}
+        </IonReorderGroup>
+      </IonAccordionGroup>
+    </>
+  );
 }
 export default Story;

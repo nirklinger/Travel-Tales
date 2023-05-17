@@ -9,12 +9,17 @@ import {
   IonTitle,
   IonToolbar,
   IonBackButton,
+  IonNavLink,
+  IonItem,
+  useIonRouter,
+  IonButton,
 } from '@ionic/react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { currentTale, currentTaleIdState, currentTaleStory } from '../../../states/explore';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Story from './Story';
+import Link from 'next/link';
 
 enum Segments {
   thingsToDo = 'Things To Do',
@@ -22,8 +27,8 @@ enum Segments {
 }
 
 const TaleOverview = () => {
+  const [edit, setEdit] = useState(false);
   const [currentTaleId, setCurrenetTaleId] = useRecoilState(currentTaleIdState);
-  const taleStory = useRecoilValue(currentTaleStory);
   const tale = useRecoilValue(currentTale);
   const [segment, setSegment] = useState<Segments>(Segments.story);
   let { taleId } = useParams();
@@ -39,12 +44,15 @@ const TaleOverview = () => {
   const { title, catch_phrase, author, avatar_photo, cover_photo_url } = tale;
   return (
     <IonPage>
-      <IonHeader className={``}>
+      <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
             <IonBackButton defaultHref="/tabs/explore"></IonBackButton>
           </IonButtons>
-          <IonTitle className={'lg:text-center'}>{title}</IonTitle>
+          <IonTitle className={'lg:text-center'}>{title + (edit ? ' (Edit Mode)' : '')}</IonTitle>
+          <IonButton fill={'clear'} slot={'end'} onClick={() => setEdit(!edit)}>
+            {edit ? 'Done' : 'Edit'}
+          </IonButton>
         </IonToolbar>
       </IonHeader>
       <IonContent className={''}>
@@ -65,7 +73,7 @@ const TaleOverview = () => {
             </IonSegmentButton>
           </IonSegment>
         </div>
-        {segment === Segments.story && <Story story={taleStory} />}
+        {segment === Segments.story && <Story isEditMode={edit} />}
       </IonContent>
     </IonPage>
   );
