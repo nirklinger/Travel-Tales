@@ -38,7 +38,7 @@ const IMAGE_DIR = 'stored-images';
 
 interface ImageUploadProps {
   isMultiUpload: boolean;
-  taleId: number;
+  taleId?: number;
   activityId?: number;
 }
 
@@ -46,11 +46,11 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, taleId, activi
   const [coverPhoto, setCoverPhoto] = useState<LocalFile>({ name: '', path: '', data: '' });
   const modal = useRef<HTMLIonModalElement>(null);
 
-  
-
   useEffect(() => {
     loadPhoto();
-    console.log(`component details: isMultiUpload - ${isMultiUpload}, taleId - ${taleId}, activityId - ${activityId}`);
+    console.log(
+      `component details: isMultiUpload - ${isMultiUpload}, taleId - ${taleId}, activityId - ${activityId}`
+    );
   }, []);
 
   const selectPhoto = useCallback(async () => {
@@ -136,22 +136,25 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, taleId, activi
   }, [coverPhoto]);
 
   function onWillDismiss(ev: CustomEvent<OverlayEventDetail>) {
-    if (coverPhoto.name !== "") {
-        deletePhotoHandler();
+    if (coverPhoto.name !== '') {
+      deletePhotoHandler();
     }
     if (ev.detail.role === 'confirm') {
-        console.log("closing... inside");
+      console.log('closing... inside');
     }
   }
 
   return (
     <>
-      <IonFabButton className="absolute bottom-0 right-0">
-        <IonIcon
-          id="open-modal"
-          icon={pencil}
-        />
-      </IonFabButton>
+      {isMultiUpload ? (
+        <img src='/public/img/clickHereToUpload.jpeg'
+        id="open-modal">
+        </img>
+      ) : (
+        <IonFabButton className="absolute bottom-0 right-0">
+          <IonIcon id="open-modal" icon={pencil} />
+        </IonFabButton>
+      )}
       <IonModal ref={modal} trigger="open-modal" onWillDismiss={ev => onWillDismiss(ev)}>
         <IonHeader>
           <IonToolbar>

@@ -176,7 +176,7 @@ const TaleOverview = () => {
             className="lg:h-96 lg:w-3/6 m-auto object-cover sm:h-full sm:w-48"
             src={cover_photo_url}
           />
-          <ImageUpload isMultiUpload={false} taleId={taleId} />
+          { edit && <ImageUpload isMultiUpload={false} taleId={taleId} />}
         </div>
         <div className={'w-full'}>
           <IonSegment

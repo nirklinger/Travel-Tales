@@ -17,6 +17,7 @@ import { ActivitiesWithMedia } from '../../../../types/types';
 import parse from 'postgres-interval';
 import { debounce } from 'lodash';
 import { patchActivity } from '../../../../managers/activity-manager';
+import ImageUpload from '../../../common/ImageUpload';
 
 interface ActivityProps {
   activity: ActivitiesWithMedia;
@@ -159,6 +160,7 @@ export function Activity({ activity: activityReadonly, canEdit, onDeleteActivity
         ></IonTextarea>
       </div>
       <ImageTape media={activity.media} />
+      {canEdit && <ImageUpload isMultiUpload={true} activityId={activity.id} />}
     </div>
   );
 }

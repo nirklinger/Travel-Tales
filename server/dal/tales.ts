@@ -133,10 +133,11 @@ export async function getTaleActivityMedia(taleId: number) {
 export const uploadTaleCoverPhoto = async (taleId: number, coverPhoto: LocalFile) => {
   console.log(`upload cover photo dal - updating cover photo`);
   const isDevEnvironment = process.env.NODE_ENV === 'development';
+  console.log(`upload cover photo dal - isDevEnvironment ${isDevEnvironment}`);
 
   const base64Data = coverPhoto.data.replace(/^data:image\/jpeg;base64,/, '');
   const buffer = Buffer.from(base64Data, 'base64');
-  if (!isDevEnvironment) {
+  if (isDevEnvironment) {
     const taleFolderPath = path.join(TALES_FOLDER, taleId.toString());
     const filePath = path.join(taleFolderPath, COVER_PHOTO_FILE_NAME);
     const envFullFilePath = path.join(PUBLIC_FOLDER, filePath);
