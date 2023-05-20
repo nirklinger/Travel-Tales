@@ -172,3 +172,15 @@ export const updateTaleDbCoverPhoto = async (taleId: number) => {
     .where(`${Table.Trips}.trip_id`, taleId)
     .update({ cover_photo_url: coverPhotoUrl });
 };
+
+export const fetchTaleByActivityId = async (activityId: number) => {
+  const connection = getConnection();
+  const ids = await connection
+    .select<string[]>(`${Table.Trips}.trip_id`)
+    .from(Table.Trips)
+    .join(Table.TripDestinations,`${Table.TripDestinations}.trip_id`,`${Table.Trips}.trip_id`)
+    .join(Table.Activities,`${Table.Activities}.destination_id`,`${Table.TripDestinations}.id`)
+    .where(`${Table.Activities}.id`,activityId);
+
+    return ids[0];
+}

@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
-import { deleteActivity, updateActivity } from '../../../../server/services/activities';
+import { deleteActivity, updateActivity, uploadActivityPhoto } from '../../../../server/services/activities';
 import { createApiHandler } from '../../../../server/middlewares/api-handler';
 import { Override } from '../../../../types/types';
 import { Activities } from '../../../../types/db-schema-definitions';
@@ -21,6 +21,17 @@ const patchActivity = async (req: PatchActivityRequest, res: NextApiResponse) =>
   res.status(StatusCodes.OK).send(ReasonPhrases.OK);
 };
 
+const updateActivityPhoto = async (req: NextApiRequest, res: NextApiResponse) => {
+  const bodyActivityToUpdate = req.body.activityId;
+  const bodyActivityPhoto = req.body.photo;
+  await uploadActivityPhoto(bodyActivityToUpdate, bodyActivityPhoto);
+  res.status(StatusCodes.OK);
+};
+
 export default createApiHandler()
   .patch<PatchActivityRequest, PatchActivityResponse>(patchActivity)
   .delete<DeleteActivityRequest, NextApiResponse>(delActivity);
+
+
+
+

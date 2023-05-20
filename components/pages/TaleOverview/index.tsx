@@ -21,7 +21,15 @@ import {
   IonThumbnail,
   IonImg,
 } from '@ionic/react';
-import { pencil, close, cameraOutline, closeOutline, trash, cloudUpload } from 'ionicons/icons';
+import {
+  pencil,
+  close,
+  cameraOutline,
+  closeOutline,
+  trash,
+  cloudUpload,
+  pencilOutline,
+} from 'ionicons/icons';
 import { OverlayEventDetail } from '@ionic/core/components';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { currentTale, currentTaleIdState, currentTaleStory } from '../../../states/explore';
@@ -58,105 +66,15 @@ const TaleOverview = () => {
   useEffect(() => {
     console.log(`this is the tale obj: ${JSON.stringify(tale)}`);
   }, [tale]);
-  useEffect(() => {
-    loadPhoto();
-  }, []);
-
-  const selectPhoto = useCallback(async () => {
-    const photo = await Camera.getPhoto({
-      quality: 100,
-      allowEditing: false,
-      resultType: CameraResultType.Base64,
-      source: CameraSource.Photos,
-    });
-    if (photo) {
-      savePhoto(photo);
-    }
-  }, []);
-
-  const savePhoto = async (photo: Photo) => {
-    const fileName = new Date().getTime() + '.jpeg';
-    const savedFile = await Filesystem.writeFile({
-      directory: Directory.Data,
-      path: `${IMAGE_DIR}/${fileName}`,
-      data: photo.base64String,
-    });
-    loadPhoto();
-  };
-
-  const loadPhoto = useCallback(async () => {
-    Filesystem.readdir({
-      directory: Directory.Data,
-      path: IMAGE_DIR,
-    })
-      .then(
-        result => {
-          console.log(`reading directory, result: ${JSON.stringify(result.files)}`);
-          const fileNames = result.files.map(file => {
-            return file.name;
-          });
-          initPhoto();
-          if (fileNames.length > 0) {
-            loadFileData(fileNames);
-          }
-        },
-        async err => {
-          console.log(`error - ${err}`);
-          await Filesystem.mkdir({
-            directory: Directory.Data,
-            path: IMAGE_DIR,
-          });
-        }
-      )
-      .then(() => {});
-  }, []);
-
-  const loadFileData = useCallback(async (fileNames: string[]) => {
-    const fileName = fileNames[fileNames.length - 1];
-    const filePath = `${IMAGE_DIR}/${fileName}`;
-    const readFile = await Filesystem.readFile({
-      directory: Directory.Data,
-      path: filePath,
-    });
-    setCoverPhoto({
-      name: fileName,
-      path: filePath,
-      data: `data:image/jpeg;base64,${readFile.data}`,
-    });
-  }, []);
-
-  const initPhoto = useCallback(async () => {
-    setCoverPhoto({ name: '', path: '', data: '' });
-  }, []);
-
-  const deletePhotoHandler = useCallback(async () => {
-    await Filesystem.deleteFile({
-      directory: Directory.Data,
-      path: coverPhoto.path,
-    });
-    loadPhoto();
-  }, [coverPhoto, loadPhoto]);
-
-  const uploadPhotoHandler = useCallback(async () => {
-    console.log(`trying to upload photo - upload button clicked`);
-    const taleToUpdate = {};
-    const newCoverPhoto = {};
-    await updateTaleCoverPhoto(tale, coverPhoto);
-  }, [coverPhoto]);
-
+  
   if (currentTaleId != taleId) setCurrentTaleId(Number(taleId));
 
   if (!tale) {
     return <div>no tail</div>;
   }
-
-  function onWillDismiss(ev: CustomEvent<OverlayEventDetail>) {
-    if (ev.detail.role === 'confirm') {
-    }
-  }
-
-  const { title, catch_phrase, author, avatar_photo, cover_photo_url } = tale;
   
+  const { title, catch_phrase, author, avatar_photo, cover_photo_url } = tale;
+
   return (
     <IonPage>
       <IonHeader>
@@ -176,7 +94,15 @@ const TaleOverview = () => {
             className="lg:h-96 lg:w-3/6 m-auto object-cover sm:h-full sm:w-48"
             src={cover_photo_url}
           />
-          { edit && <ImageUpload isMultiUpload={false} taleId={taleId} />}
+          {edit && <>
+          
+            <IonFabButton className="absolute bottom-0 right-0">
+              <IonIcon id='fab-trigger' icon={pencil} />
+            </IonFabButton>
+            <ImageUpload isMultiUpload={false} trigger='fab-trigger' onUpload={(coverPhoto) => updateTaleCoverPhoto(taleId, coverPhoto)}/>
+          </>
+          }
+          
         </div>
         <div className={'w-full'}>
           <IonSegment
@@ -196,5 +122,6 @@ const TaleOverview = () => {
     </IonPage>
   );
 };
+
 
 export default TaleOverview;
