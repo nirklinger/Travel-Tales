@@ -45,12 +45,22 @@ interface ImageUploadProps {
 const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, taleId, activityId }) => {
   const [coverPhoto, setCoverPhoto] = useState<LocalFile>({ name: '', path: '', data: '' });
   const modal = useRef<HTMLIonModalElement>(null);
+  const triggerString = useRef(`open-modal-`);
 
   useEffect(() => {
     loadPhoto();
+    if (typeof taleId === "undefined")
+    {
+      console.log("no tale id");
+      triggerString.current = triggerString.current + `activityId-${ activityId }`;
+    } else {
+      triggerString.current = triggerString.current + `taleId-${ taleId }`;
+    }
     console.log(
-      `component details: isMultiUpload - ${isMultiUpload}, taleId - ${taleId}, activityId - ${activityId}`
+      `component details: isMultiUpload - ${isMultiUpload}, taleId - ${taleId}, activityId - ${activityId}
+      triggerString - ${triggerString.current}`
     );
+
   }, []);
 
   const selectPhoto = useCallback(async () => {
@@ -147,15 +157,15 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, taleId, activi
   return (
     <>
       {isMultiUpload ? (
-        <img src='/public/img/clickHereToUpload.jpeg'
-        id="open-modal">
+        <img src='/img/clickHereToUpload.jpeg'
+        id={triggerString.current}>
         </img>
       ) : (
         <IonFabButton className="absolute bottom-0 right-0">
-          <IonIcon id="open-modal" icon={pencil} />
+          <IonIcon id={triggerString.current} icon={pencil} />
         </IonFabButton>
       )}
-      <IonModal ref={modal} trigger="open-modal" onWillDismiss={ev => onWillDismiss(ev)}>
+      <IonModal ref={modal} trigger={triggerString.current} onWillDismiss={ev => onWillDismiss(ev)}>
         <IonHeader>
           <IonToolbar>
             <IonTitle>Select New Cover Photo</IonTitle>
