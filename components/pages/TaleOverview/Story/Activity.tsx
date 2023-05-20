@@ -159,8 +159,7 @@ export function Activity({ activity: activityReadonly, canEdit, onDeleteActivity
           readonly={!canEdit}
         ></IonTextarea>
       </div>
-      <ImageTape media={activity.media} />
-      {canEdit && <ImageUpload isMultiUpload={true} activityId={activity.id} />}
+      <ImageTape media={activity.media} isEdit={canEdit} activityId={activityReadonly.id}/>
     </div>
   );
 }

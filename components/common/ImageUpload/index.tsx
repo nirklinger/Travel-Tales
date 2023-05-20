@@ -23,47 +23,34 @@ import {
 } from '@ionic/react';
 import { pencil, close, cameraOutline, closeOutline, trash, cloudUpload } from 'ionicons/icons';
 import { OverlayEventDetail } from '@ionic/core/components';
-import { useRecoilState, useRecoilValue } from 'recoil';
-import { currentTale, currentTaleIdState, currentTaleStory } from '../../../states/explore';
-import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
 import { Filesystem } from '@capacitor/filesystem';
 import { Directory } from '@capacitor/filesystem';
 import { LocalFile } from '../../../types/types';
-import { updateTaleCoverPhoto } from '../../../managers/tales-manager';
+import { updateTaleCoverPhoto, uploadActivityPhoto } from '../../../managers/tales-manager';
 
 const IMAGE_DIR = 'stored-images';
 
 interface ImageUploadProps {
   isMultiUpload: boolean;
-  taleId?: number;
-  activityId?: number;
+  trigger: string;
+  onUpload: (photo: LocalFile) => void;
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, taleId, activityId }) => {
-  const [coverPhoto, setCoverPhoto] = useState<LocalFile>({ name: '', path: '', data: '' });
+const ImageUpload: React.FC<ImageUploadProps> = ({
+  isMultiUpload,
+  trigger,
+  onUpload,
+}) => {
+  const [photos, setPhotos] = useState<LocalFile[]>([]);
   const modal = useRef<HTMLIonModalElement>(null);
-  const triggerString = useRef(`open-modal-`);
 
   useEffect(() => {
     loadPhoto();
-    if (typeof taleId === "undefined")
-    {
-      console.log("no tale id");
-      triggerString.current = triggerString.current + `activityId-${ activityId }`;
-    } else {
-      triggerString.current = triggerString.current + `taleId-${ taleId }`;
-    }
-    console.log(
-      `component details: isMultiUpload - ${isMultiUpload}, taleId - ${taleId}, activityId - ${activityId}
-      triggerString - ${triggerString.current}`
-    );
-
   }, []);
 
-  const selectPhoto = useCallback(async () => {
+  const selectPhoto = async () => {
     const photo = await Camera.getPhoto({
       quality: 100,
       allowEditing: false,
@@ -73,7 +60,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, taleId, activi
     if (photo) {
       savePhoto(photo);
     }
-  }, []);
+  };
 
   const savePhoto = async (photo: Photo) => {
     const fileName = new Date().getTime() + '.jpeg';
@@ -85,70 +72,56 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, taleId, activi
     loadPhoto();
   };
 
-  const loadPhoto = useCallback(async () => {
+  const loadPhoto = async () => {
     Filesystem.readdir({
       directory: Directory.Data,
       path: IMAGE_DIR,
-    })
-      .then(
-        result => {
-          console.log(`reading directory, result: ${JSON.stringify(result.files)}`);
-          const fileNames = result.files.map(file => {
-            return file.name;
-          });
-          initPhoto();
-          if (fileNames.length > 0) {
-            loadFileData(fileNames);
-          }
-        },
-        async err => {
-          console.log(`error - ${err}`);
-          await Filesystem.mkdir({
+    }).then(
+      result => {
+        console.log(`reading directory, result: ${JSON.stringify(result.files)}`);
+        Promise.all(result.files.map( async (file) => {
+          const readFile = await Filesystem.readFile({
             directory: Directory.Data,
-            path: IMAGE_DIR,
+            path: `${IMAGE_DIR}/${file.name}`,
           });
-        }
-      )
-      .then(() => {});
-  }, []);
+          return ({
+            name: file.name,
+            path: `${IMAGE_DIR}/${file.name}`,
+            data: `data:image/jpeg;base64,${readFile.data}`,
+          });
+        })).then(
+          newPhotos => setPhotos(newPhotos)
+        )
+      },
+      async err => {
+        console.log(`error - ${err}`);
+        await Filesystem.mkdir({
+          directory: Directory.Data,
+          path: IMAGE_DIR,
+        });
+      }
+    );
+  }
 
-  const loadFileData = useCallback(async (fileNames: string[]) => {
-    const fileName = fileNames[fileNames.length - 1];
-    const filePath = `${IMAGE_DIR}/${fileName}`;
-    const readFile = await Filesystem.readFile({
+
+  const deletePhotoHandler = async () => {
+    await Filesystem.rmdir({
       directory: Directory.Data,
-      path: filePath,
-    });
-    setCoverPhoto({
-      name: fileName,
-      path: filePath,
-      data: `data:image/jpeg;base64,${readFile.data}`,
-    });
-  }, []);
-
-  const initPhoto = useCallback(async () => {
-    setCoverPhoto({ name: '', path: '', data: '' });
-  }, []);
-
-  const deletePhotoHandler = useCallback(async () => {
-    await Filesystem.deleteFile({
-      directory: Directory.Data,
-      path: coverPhoto.path,
-    });
-    loadPhoto();
-  }, [coverPhoto, loadPhoto]);
+      path: IMAGE_DIR,
+      recursive: true,
+    })
+    setPhotos([]);
+  };
 
   const uploadPhotoHandler = useCallback(async () => {
     console.log(`trying to upload photo - upload button clicked`);
-    const taleToUpdate = {};
-    const newCoverPhoto = {};
-    await updateTaleCoverPhoto(taleId, coverPhoto);
-  }, [coverPhoto]);
+    const promises = photos.map(photo => onUpload(photo));
+  }, [photos, onUpload]);
 
   function onWillDismiss(ev: CustomEvent<OverlayEventDetail>) {
-    if (coverPhoto.name !== '') {
+    /*if (coverPhoto.name !== '') {
       deletePhotoHandler();
-    }
+    }*/
     if (ev.detail.role === 'confirm') {
       console.log('closing... inside');
     }
@@ -156,16 +129,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, taleId, activi
 
   return (
     <>
-      {isMultiUpload ? (
-        <img src='/img/clickHereToUpload.jpeg'
-        id={triggerString.current}>
-        </img>
-      ) : (
-        <IonFabButton className="absolute bottom-0 right-0">
-          <IonIcon id={triggerString.current} icon={pencil} />
-        </IonFabButton>
-      )}
-      <IonModal ref={modal} trigger={triggerString.current} onWillDismiss={ev => onWillDismiss(ev)}>
+      <IonModal ref={modal} trigger={trigger} onWillDismiss={ev => onWillDismiss(ev)}>
         <IonHeader>
           <IonToolbar>
             <IonTitle>Select New Cover Photo</IonTitle>
@@ -177,9 +141,17 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, taleId, activi
           </IonToolbar>
         </IonHeader>
         <IonContent className="ion-padding">
-          {coverPhoto.name.length > 0 ? (
+          <ul>
+            {photos.map(photo => {
+              return (
+                <li key={photo.name}>
+                  <img src={photo.data} />
+                </li>
+              );
+            })}
+          </ul>
+          {photos.length > 0 && (
             <div>
-              <img className="" src={coverPhoto.data} />
               <IonButtons slot="center">
                 <IonButton onClick={deletePhotoHandler}>
                   Cancel <IonIcon icon={trash}></IonIcon>
@@ -189,16 +161,17 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, taleId, activi
                 </IonButton>
               </IonButtons>
             </div>
-          ) : (
-            <IonItem>
-              <IonToolbar color="primary">
-                <IonButton fill="clear" expand="full" color="light" onClick={selectPhoto}>
-                  <IonIcon icon={cameraOutline}></IonIcon>
-                  Select A Cover Photo
-                </IonButton>
-              </IonToolbar>
-            </IonItem>
           )}
+          {(photos.length === 0 || isMultiUpload ) &&
+          <IonItem>
+          <IonToolbar color="primary">
+            <IonButton fill="clear" expand="full" color="light" onClick={selectPhoto}>
+              <IonIcon icon={cameraOutline}></IonIcon>
+              {isMultiUpload ? 'Select Activity Photo' : 'Select A Cover Photo'}
+            </IonButton>
+          </IonToolbar>
+        </IonItem>
+          }
         </IonContent>
       </IonModal>
     </>
