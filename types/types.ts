@@ -9,6 +9,12 @@ export type ActivitiesWithMedia = Activities & { media: Omit<ActivityMedia, 'act
 
 export type NewActivitiesWithMedia = Omit<ActivitiesWithMedia, 'id'>;
 
+export type NewTripDestination = Omit<TripDestinations, 'id'>;
+
+export type CreateNewDestinationResponse = { id: number };
+
+export type CreateNewActivityResponse = { id: number };
+
 export type TalesResponse = {
   tales: (Trips & Users)[];
 };

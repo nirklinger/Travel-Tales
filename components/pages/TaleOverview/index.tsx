@@ -166,7 +166,7 @@ const TaleOverview = () => {
           </IonButtons>
           <IonTitle className={'lg:text-center'}>{title + (edit ? ' (Edit Mode)' : '')}</IonTitle>
           <IonButton fill={'clear'} slot={'end'} onClick={() => setEdit(!edit)}>
-            {edit ? 'Save' : 'Edit'}
+            {edit ? 'Done' : 'Edit'}
           </IonButton>
         </IonToolbar>
       </IonHeader>
@@ -191,7 +191,7 @@ const TaleOverview = () => {
             </IonSegmentButton>
           </IonSegment>
         </div>
-        {segment === Segments.story && <Story isEditMode={edit} story={taleStory} />}
+        {segment === Segments.story && <Story isEditMode={edit} />}
       </IonContent>
     </IonPage>
   );

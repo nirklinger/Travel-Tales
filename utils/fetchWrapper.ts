@@ -50,6 +50,14 @@ const put = async (url, body) => {
   return request(url, putRequestOptions);
 };
 
+const patch = async (url, body) => {
+  const putRequestOptions = {
+    method: 'PATCH',
+    body,
+  };
+  return request(url, putRequestOptions);
+};
+
 // prefixed with underscored because delete is a reserved word in javascript
 const _delete = async url => {
   const requestOptions = {
@@ -67,6 +75,7 @@ function handleResponse(response) {
 }
 
 export const fetchWrapper = {
+  patch,
   get,
   post,
   put,

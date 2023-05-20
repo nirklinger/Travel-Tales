@@ -16,7 +16,7 @@ const TripCard = ({
   end_date,
   onClick,
 }: TripCardProps) => (
-  <Card className="my-4 w-full mx-auto" onClick={() => onClick()}>
+  <Card className="my-4 w-full mx-auto cursor-pointer" onClick={() => onClick()}>
     <div className="h-52 w-full relative">
       <Image
         className="rounded-t-xl object-cover min-w-full min-h-full max-w-full max-h-full"
