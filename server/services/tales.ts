@@ -38,11 +38,9 @@ export const createNewTale = async (newTale: Omit<Trips, 'trip_id' | 'cover_phot
   return newTaleId;
 }
 
-export const updateTaleCoverPhoto = async (taleData: Trips, newCoverPhoto: LocalFile) => {
+export const updateTaleCoverPhoto = async (taleId: number, newCoverPhoto: LocalFile) => {
   console.log(`server>services>tales - update tale cover photo`);
-  console.log(`server>services>tales - taleData: ${JSON.stringify(taleData)}`);
-  await uploadTaleCoverPhoto(taleData.trip_id, newCoverPhoto);
-  await updateTaleDbCoverPhoto(taleData.trip_id);
+  console.log(`server>services>tales - taleId: ${taleId}`);
+  await uploadTaleCoverPhoto(taleId, newCoverPhoto);
+  await updateTaleDbCoverPhoto(taleId);
 };
-
-

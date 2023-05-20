@@ -49,11 +49,10 @@ export const createTale = async (taleToCreate: Omit<Trips, 'trip_id' | 'cover_ph
   return newTaleId.trip_id;
 };
 
-export const updateTaleCoverPhoto = async (taleToUpdate: Trips, coverPhoto: LocalFile): Promise<any> => {
+export const updateTaleCoverPhoto = async (taleId: number, coverPhoto: LocalFile): Promise<any> => {
   console.log(`tale manager - update tale cover photo`);
-  const taleId = taleToUpdate.trip_id;
   console.log(`tale manager - taleId: ${taleId}`);
-  const reqBody = {taleToUpdate, coverPhoto}
+  const reqBody = {taleId, coverPhoto}
   const res = await fetchWrapper.put(`/api/tales/${taleId}/coverPhoto`, reqBody);
 };
 

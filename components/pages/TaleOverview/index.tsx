@@ -34,6 +34,7 @@ import { Filesystem } from '@capacitor/filesystem';
 import { Directory } from '@capacitor/filesystem';
 import { LocalFile } from '../../../types/types';
 import { updateTaleCoverPhoto } from '../../../managers/tales-manager';
+import ImageUpload from '../../common/ImageUpload';
 
 enum Segments {
   thingsToDo = 'Things To Do',
@@ -175,15 +176,7 @@ const TaleOverview = () => {
             className="lg:h-96 lg:w-3/6 m-auto object-cover sm:h-full sm:w-48"
             src={cover_photo_url}
           />
-          {edit ? <IonFabButton className="absolute bottom-0 right-0">
-            <IonIcon
-              id="open-modal"
-              icon={pencil}
-              onClick={() => {
-                console.log('edit');
-              }}
-            />
-          </IonFabButton> : <></>}
+          <ImageUpload isMultiUpload={false} taleId={taleId} />
         </div>
         <div className={'w-full'}>
           <IonSegment
@@ -199,45 +192,6 @@ const TaleOverview = () => {
           </IonSegment>
         </div>
         {segment === Segments.story && <Story isEditMode={edit} story={taleStory} />}
-        <IonModal ref={modal} trigger="open-modal" onWillDismiss={ev => onWillDismiss(ev)}>
-          <IonHeader>
-            <IonToolbar>
-              <IonTitle>Select New Cover Photo</IonTitle>
-              <IonButtons slot="end">
-                <IonButton onClick={() => modal.current?.dismiss()}>
-                  <IonIcon icon={close}></IonIcon>
-                </IonButton>
-              </IonButtons>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent className="ion-padding">
-          {coverPhoto.name.length > 0 ? (
-            <div>
-              <img 
-                className=""
-                src={coverPhoto.data}
-              />
-              <IonButtons slot='center'>
-                <IonButton onClick={deletePhotoHandler}>
-                  Cancel <IonIcon icon={trash}></IonIcon>
-                </IonButton>
-                <IonButton onClick={uploadPhotoHandler}>
-                  Upload <IonIcon icon={cloudUpload}></IonIcon>
-                </IonButton>
-              </IonButtons>
-            </div>
-              ) : (
-                <IonItem>
-                  <IonToolbar color="primary">
-                    <IonButton fill="clear" expand="full" color="light" onClick={selectPhoto}>
-                      <IonIcon icon={cameraOutline}></IonIcon>
-                      Select A Cover Photo
-                    </IonButton>
-                  </IonToolbar>
-                </IonItem>
-              )}
-          </IonContent>
-        </IonModal>
       </IonContent>
     </IonPage>
   );
