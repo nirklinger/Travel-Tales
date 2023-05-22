@@ -78,7 +78,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       path: IMAGE_DIR,
     }).then(
       result => {
-        console.log(`reading directory, result: ${JSON.stringify(result.files)}`);
         Promise.all(result.files.map( async (file) => {
           const readFile = await Filesystem.readFile({
             directory: Directory.Data,
@@ -114,16 +113,12 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   };
 
   const uploadPhotoHandler = useCallback(async () => {
-    console.log(`trying to upload photo - upload button clicked`);
     const promises = photos.map(photo => onUpload(photo));
   }, [photos, onUpload]);
 
   function onWillDismiss(ev: CustomEvent<OverlayEventDetail>) {
-    /*if (coverPhoto.name !== '') {
-      deletePhotoHandler();
-    }*/
+    deletePhotoHandler();
     if (ev.detail.role === 'confirm') {
-      console.log('closing... inside');
     }
   }
 
