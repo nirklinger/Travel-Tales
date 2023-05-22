@@ -40,7 +40,7 @@ export const uploadActivityMedia = async (taleId: number, activityId:number, pho
   const base64Data = photo.data.replace(/^data:image\/jpeg;base64,/, '');
   const buffer = Buffer.from(base64Data, 'base64');
 
-  if (isDevEnvironment) {
+  if (!isDevEnvironment) {
     const taleFolderPath = path.join(TALES_FOLDER, taleId.toString());
     const filePath = path.join(taleFolderPath, photo.name);
     const envFullFilePath = path.join(PUBLIC_FOLDER, filePath);
@@ -68,7 +68,6 @@ export const uploadActivityMedia = async (taleId: number, activityId:number, pho
 
 export const updateDbActivityMediaTable = async (taleId: number, activityId:number, photo: LocalFile) => {
   const connection = getConnection();
-
-  connection.insert({activity_id: activityId, media_type: MediaType.Image,media_url:`/Tales/${taleId}/${photo.name}`}).into(Table.ActivityMedia)
+  const activityMedia = {activity_id: activityId, media_type: MediaType.Image, media_url:`/Tales/${taleId}/${photo.name}`};
+  await connection.insert(activityMedia,'id').into(Table.ActivityMedia);
 }
-

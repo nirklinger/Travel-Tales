@@ -46,7 +46,7 @@ export const uploadActivityMedias = async (activityId: number, photos: LocalFile
 }
 
 const uploadActivityMedia = async (activityId: number, photo:LocalFile) => {
-  const res = await fetchWrapper.post(`api/activities/${activityId}/media`, photo);
+  const res = await fetchWrapper.post(`/api/activities/${activityId}/media`, photo);
   if (!res.ok) {
     switch (res.status) {
       default:

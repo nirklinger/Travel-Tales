@@ -5,6 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 import { uploadActivityMediaToServer } from '../../../../server/services/activities';
 
 const uploadActivityMedia = async (req: NextApiRequest, res: NextApiResponse) => {
+    console.log(`uploadActivityMedia - api`);
     const activityId = Number(req.query.activityId);
     const activityPhoto = req.body;
     await uploadActivityMediaToServer(activityId, activityPhoto);
