@@ -28,7 +28,6 @@ import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera
 import { Filesystem } from '@capacitor/filesystem';
 import { Directory } from '@capacitor/filesystem';
 import { LocalFile } from '../../../types/types';
-import { updateTaleCoverPhoto, uploadActivityPhoto } from '../../../managers/tales-manager';
 
 const IMAGE_DIR = 'stored-images';
 
@@ -38,11 +37,7 @@ interface ImageUploadProps {
   onUpload: (photo: LocalFile) => void;
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({
-  isMultiUpload,
-  trigger,
-  onUpload,
-}) => {
+const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, trigger, onUpload }) => {
   const [photos, setPhotos] = useState<LocalFile[]>([]);
   const modal = useRef<HTMLIonModalElement>(null);
 
@@ -78,19 +73,19 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       path: IMAGE_DIR,
     }).then(
       result => {
-        Promise.all(result.files.map( async (file) => {
-          const readFile = await Filesystem.readFile({
-            directory: Directory.Data,
-            path: `${IMAGE_DIR}/${file.name}`,
-          });
-          return ({
-            name: file.name,
-            path: `${IMAGE_DIR}/${file.name}`,
-            data: `data:image/jpeg;base64,${readFile.data}`,
-          });
-        })).then(
-          newPhotos => setPhotos(newPhotos)
-        )
+        Promise.all(
+          result.files.map(async file => {
+            const readFile = await Filesystem.readFile({
+              directory: Directory.Data,
+              path: `${IMAGE_DIR}/${file.name}`,
+            });
+            return {
+              name: file.name,
+              path: `${IMAGE_DIR}/${file.name}`,
+              data: `data:image/jpeg;base64,${readFile.data}`,
+            };
+          })
+        ).then(newPhotos => setPhotos(newPhotos));
       },
       async err => {
         console.log(`error - ${err}`);
@@ -100,15 +95,14 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         });
       }
     );
-  }
-
+  };
 
   const deletePhotoHandler = async () => {
     await Filesystem.rmdir({
       directory: Directory.Data,
       path: IMAGE_DIR,
       recursive: true,
-    })
+    });
     setPhotos([]);
   };
 
@@ -157,16 +151,16 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
               </IonButtons>
             </div>
           )}
-          {(photos.length === 0 || isMultiUpload ) &&
-          <IonItem>
-          <IonToolbar color="primary">
-            <IonButton fill="clear" expand="full" color="light" onClick={selectPhoto}>
-              <IonIcon icon={cameraOutline}></IonIcon>
-              {isMultiUpload ? 'Select Activity Photo' : 'Select A Cover Photo'}
-            </IonButton>
-          </IonToolbar>
-        </IonItem>
-          }
+          {(photos.length === 0 || isMultiUpload) && (
+            <IonItem>
+              <IonToolbar color="primary">
+                <IonButton fill="clear" expand="full" color="light" onClick={selectPhoto}>
+                  <IonIcon icon={cameraOutline}></IonIcon>
+                  {isMultiUpload ? 'Select Activity Photo' : 'Select A Cover Photo'}
+                </IonButton>
+              </IonToolbar>
+            </IonItem>
+          )}
         </IonContent>
       </IonModal>
     </>

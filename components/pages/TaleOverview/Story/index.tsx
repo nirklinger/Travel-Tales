@@ -38,8 +38,9 @@ function Story({ isEditMode }: StoryProps) {
   const tale = useRecoilValue(currentTale);
   const resetStory = useRecoilRefresher_UNSTABLE(currentTaleStory);
   const [destinations, setDestinations] = useState<TripDestinations[]>([]);
-  const tripDurationInDays =
-    (tale.end_date.getTime() - tale.start_date.getTime()) / (1000 * 60 * 60 * 24);
+  const tripDurationInDays = Math.floor(
+    (tale.end_date.getTime() - tale.start_date.getTime()) / (1000 * 60 * 60 * 24)
+  );
 
   useEffect(() => {
     setDestinations(story.destinations);
