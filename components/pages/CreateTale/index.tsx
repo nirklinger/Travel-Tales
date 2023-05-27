@@ -43,7 +43,9 @@ const CreateTale = () => {
   const [catchphrase, setCatchphrase] = useState('');
   const [isCatchphraseValid, setIsCatchphraseValid] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
+  const [showStartDateModal, setShowStartDateModal] = useState(false);
   const [endDate, setEndDate] = useState(new Date());
+  const [showEndDateModal, setShowEndDateModal] = useState(false);
   const [isDatesValid, setIsDatesValid] = useState(false);
 
   const [isFileSelected, setIsFileSelected] = useState(false);
@@ -82,12 +84,14 @@ const CreateTale = () => {
     const newDate = e.target.value;
 
     setStartDate(new Date(newDate));
+    setShowStartDateModal(false);
   };
 
   const endDateChangeHandler = e => {
     const newDate = e.target.value;
 
     setEndDate(new Date(newDate));
+    setShowEndDateModal(false);
   };
 
   const selectPhoto = useCallback(async () => {
@@ -211,8 +215,8 @@ const CreateTale = () => {
               </IonItem>
               <IonItem>
                 <IonLabel>Start Date</IonLabel>
-                <IonDatetimeButton datetime="startDatetime"></IonDatetimeButton>
-                <IonModal keepContentsMounted={true}>
+                <IonDatetimeButton datetime="startDatetime" onClick={() => {setShowStartDateModal(true)}}></IonDatetimeButton>
+                <IonModal keepContentsMounted={true} isOpen={showStartDateModal}>
                   <IonDatetime
                     id="startDatetime"
                     presentation="date"
@@ -222,8 +226,8 @@ const CreateTale = () => {
               </IonItem>
               <IonItem>
                 <IonLabel>End Date</IonLabel>
-                <IonDatetimeButton datetime="endDatetime"></IonDatetimeButton>
-                <IonModal keepContentsMounted={true}>
+                <IonDatetimeButton datetime="endDatetime" onClick={() => {setShowEndDateModal(true)}}></IonDatetimeButton>
+                <IonModal keepContentsMounted={true} isOpen={showEndDateModal}>
                   <IonDatetime
                     id="endDatetime"
                     presentation="date"
