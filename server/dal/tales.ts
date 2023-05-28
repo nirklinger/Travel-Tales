@@ -55,7 +55,7 @@ const saveCoverPhoto = async (buffer: Buffer, fileName: string) => {
   if (!isDevEnvironment) {
     const ImageFilePath = path.join('public', 'img');
     const filePath = path.join(ImageFilePath, fileName);
-    
+
     await fs.promises.writeFile(filePath, buffer);
   } else {
     const command = new PutObjectCommand({
@@ -111,4 +111,17 @@ export async function getTaleActivityMedia(taleId: number) {
     .join(Table.ActivityMedia, `${Table.Activities}.id`, `${Table.ActivityMedia}.activity_id`)
     .where(`${Table.TripDestinations}.trip_id`, taleId);
   return media;
+}
+
+export async function getTalesByActivityIds(activityIds: number[]) {
+  const connection = getConnection();
+  const tales = await connection
+    .select<(Trips & Users)[]>([`${Table.Trips}.*`, `${Table.Users}.*`])
+    .from(Table.Trips)
+    .join(Table.UsersTrips, `${Table.Trips}.trip_id`, `${Table.UsersTrips}.trip_id`)
+    .join(Table.Users, `${Table.Users}.user_id`, `${Table.UsersTrips}.user_id`)
+    .join(Table.TripDestinations, `${Table.TripDestinations}.trip_id`, `${Table.Trips}.trip_id`)
+    .join(Table.Activities, `${Table.TripDestinations}.id`, `${Table.Activities}.destination_id`)
+    .whereIn(`${Table.Activities}.id`, activityIds);
+  return tales;
 }

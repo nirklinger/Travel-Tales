@@ -14,7 +14,7 @@ export async function up(knex: Knex): Promise<void> {
       .withKeyName('fk_activities_id')
       .onDelete('CASCADE');
   });
-  await knex.schema.withSchema(SCHEMA_NAME).raw('CREATE EXTENSION vector');
+  await knex.schema.withSchema(SCHEMA_NAME).raw(`CREATE EXTENSION vector SCHEMA ${SCHEMA_NAME}`);
   await knex.schema
     .withSchema(SCHEMA_NAME)
     .raw('ALTER TABLE activity_embeddings ADD COLUMN embedding vector(1536)');
@@ -34,12 +34,12 @@ export async function up(knex: Knex): Promise<void> {
       language sql stable
       as $$
       select
-      activity_embeddings.id,
-      activity_embeddings.activity_id,
-      activity_embeddings.content,
-      1 - (activity_embeddings.embedding <=> query_embedding) as similarity
-      from activity_embeddings
-      where 1 - (activity_embeddings.embedding <=> query_embedding) > match_threshold
+      ${SCHEMA_NAME}.activity_embeddings.id,
+      ${SCHEMA_NAME}.activity_embeddings.activity_id,
+      ${SCHEMA_NAME}.activity_embeddings.content,
+      1 - ${SCHEMA_NAME}.cosine_distance(${SCHEMA_NAME}.activity_embeddings.embedding,query_embedding) as similarity
+      from ${SCHEMA_NAME}.activity_embeddings
+      where 1 - ${SCHEMA_NAME}.cosine_distance(${SCHEMA_NAME}.activity_embeddings.embedding,query_embedding) > match_threshold
       order by similarity desc
       limit match_count;
     $$`);

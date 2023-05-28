@@ -42,5 +42,11 @@ export const insertActivityEmbedding = async (embedding: ActivityEmbedding) => {
 };
 
 export const searchCosineSimilarity = async (
-  searchEmbeddings: string
-): Promise<ActivityEmbedding[]> => {};
+  searchEmbeddings: number[]
+): Promise<ActivityEmbedding[]> => {
+  const connection = getConnection();
+  const actsEmbeddings = await connection.raw(
+    `SELECT * FROM ${SCHEMA_NAME}.match_activities('[${searchEmbeddings.join(',')}]', 0.5,5)`
+  );
+  return actsEmbeddings.rows;
+};
