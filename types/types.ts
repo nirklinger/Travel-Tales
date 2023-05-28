@@ -15,12 +15,23 @@ export type CreateNewDestinationResponse = { id: number };
 
 export type CreateNewActivityResponse = { id: number };
 
+export type SearchActivitiesResponse = {
+  activities: ActivitiesWithMedia[];
+};
+
 export type TalesResponse = {
   tales: (Trips & Users)[];
 };
 
 export type CreateTaleResponse = {
   trip_id: number;
+};
+
+export type ActivityEmbedding = {
+  content: string;
+  content_tokens: number;
+  embedding: number[];
+  activity_id: number;
 };
 
 export interface Tale extends Trips, Users {

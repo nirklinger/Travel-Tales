@@ -10,6 +10,7 @@ export enum MediaType {
 
 export enum Table {
   Activities = 'travel_tales.activities',
+  ActivityEmbeddings = 'travel_tales.activity_embeddings',
   ActivityMedia = 'travel_tales.activity_media',
   TripDestinations = 'travel_tales.trip_destinations',
   Trips = 'travel_tales.trips',
@@ -19,6 +20,7 @@ export enum Table {
 
 export type Tables = {
   'travel_tales.activities': Activities;
+  'travel_tales.activity_embeddings': ActivityEmbeddings;
   'travel_tales.activity_media': ActivityMedia;
   'travel_tales.trip_destinations': TripDestinations;
   'travel_tales.trips': Trips;
@@ -34,6 +36,14 @@ export type Activities = {
   description: string | null;
   day_index: number;
   sequential_number: number;
+};
+
+export type ActivityEmbeddings = {
+  id: number;
+  activity_id: number;
+  content: string | null;
+  content_tokens: number | null;
+  embedding: unknown | null;
 };
 
 export type ActivityMedia = {
