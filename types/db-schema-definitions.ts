@@ -2,6 +2,7 @@
 // Do not touch them, or risk, your modifications being lost.
 
 import PostgresInterval from 'postgres-interval';
+import { GeocodingFeature } from '@maptiler/client';
 
 export enum MediaType {
   Image = 'image',
@@ -60,6 +61,7 @@ export type TripDestinations = {
   last_day: number | null;
   name: string;
   sequential_number: number;
+  geo_location: string | null;
 };
 
 export type Trips = {

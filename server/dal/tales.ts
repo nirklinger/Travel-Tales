@@ -9,7 +9,7 @@ import {
   Trips,
   Users,
 } from '../../types/db-schema-definitions';
-import { LocalFile, NewTrip } from '../../types/types';
+import { LocalFile, NewTrip, ParsedDestination } from '../../types/types';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 
 const ImageFilePath = 'public\\img\\';
@@ -78,7 +78,7 @@ const saveCoverPhoto = async (buffer: Buffer, fileName: string) => {
 export async function getTaleDestinations(taleId: number) {
   const connection = getConnection();
   const destinations = await connection
-    .select<TripDestinations[]>(`${Table.TripDestinations}.*`)
+    .select<ParsedDestination[]>(`${Table.TripDestinations}.*`)
     .from(Table.TripDestinations)
     .where('trip_id', taleId);
   return destinations;

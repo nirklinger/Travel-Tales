@@ -19,7 +19,7 @@ import { currentTale, currentTaleIdState, currentTaleStory } from '../../../stat
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Story from './Story';
-import Link from 'next/link';
+import Map from './Map';
 
 enum Segments {
   thingsToDo = 'Things To Do',
@@ -74,6 +74,7 @@ const TaleOverview = () => {
           </IonSegment>
         </div>
         {segment === Segments.story && <Story isEditMode={edit} />}
+        {segment === Segments.thingsToDo && <Map />}
       </IonContent>
     </IonPage>
   );

@@ -1,15 +1,20 @@
 import { Activities, ActivityMedia, TripDestinations, Trips, Users } from './db-schema-definitions';
+import { GeocodingFeature } from '@maptiler/client';
 
 export type StoryResponse = {
-  destinations: TripDestinations[];
+  destinations: ParsedDestination[];
   activities: ActivitiesWithMedia[];
+};
+
+export type ParsedDestination = Omit<TripDestinations, 'geo_location'> & {
+  geo_location?: GeocodingFeature | null;
 };
 
 export type ActivitiesWithMedia = Activities & { media: Omit<ActivityMedia, 'activity_id'>[] };
 
 export type NewActivitiesWithMedia = Omit<ActivitiesWithMedia, 'id'>;
 
-export type NewTripDestination = Omit<TripDestinations, 'id'>;
+export type NewTripDestination = Omit<ParsedDestination, 'id'>;
 
 export type CreateNewDestinationResponse = { id: number };
 
