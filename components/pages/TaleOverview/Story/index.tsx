@@ -4,17 +4,15 @@ import {
   IonFab,
   IonFabButton,
   IonIcon,
-  IonItem,
   IonReorderGroup,
   ItemReorderEventDetail,
 } from '@ionic/react';
-import { ActivitiesWithMedia, NewTripDestination, StoryResponse } from '../../../../types/types';
+import { NewTripDestination, ParsedDestination } from '../../../../types/types';
 import { Destination } from './Destination';
 import { add } from 'ionicons/icons';
 import { currentTale, currentTaleIdState, currentTaleStory } from '../../../../states/explore';
 import { useRecoilRefresher_UNSTABLE, useRecoilValue } from 'recoil';
 import { createDestination, deleteDestination } from '../../../../managers/destination-manager';
-import { TripDestinations } from '../../../../types/db-schema-definitions';
 
 type StoryProps = {
   isEditMode?: boolean;
@@ -37,7 +35,7 @@ function Story({ isEditMode }: StoryProps) {
   const taleId = useRecoilValue(currentTaleIdState);
   const tale = useRecoilValue(currentTale);
   const resetStory = useRecoilRefresher_UNSTABLE(currentTaleStory);
-  const [destinations, setDestinations] = useState<TripDestinations[]>([]);
+  const [destinations, setDestinations] = useState<ParsedDestination[]>([]);
   const tripDurationInDays =
     (tale.end_date.getTime() - tale.start_date.getTime()) / (1000 * 60 * 60 * 24);
 
@@ -66,6 +64,7 @@ function Story({ isEditMode }: StoryProps) {
       first_day: day,
       last_day: day,
       name: '',
+      geo_location: null,
       sequential_number,
     };
 

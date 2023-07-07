@@ -4,9 +4,9 @@ import {
   getTaleDestinations,
   getTales,
   insertNewTale,
-  saveTaleCoverPhoto
+  saveTaleCoverPhoto,
 } from '../dal/tales';
-import { ActivitiesWithMedia, NewTrip } from '../../types/types';
+import { ActivitiesWithMedia, ParsedDestination, NewTrip } from '../../types/types';
 import { act } from 'react-dom/test-utils';
 import { Trips } from '../../types/db-schema-definitions';
 
@@ -25,6 +25,7 @@ export async function getTaleStory(taleId: number) {
     const actMedia = media.filter(media => media.activity_id === act.id);
     return { ...act, media: actMedia };
   });
+
   return {
     destinations,
     activities: activitiesWithMedia,
@@ -37,6 +38,4 @@ export const createNewTale = async (newTale: NewTrip) => {
     saveTaleCoverPhoto(newTale.cover_photo),
   ]);
   return newTaleId[0];
-}
-
-
+};
