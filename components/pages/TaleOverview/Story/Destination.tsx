@@ -95,7 +95,11 @@ export function Destination({
 
   const handleDestinationLocationChange = useCallback(
     (geo_location: GeocodingFeature) => {
+      if (!geo_location) {
+        return;
+      }
       const changes = { geo_location };
+      setDestination({ ...destination, geo_location });
       patchDestination(destination.id, changes);
     },
     [setDestination, destination]
@@ -223,7 +227,7 @@ export function Destination({
             <IonIcon color={'tertiary'} icon={todayOutline} />
           </div>
         </div>
-        <div className={'h-full -mb-4 flex flex-row items-center gap-1 text-lg font-medium'}>
+        <div className={'h-full -mb-4 ml-1 flex flex-row items-center gap-1 text-lg font-medium'}>
           {location}
         </div>
         <IonReorder slot="end"></IonReorder>

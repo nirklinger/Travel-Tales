@@ -49,15 +49,19 @@ export default function Map({ taleId, tale }: MapProps) {
     });
 
     const box = bbox(points(centers));
-    map.current.fitBounds(box, {
-      padding: { top: 100, bottom: 100, left: 100, right: 100 },
-    });
+    setTimeout(
+      () =>
+        map.current.fitBounds(box, {
+          padding: { top: 100, bottom: 100, left: 100, right: 100 },
+        }),
+      500
+    );
 
     return () => markers.forEach(marker => marker.remove());
   }, [story]);
 
   return (
-    <div className="relative h-96 w-full">
+    <div className="relative h-full w-full">
       <div ref={mapContainer} className="absolute w-full h-full" />
     </div>
   );

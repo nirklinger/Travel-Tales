@@ -22,7 +22,7 @@ import Story from './Story';
 import Map from './Map';
 
 enum Segments {
-  thingsToDo = 'Things To Do',
+  viewOnMap = 'View on map',
   story = 'Story',
 }
 
@@ -56,10 +56,12 @@ const TaleOverview = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className={''}>
-        <img
-          className="lg:h-96 lg:w-3/6 m-auto object-cover sm:h-full sm:w-48"
-          src={cover_photo_url}
-        />
+        {segment === Segments.story && (
+          <img
+            className="lg:h-96 lg:w-3/6 m-auto object-cover sm:h-full sm:w-48"
+            src={cover_photo_url}
+          />
+        )}
         <div className={'w-full'}>
           <IonSegment
             onIonChange={event => setSegment(event.detail.value as Segments)}
@@ -68,13 +70,13 @@ const TaleOverview = () => {
             <IonSegmentButton value={Segments.story}>
               <IonLabel>{Segments.story}</IonLabel>
             </IonSegmentButton>
-            <IonSegmentButton value={Segments.thingsToDo}>
-              <IonLabel>{Segments.thingsToDo}</IonLabel>
+            <IonSegmentButton value={Segments.viewOnMap}>
+              <IonLabel>{Segments.viewOnMap}</IonLabel>
             </IonSegmentButton>
           </IonSegment>
         </div>
         {segment === Segments.story && <Story isEditMode={edit} />}
-        {segment === Segments.thingsToDo && <Map />}
+        {segment === Segments.viewOnMap && <Map />}
       </IonContent>
     </IonPage>
   );
