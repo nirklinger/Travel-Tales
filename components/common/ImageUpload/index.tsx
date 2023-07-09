@@ -24,7 +24,7 @@ import {
 import { pencil, close, cameraOutline, closeOutline, trash, cloudUpload } from 'ionicons/icons';
 import { OverlayEventDetail } from '@ionic/core/components';
 import { useEffect, useState } from 'react';
-import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
+import { Camera, CameraResultType, CameraSource, GalleryPhoto, GalleryPhotos, Photo } from '@capacitor/camera';
 import { Filesystem } from '@capacitor/filesystem';
 import { Directory } from '@capacitor/filesystem';
 import { LocalFile } from '../../../types/types';
@@ -46,25 +46,81 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, trigger, onUpl
   }, []);
 
   const selectPhoto = async () => {
-    const photo = await Camera.getPhoto({
+    return await Camera.getPhoto({
       quality: 100,
       allowEditing: false,
       resultType: CameraResultType.Base64,
       source: CameraSource.Photos,
     });
-    if (photo) {
-      savePhoto(photo);
+  };
+
+  const selectPhotos = async () => {
+    const photosToConvert = await Camera.pickImages({
+      quality: 100,
+      limit: 10,
+    });
+    if (photosToConvert) {
+      return await convertObjectsToBase64(photosToConvert.photos);
     }
   };
 
+  async function convertObjectsToBase64(objects: GalleryPhoto[]) {
+    const convertedObjects = [];
+    for (const obj of objects) {
+      const { format, webPath } = obj;
+      const base64String = await convertToBase64(webPath);
+      convertedObjects.push({ format, base64String });
+    }
+    return convertedObjects;
+  }
+
+  const convertToBase64 = async (webPath) => {
+    const response = await fetch(webPath);
+    const blob = await response.blob();
+  
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result;
+        resolve(base64String);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  const selectPhotoHandler = async () => {
+    if (isMultiUpload) {
+      const photos = await selectPhotos();
+      await savePhotos(photos);
+      console.log(`finished with saving photos`);
+    } else {
+      const photo = await selectPhoto();
+      await savePhoto(photo);
+    }
+    await loadPhoto();
+  }
+
   const savePhoto = async (photo: Photo) => {
     const fileName = new Date().getTime() + '.jpeg';
-    const savedFile = await Filesystem.writeFile({
+    await Filesystem.writeFile({
       directory: Directory.Data,
       path: `${IMAGE_DIR}/${fileName}`,
       data: photo.base64String,
     });
-    loadPhoto();
+  };
+
+  const savePhotos = async (photos: Photo[]) => {
+    let index = 0;
+    photos.map(async photo => {
+      index = index + 1;
+      const fileName = (new Date().getTime()) + index + '.jpeg';
+      await Filesystem.writeFile({
+        directory: Directory.Data,
+        path: `${IMAGE_DIR}/${fileName}`,
+        data: photo.base64String,
+      });
+    });
   };
 
   const loadPhoto = async () => {
@@ -98,11 +154,23 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, trigger, onUpl
   };
 
   const deletePhotoHandler = async () => {
-    await Filesystem.rmdir({
+    const imageDirectory = await Filesystem.readdir({
       directory: Directory.Data,
       path: IMAGE_DIR,
-      recursive: true,
-    });
+    })
+    if (imageDirectory.files.length > 0)
+    {
+      await Filesystem.rmdir({
+        directory: Directory.Data,
+        path: IMAGE_DIR,
+        recursive: true,
+      });
+      await Filesystem.mkdir({
+        directory: Directory.Data,
+        path: IMAGE_DIR,
+      });
+    }
+    console.log(imageDirectory.files.length);
     setPhotos([]);
   };
 
@@ -154,7 +222,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, trigger, onUpl
           {(photos.length === 0 || isMultiUpload) && (
             <IonItem>
               <IonToolbar color="primary">
-                <IonButton fill="clear" expand="full" color="light" onClick={selectPhoto}>
+                <IonButton fill="clear" expand="full" color="light" onClick={selectPhotoHandler}>
                   <IonIcon icon={cameraOutline}></IonIcon>
                   {isMultiUpload ? 'Select Activity Photo' : 'Select A Cover Photo'}
                 </IonButton>

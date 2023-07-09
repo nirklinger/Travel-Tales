@@ -185,7 +185,7 @@ const CreateTale = () => {
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/tabs/lists" />
+            <IonBackButton defaultHref="/tabs/tales" />
           </IonButtons>
           <IonTitle>{'Creating a New Tale'}</IonTitle>
         </IonToolbar>
