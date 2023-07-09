@@ -8,6 +8,7 @@ import {
 import { Activities } from '../../types/db-schema-definitions';
 import { embedActivities } from './embedding';
 import { generateEmbeddings } from './open-ai';
+import { classifyCategories } from '../dal/categories';
 
 export const createNewActivity = async (newActivity: NewActivitiesWithMedia) => {
   const { media, ...activity } = newActivity;
@@ -16,10 +17,12 @@ export const createNewActivity = async (newActivity: NewActivitiesWithMedia) => 
 };
 
 export const updateActivity = async (id: number, changes: Partial<Omit<Activities, 'id'>>) => {
-  const activityId = await updateActivityById(id, changes);
-  if (changes.description) {
-    await embedActivities({ id, description: changes.description });
+  if (changes.description || changes.name) {
+    changes.should_embed = true;
   }
+
+  const activityId = await updateActivityById(id, changes);
+
   return activityId;
 };
 

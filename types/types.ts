@@ -39,6 +39,12 @@ export type ActivityEmbedding = {
   activity_id: number;
 };
 
+export type CategoryEmbedding = {
+  id: number;
+  name: string;
+  similarity: number;
+};
+
 export interface Tale extends Trips, Users {
   author: string;
 }

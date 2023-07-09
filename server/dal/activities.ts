@@ -4,7 +4,7 @@ import {
   NewTrip,
   NewTripDestination,
 } from '../../types/types';
-import { Activities, Table, Trips } from '../../types/db-schema-definitions';
+import { Activities, Categories, Table, Trips } from '../../types/db-schema-definitions';
 import { getConnection } from '../db/connections';
 import parse, { IPostgresInterval } from 'postgres-interval';
 import { SCHEMA_NAME } from '../../constants';
@@ -28,17 +28,21 @@ export const deleteActivityAndMedia = async (activityId: number) => {
   return connection(Table.Activities).where('id', activityId).delete(); // DELETE has cascade options deleting its media records
 };
 
+export const deleteActivityEmbeddings = async (activityId: number) => {
+  const connection = getConnection();
+  await connection(Table.ActivityEmbeddings).where('activity_id', activityId).delete();
+};
+
 export const insertActivityEmbedding = async (embedding: ActivityEmbedding) => {
   const connection = getConnection();
-  await connection.schema
-    .withSchema(SCHEMA_NAME)
-    .raw(
-      `INSERT INTO ${
-        Table.ActivityEmbeddings
-      } (activity_id, content, content_tokens, embedding) VALUES (${embedding.activity_id},'${
-        embedding.content
-      }', ${embedding.content_tokens}, '[${embedding.embedding.join(',')}]')`
-    );
+  await connection
+    .insert({
+      activity_id: embedding.activity_id,
+      content: embedding.content,
+      content_tokens: embedding.content_tokens,
+      embedding: `[${embedding.embedding.join(',')}]`,
+    })
+    .into(Table.ActivityEmbeddings);
 };
 
 export const searchCosineSimilarity = async (
@@ -49,4 +53,13 @@ export const searchCosineSimilarity = async (
     `SELECT * FROM ${SCHEMA_NAME}.match_activities('[${searchEmbeddings.join(',')}]', 0.5,5)`
   );
   return actsEmbeddings.rows;
+};
+
+export const fetchAllActivitiesToEmbed = async () => {
+  const connection = getConnection();
+  const activities = await connection
+    .select<Activities[]>(`${Table.Activities}.*`)
+    .from(Table.Activities)
+    .where('should_embed', true);
+  return activities;
 };
