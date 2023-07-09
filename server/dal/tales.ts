@@ -144,10 +144,10 @@ export const uploadTaleCoverPhoto = async (taleId: number, coverPhoto: LocalFile
     console.log(`upload cover photo dal - fullFilePath: ${envFullFilePath}`);
     await fs.promises.writeFile(envFullFilePath, buffer);
   } else {
-    const filePath = `/Tales/${taleId.toString()}/${COVER_PHOTO_FILE_NAME}`;
+    const filePath = `Tales/${taleId.toString()}/${COVER_PHOTO_FILE_NAME}`;
     console.log(`upload cover photo dal - fullFilePath: ${filePath}`);
     const command = new PutObjectCommand({
-      Bucket: 'travel-tales-s3',
+      Bucket: BUCKET_NAME,
       Key: filePath,
       Body: buffer,
     });

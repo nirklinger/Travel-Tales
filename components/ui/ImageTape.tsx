@@ -15,16 +15,16 @@ function ImageTape({
 }) {
   const uploadImage = '/img/clickHereToUpload.jpeg';
 
-  if (!media.length) return;
+  if (!media.length && !isEdit) return;
   return (
     <div className="flex flex-row overflow-scroll gap-2 w-full h-60 ">
       {isEdit && (<>
-        <div className={'flex-shrink-0 w-full md:w-60 lg:w-80 h-full border-2 rounded-md'} id='activity-trigger'>
+        <div className={'flex-shrink-0 w-full md:w-60 lg:w-80 h-full border-2 rounded-md'} id={`activity-trigger-${activityId}`}>
           <div className=" rounded-md overflow-hidden relative w-full h-full">
             <Image fill style={{ objectFit: 'contain' }} src={uploadImage} alt="" />
           </div>
         </div>
-        <ImageUpload isMultiUpload={true} trigger='activity-trigger' onUpload={(photos) => uploadActivityMedias(activityId, [photos])}/>
+        <ImageUpload isMultiUpload={true} trigger={`activity-trigger-${activityId}`} onUpload={(photos) => uploadActivityMedias(activityId, [photos])}/>
       </>
       )}
       {media.map(media => (

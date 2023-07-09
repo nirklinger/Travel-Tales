@@ -19,9 +19,7 @@ export const deleteActivity = async (activityId: number) => {
 };
 
 export const uploadActivityMediaToServer = async (id: number, photo: LocalFile) => {
-  console.log(`services - uploadActivityMediaToServer`);
   const taleId = (await fetchTaleByActivityId(id)).trip_id;
-  console.log(`taleId - ${taleId}; JSON.stringify(taleId) - ${JSON.stringify(taleId)}`)
   await uploadActivityMedia(taleId, id, photo);
   await updateDbActivityMediaTable(taleId, id, photo);
 }
