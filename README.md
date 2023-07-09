@@ -1,8 +1,12 @@
-# Travel Tales
+# Next.js + Tailwind CSS + Ionic Framework + Capacitor Mobile Starter
 
-Travel tales is an application served in various platforms. iOS, Android, and Progressive Web App with Next.js, Tailwind CSS, [Ionic Framework](https://ionicframework.com/), and [Capacitor](https://capacitorjs.com/).
+![Screenshot](./screenshot.png)
+
+This repo is a conceptual starting point for building an iOS, Android, and Progressive Web App with Next.js, Tailwind CSS, [Ionic Framework](https://ionicframework.com/), and [Capacitor](https://capacitorjs.com/).
 
 Next.js handles the production React app experience, Tailwind can be used to style each page of your app, Ionic Framework provides the cross-platform system controls (navigation/transitions/tabs/etc.), and then Capacitor bundles all of it up and runs it on iOS, Android, and Web with full native access.
+
+See this blog post for an overview of the stack and how it all works: https://dev.to/ionic/build-mobile-apps-with-tailwind-css-next-js-ionic-framework-and-capacitor-3kij
 
 ## Usage
 
@@ -35,7 +39,7 @@ To enable Livereload and Instant Refresh during development (when running `npm r
 ```json
 {
   "server": {
-    "url": "http://192.168.1.137:3000"
+    "url": "http://192.168.1.2:3000"
   }
 }
 ```

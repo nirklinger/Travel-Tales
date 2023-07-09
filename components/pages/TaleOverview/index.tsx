@@ -43,10 +43,9 @@ import { Directory } from '@capacitor/filesystem';
 import { LocalFile } from '../../../types/types';
 import { updateTaleCoverPhoto } from '../../../managers/tales-manager';
 import ImageUpload from '../../common/ImageUpload';
-import Map from './Map';
 
 enum Segments {
-  viewOnMap = 'View on map',
+  thingsToDo = 'Things To Do',
   story = 'Story',
 }
 
@@ -91,7 +90,6 @@ const TaleOverview = () => {
       </IonHeader>
       <IonContent className={''}>
         <div className="relative">
-        {segment === Segments.story && (
           <img
             className="lg:h-96 lg:w-3/6 m-auto object-cover sm:h-full sm:w-48"
             src={cover_photo_url}
@@ -106,7 +104,6 @@ const TaleOverview = () => {
           }
           
         </div>
-        )}
         <div className={'w-full'}>
           <IonSegment
             onIonChange={event => setSegment(event.detail.value as Segments)}
@@ -115,13 +112,12 @@ const TaleOverview = () => {
             <IonSegmentButton value={Segments.story}>
               <IonLabel>{Segments.story}</IonLabel>
             </IonSegmentButton>
-            <IonSegmentButton value={Segments.viewOnMap}>
-              <IonLabel>{Segments.viewOnMap}</IonLabel>
+            <IonSegmentButton value={Segments.thingsToDo}>
+              <IonLabel>{Segments.thingsToDo}</IonLabel>
             </IonSegmentButton>
           </IonSegment>
         </div>
         {segment === Segments.story && <Story isEditMode={edit} />}
-        {segment === Segments.viewOnMap && <Map />}
       </IonContent>
     </IonPage>
   );

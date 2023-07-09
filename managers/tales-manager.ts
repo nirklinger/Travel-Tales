@@ -1,6 +1,6 @@
 import { fetchWrapper } from '../utils/fetchWrapper';
 import { StatusCodes } from 'http-status-codes';
-import { Activities, Trips, Users } from '../types/db-schema-definitions';
+import { Trips, Users } from '../types/db-schema-definitions';
 import { LocalFile, NewTrip, StoryResponse, Tale, TalesResponse } from '../types/types';
 
 export async function fetchTales(): Promise<Tale[]> {
@@ -57,19 +57,3 @@ export const updateTaleCoverPhoto = async (taleId: number, coverPhoto: LocalFile
 };
 
 
-export const search = async (searchText: string): Promise<Tale[]> => {
-  const res = await fetchWrapper.get(`/api/activities/search`, { search: searchText });
-  if (!res.ok) {
-    switch (res.status) {
-      default:
-        throw new Error('could not search activity');
-    }
-  }
-  const { tales } = (await res.json()) as TalesResponse;
-  return tales.map(tale => ({
-    ...tale,
-    author: `${tale.first_name} ${tale.last_name}`,
-    start_date: new Date(tale.start_date),
-    end_date: new Date(tale.end_date),
-  }));
-};

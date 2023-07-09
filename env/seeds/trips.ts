@@ -87,60 +87,12 @@ const usersTrips: UsersTrips[] = [
 ];
 
 const destinations: TripDestinations[] = [
-  {
-    id: 1,
-    trip_id: 1,
-    first_day: 1,
-    last_day: 3,
-    name: 'Porto',
-    sequential_number: 1,
-    geo_location: null,
-  },
-  {
-    id: 2,
-    trip_id: 1,
-    first_day: 3,
-    last_day: 5,
-    name: 'Douro Vali',
-    sequential_number: 2,
-    geo_location: null,
-  },
-  {
-    id: 3,
-    trip_id: 1,
-    first_day: 6,
-    last_day: 10,
-    name: 'Ericeira',
-    sequential_number: 3,
-    geo_location: null,
-  },
-  {
-    id: 4,
-    trip_id: 1,
-    first_day: 11,
-    last_day: 13,
-    name: 'Milfontes',
-    sequential_number: 4,
-    geo_location: null,
-  },
-  {
-    id: 5,
-    trip_id: 1,
-    first_day: 13,
-    last_day: 15,
-    name: 'Lagos',
-    sequential_number: 5,
-    geo_location: null,
-  },
-  {
-    id: 6,
-    trip_id: 1,
-    first_day: 15,
-    last_day: 17,
-    name: 'Lisbon',
-    sequential_number: 6,
-    geo_location: null,
-  },
+  { id: 1, trip_id: 1, first_day: 1, last_day: 3, name: 'Porto', sequential_number: 1 },
+  { id: 2, trip_id: 1, first_day: 3, last_day: 5, name: 'Douro Vali', sequential_number: 2 },
+  { id: 3, trip_id: 1, first_day: 6, last_day: 10, name: 'Ericeira', sequential_number: 3 },
+  { id: 4, trip_id: 1, first_day: 11, last_day: 13, name: 'Milfontes', sequential_number: 4 },
+  { id: 5, trip_id: 1, first_day: 13, last_day: 15, name: 'Lagos', sequential_number: 5 },
+  { id: 6, trip_id: 1, first_day: 15, last_day: 17, name: 'Lisbon', sequential_number: 6 },
 ];
 
 const activities: Activities[] = [
