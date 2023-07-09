@@ -2,6 +2,7 @@
 // Do not touch them, or risk, your modifications being lost.
 
 import PostgresInterval from 'postgres-interval';
+import { GeocodingFeature } from '@maptiler/client';
 
 export enum MediaType {
   Image = 'image',
@@ -10,6 +11,7 @@ export enum MediaType {
 
 export enum Table {
   Activities = 'travel_tales.activities',
+  ActivityEmbeddings = 'travel_tales.activity_embeddings',
   ActivityMedia = 'travel_tales.activity_media',
   TripDestinations = 'travel_tales.trip_destinations',
   Trips = 'travel_tales.trips',
@@ -19,6 +21,7 @@ export enum Table {
 
 export type Tables = {
   'travel_tales.activities': Activities;
+  'travel_tales.activity_embeddings': ActivityEmbeddings;
   'travel_tales.activity_media': ActivityMedia;
   'travel_tales.trip_destinations': TripDestinations;
   'travel_tales.trips': Trips;
@@ -36,6 +39,14 @@ export type Activities = {
   sequential_number: number;
 };
 
+export type ActivityEmbeddings = {
+  id: number;
+  activity_id: number;
+  content: string | null;
+  content_tokens: number | null;
+  embedding: unknown | null;
+};
+
 export type ActivityMedia = {
   id: number;
   activity_id: number;
@@ -50,6 +61,7 @@ export type TripDestinations = {
   last_day: number | null;
   name: string;
   sequential_number: number;
+  geo_location: string | null;
 };
 
 export type Trips = {

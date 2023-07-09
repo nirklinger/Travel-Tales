@@ -9,7 +9,7 @@ import {
   Trips,
   Users,
 } from '../../types/db-schema-definitions';
-import { LocalFile, NewTrip } from '../../types/types';
+import { LocalFile, NewTrip, ParsedDestination } from '../../types/types';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 
 const DEFAULT_COVER_PHOTO = '/Tales/Default.jpg';
@@ -95,7 +95,7 @@ const saveCoverPhoto = async (buffer: Buffer, fileName: string) => {
 export async function getTaleDestinations(taleId: number) {
   const connection = getConnection();
   const destinations = await connection
-    .select<TripDestinations[]>(`${Table.TripDestinations}.*`)
+    .select<ParsedDestination[]>(`${Table.TripDestinations}.*`)
     .from(Table.TripDestinations)
     .where('trip_id', taleId);
   return destinations;
@@ -183,4 +183,16 @@ export const fetchTaleByActivityId = async (activityId: number) => {
     .where(`${Table.Activities}.id`,activityId);
 
     return ids[0];
+
+export async function getTalesByActivityIds(activityIds: number[]) {
+  const connection = getConnection();
+  const tales = await connection
+    .select<(Trips & Users)[]>([`${Table.Trips}.*`, `${Table.Users}.*`])
+    .from(Table.Trips)
+    .join(Table.UsersTrips, `${Table.Trips}.trip_id`, `${Table.UsersTrips}.trip_id`)
+    .join(Table.Users, `${Table.Users}.user_id`, `${Table.UsersTrips}.user_id`)
+    .join(Table.TripDestinations, `${Table.TripDestinations}.trip_id`, `${Table.Trips}.trip_id`)
+    .join(Table.Activities, `${Table.TripDestinations}.id`, `${Table.Activities}.destination_id`)
+    .whereIn(`${Table.Activities}.id`, activityIds);
+  return tales;
 }

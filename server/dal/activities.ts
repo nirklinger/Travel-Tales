@@ -15,6 +15,16 @@ const S3_URL = 'https://travel-tales-s3.s3.amazonaws.com';
 const client = new S3Client({
   region: S3_REGION,
 });
+import {
+  ActivityEmbedding,
+  NewActivitiesWithMedia,
+  NewTrip,
+  NewTripDestination,
+} from '../../types/types';
+import { Activities, Table, Trips } from '../../types/db-schema-definitions';
+import { getConnection } from '../db/connections';
+import parse, { IPostgresInterval } from 'postgres-interval';
+import { SCHEMA_NAME } from '../../constants';
 
 export const insertNewActivity = async (newActivity: Omit<NewActivitiesWithMedia, 'media'>) => {
   const connection = getConnection();
@@ -71,3 +81,25 @@ export const updateDbActivityMediaTable = async (taleId: number, activityId:numb
   const activityMedia = {activity_id: activityId, media_type: MediaType.Image, media_url:`/Tales/${taleId}/${photo.name}`};
   await connection.insert(activityMedia,'id').into(Table.ActivityMedia);
 }
+export const insertActivityEmbedding = async (embedding: ActivityEmbedding) => {
+  const connection = getConnection();
+  await connection.schema
+    .withSchema(SCHEMA_NAME)
+    .raw(
+      `INSERT INTO ${
+        Table.ActivityEmbeddings
+      } (activity_id, content, content_tokens, embedding) VALUES (${embedding.activity_id},'${
+        embedding.content
+      }', ${embedding.content_tokens}, '[${embedding.embedding.join(',')}]')`
+    );
+};
+
+export const searchCosineSimilarity = async (
+  searchEmbeddings: number[]
+): Promise<ActivityEmbedding[]> => {
+  const connection = getConnection();
+  const actsEmbeddings = await connection.raw(
+    `SELECT * FROM ${SCHEMA_NAME}.match_activities('[${searchEmbeddings.join(',')}]', 0.5,5)`
+  );
+  return actsEmbeddings.rows;
+};
