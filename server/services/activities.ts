@@ -1,8 +1,11 @@
-import { NewActivitiesWithMedia } from '../../types/types';
+import { ActivityWithMediaWithCategories, NewActivitiesWithMedia } from '../../types/types';
 import {
   deleteActivityAndMedia,
   insertNewActivity,
   searchCosineSimilarity,
+  selectActivities,
+  selectActivitiesCategories,
+  selectActivitiesMedia,
   updateActivityById,
 } from '../dal/activities';
 import { Activities } from '../../types/db-schema-definitions';
@@ -1572,4 +1575,22 @@ export const searchActivitiesBySemantics = async (search: string) => {
   //await generateEmbeddings(search);
   const acts = await searchCosineSimilarity(searchEmbeddings);
   return acts;
+};
+
+export const getActivitiesWithMediaWithCategories = async () => {
+  const [media, acts, actsCategories] = await Promise.all([
+    selectActivitiesMedia(),
+    selectActivities(),
+    selectActivitiesCategories(),
+  ]);
+
+  const activitiesWithMediaWithCategories: ActivityWithMediaWithCategories[] = acts.map(act => {
+    const actMedia = media.filter(media => media.activity_id === act.id);
+    const categories = actsCategories
+      .filter(cat => cat.activity_id === act.id)
+      .map(cat => cat.category_id);
+    return { ...act, media: actMedia, categories };
+  });
+
+  return activitiesWithMediaWithCategories;
 };

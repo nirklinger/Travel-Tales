@@ -4,7 +4,14 @@ import {
   NewTrip,
   NewTripDestination,
 } from '../../types/types';
-import { Activities, Categories, Table, Trips } from '../../types/db-schema-definitions';
+import {
+  Activities,
+  ActivityCategories,
+  ActivityMedia,
+  Categories,
+  Table,
+  Trips,
+} from '../../types/db-schema-definitions';
 import { getConnection } from '../db/connections';
 import parse, { IPostgresInterval } from 'postgres-interval';
 import { SCHEMA_NAME } from '../../constants';
@@ -50,7 +57,7 @@ export const searchCosineSimilarity = async (
 ): Promise<ActivityEmbedding[]> => {
   const connection = getConnection();
   const actsEmbeddings = await connection.raw(
-    `SELECT * FROM ${SCHEMA_NAME}.match_activities('[${searchEmbeddings.join(',')}]', 0.5,5)`
+    `SELECT * FROM ${SCHEMA_NAME}.match_activities('[${searchEmbeddings.join(',')}]', 0.5,30)`
   );
   return actsEmbeddings.rows;
 };
@@ -62,4 +69,31 @@ export const fetchAllActivitiesToEmbed = async () => {
     .from(Table.Activities)
     .where('should_embed', true);
   return activities;
+};
+
+export const selectActivitiesMedia = async () => {
+  const connection = getConnection();
+  const media = await connection
+    .select<ActivityMedia[]>(`${Table.ActivityMedia}.*`)
+    .from(Table.ActivityMedia);
+
+  return media;
+};
+
+export const selectActivities = async () => {
+  const connection = getConnection();
+  const acts = await connection
+    .select<Activities[]>(`${Table.Activities}.*`)
+    .from(Table.Activities);
+
+  return acts;
+};
+
+export const selectActivitiesCategories = async () => {
+  const connection = getConnection();
+  const acts = await connection
+    .select<ActivityCategories[]>(`${Table.ActivityCategories}.*`)
+    .from(Table.ActivityCategories);
+
+  return acts;
 };

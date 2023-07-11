@@ -116,7 +116,7 @@ export async function getTaleActivityMedia(taleId: number) {
 export async function getTalesByActivityIds(activityIds: number[]) {
   const connection = getConnection();
   const tales = await connection
-    .select<(Trips & Users)[]>([`${Table.Trips}.*`, `${Table.Users}.*`])
+    .distinct<(Trips & Users)[]>([`${Table.Trips}.*`, `${Table.Users}.*`])
     .from(Table.Trips)
     .join(Table.UsersTrips, `${Table.Trips}.trip_id`, `${Table.UsersTrips}.trip_id`)
     .join(Table.Users, `${Table.Users}.user_id`, `${Table.UsersTrips}.user_id`)

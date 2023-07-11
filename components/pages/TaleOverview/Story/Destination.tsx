@@ -79,6 +79,7 @@ export function Destination({
       duration: parse('00:00:00'),
       name: '',
       description: '',
+      should_embed: false,
       day_index: 0,
       sequential_number: activities.length,
       media: [],

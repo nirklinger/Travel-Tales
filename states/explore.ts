@@ -1,12 +1,37 @@
-import { atom, selector } from 'recoil';
+import { atom, selector, waitForAll } from 'recoil';
 import { fetchTales, fetchTaleStory } from '../managers/tales-manager';
-import { StoryResponse, Tale } from '../types/types';
+import {
+  ActivityWithMediaWithCategories,
+  CategoriesResponse,
+  FetchedCategory,
+  StoryResponse,
+  Tale,
+} from '../types/types';
+import { fetchActivitiesCategories } from '../managers/activity-manager';
+import { Categories } from '../types/db-schema-definitions';
+import { fetchCategories } from '../managers/category-manager';
 
 export const tales = selector<Tale[]>({
   key: 'tales',
   get: async ({ get }) => {
     const tales = await fetchTales();
     return tales;
+  },
+});
+
+export const activitiesWithCategoriesSelector = selector<ActivityWithMediaWithCategories[]>({
+  key: 'activitiesWithCategoriesSelector',
+  get: async () => {
+    const { activities } = await fetchActivitiesCategories();
+    return activities;
+  },
+});
+
+export const categoriesSelector = selector<FetchedCategory[]>({
+  key: 'categoriesSelector',
+  get: async () => {
+    const { categories } = await fetchCategories();
+    return categories;
   },
 });
 

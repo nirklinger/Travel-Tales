@@ -1,4 +1,4 @@
-import { ActivityEmbedding, CategoryEmbedding } from '../../types/types';
+import { ActivityEmbedding, CategoryEmbedding, FetchedCategory } from '../../types/types';
 import { getConnection } from '../db/connections';
 import { SCHEMA_NAME } from '../../constants';
 import { Categories, Table } from '../../types/db-schema-definitions';
@@ -27,6 +27,14 @@ export const getAllCategories = async () => {
   const connection = getConnection();
   const categories = await connection
     .select<Categories[]>(`${Table.Categories}.*`)
+    .from(Table.Categories);
+  return categories;
+};
+
+export const getClientCategories = async () => {
+  const connection = getConnection();
+  const categories = await connection
+    .select<FetchedCategory[]>('id', 'name', 'description')
     .from(Table.Categories);
   return categories;
 };
