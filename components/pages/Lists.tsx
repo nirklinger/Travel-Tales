@@ -16,13 +16,13 @@ import {
   useIonRouter,
 } from '@ionic/react';
 
-const ListEntry = ({ list, ...props }) => (
+const ListEntry = ({ list }) => (
   <IonItem routerLink={`/tabs/tale/${list.trip_id}`} className="list-entry">
     <IonLabel>{list.title}</IonLabel>
   </IonItem>
 );
 
-const AllLists = ({ onSelect }) => {
+const AllLists = () => {
   const lists = useRecoilValue(tales);
   return (
     <>
@@ -35,7 +35,6 @@ const AllLists = ({ onSelect }) => {
 
 const Lists = () => {
   const router = useIonRouter();
-  
 
   return (
     <IonPage>
@@ -54,7 +53,7 @@ const Lists = () => {
           <AllLists />
         </IonList>
       </IonContent>
-      <IonButton href={"/tabs/tale/create"}>Create New Tale</IonButton>
+      <IonButton href={'/tabs/tale/create'}>Create New Tale</IonButton>
     </IonPage>
   );
 };

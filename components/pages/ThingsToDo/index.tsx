@@ -10,6 +10,7 @@ import {
   IonMenuButton,
   IonItem,
   IonInput,
+  useIonModal,
 } from '@ionic/react';
 import Notifications from '../Notifications';
 import { useCallback, useMemo, useState } from 'react';
@@ -19,14 +20,29 @@ import { activitiesWithCategoriesSelector, categoriesSelector } from '../../../s
 import { useIonRouter } from '@ionic/react';
 import { Tale } from '../../../types/types';
 import ActivitiesTape from '../../ui/ActivitiesTape';
+import ActivityModal from './ActivityModal';
 
 const ThingsToDo = () => {
   const activities = useRecoilValue(activitiesWithCategoriesSelector);
   const categories = useRecoilValue(categoriesSelector);
   const [searchedTales, setSearchedTales] = useState<Tale[]>([]);
+  const [presentActivity, setPresentActivity] = useState<number>();
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchText, setSearchText] = useState('');
   const router = useIonRouter();
+  const [present, dismiss] = useIonModal(ActivityModal, {
+    id: 'activityModal',
+    activity: activities.find(act => act.id === presentActivity),
+    onDismiss: (data: string, role: string) => dismiss(data, role),
+  });
+
+  const handleActivityClick = useCallback(
+    (activityId: number) => {
+      setPresentActivity(activityId);
+      present();
+    },
+    [present, setPresentActivity]
+  );
 
   const activitiesByCategoties = useMemo(
     () =>
@@ -35,7 +51,7 @@ const ThingsToDo = () => {
         return (
           <div key={category.id}>
             <h2>{category.name}</h2>
-            <ActivitiesTape activities={categoryActivities} />
+            <ActivitiesTape activities={categoryActivities} onActivityClick={handleActivityClick} />
           </div>
         );
       }),
@@ -68,7 +84,7 @@ const ThingsToDo = () => {
           <IonInput
             onIonChange={() => {}}
             value={searchText}
-            placeholder="Where you wanna go?"
+            placeholder="find your next activity!"
           ></IonInput>
         </IonItem>
         <div className="flex flex-col">{activitiesByCategoties}</div>
