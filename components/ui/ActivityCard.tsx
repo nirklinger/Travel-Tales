@@ -5,9 +5,8 @@ import { ActivitiesWithMedia, ActivityWithMediaWithCategories } from '../../type
 import { IonIcon, IonLabel } from '@ionic/react';
 import { parseDuration } from '../../utils/converters';
 import PostgresInterval from 'postgres-interval';
-import { timeOutline } from 'ionicons/icons';
+import { locationOutline, timeOutline } from 'ionicons/icons';
 import React from 'react';
-import activities from '../../pages/api/activities';
 
 interface ActivityCardProps {
   activity: ActivityWithMediaWithCategories;
@@ -18,7 +17,7 @@ const ActivityCard = ({ activity, onClick }: ActivityCardProps) => {
   const { name, description, duration, destination_id, media, id } = activity;
   return (
     <Card className="my-4 w-full mx-auto cursor-pointer" onClick={() => onClick()}>
-      <div className="h-52 w-full relative">
+      <div className="h-36 w-full relative">
         <Image
           className="rounded-t-xl object-cover min-w-full min-h-full max-w-full max-h-full"
           src={media[0]?.media_url}
@@ -26,14 +25,20 @@ const ActivityCard = ({ activity, onClick }: ActivityCardProps) => {
           alt=""
         />
       </div>
-      <div className="flex flex-col sm:h-72 md:h-60 px-4 py-4 bg-white rounded-b-xl dark:bg-gray-900">
-        <h2 className="font-bold text-2xl text-gray-800 dark:text-gray-100">{name}</h2>
-        <span className="font-bold py-0 text-s text-gray-400 dark:text-gray-500 uppercase">
-          <IonLabel>{parseDuration(duration as PostgresInterval.IPostgresInterval)}</IonLabel>
-          <IonIcon color={'tertiary'} icon={timeOutline} />
-        </span>
-        <div className="sm:text-sm flex-grow text-s text-gray-500 mr-1 my-2 dark:text-gray-400 truncate">
+      <div className="flex flex-col h-30 px-4 py-2 bg-white rounded-b-xl dark:bg-gray-900">
+        <label className="font-bold text-lg text-gray-800 dark:text-gray-100">{name}</label>
+        <div className="flex-grow text-sm text-gray-500 mr-1 my-2 dark:text-gray-400 truncate">
           {description}
+        </div>
+        <div className={'flex flex-row justify-between'}>
+          <div className="font-bold py-0 text-sm text-gray-400 dark:text-gray-500 flex flex-row items-center">
+            <IonLabel>{parseDuration(duration as PostgresInterval.IPostgresInterval)}</IonLabel>
+            <IonIcon color={'tertiary'} icon={timeOutline} />
+          </div>
+          <div className="font-bold py-0 text-sm text-gray-400 dark:text-gray-500 flex flex-row items-center">
+            <label className={'w-36 truncate'}>Porto, asdawdkdfhskefh skdhfkjshekf shekj f</label>
+            <IonIcon color={'tertiary'} icon={locationOutline} />
+          </div>
         </div>
       </div>
     </Card>

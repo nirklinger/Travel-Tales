@@ -14,7 +14,7 @@ import {
 import Notifications from '../Notifications';
 import { useCallback, useState } from 'react';
 import { notificationsOutline } from 'ionicons/icons';
-import TripCard from '../../TripCard';
+import TripCard from '../../ui/TripCard';
 import { useRecoilValue } from 'recoil';
 import { currentTale, tales } from '../../../states/explore';
 import { useIonRouter } from '@ionic/react';
