@@ -14,6 +14,7 @@ import {
   useIonRouter,
   IonButton,
 } from '@ionic/react';
+import { useSession } from 'next-auth/react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { currentTale, currentTaleIdState, currentTaleStory } from '../../../states/explore';
 import { useParams } from 'react-router-dom';
@@ -32,6 +33,8 @@ const TaleOverview = () => {
   const tale = useRecoilValue(currentTale);
   const [segment, setSegment] = useState<Segments>(Segments.story);
   let { taleId } = useParams();
+  const { data: session, status } = useSession();
+
 
   useEffect(() => () => setCurrenetTaleId(null), []);
 
@@ -51,7 +54,9 @@ const TaleOverview = () => {
           </IonButtons>
           <IonTitle className={'lg:text-center'}>{title + (edit ? ' (Edit Mode)' : '')}</IonTitle>
           <IonButton fill={'clear'} slot={'end'} onClick={() => setEdit(!edit)}>
-            {edit ? 'Done' : 'Edit'}
+            {session && <>
+              {edit ? 'Done' : 'Edit'}
+            </>}
           </IonButton>
         </IonToolbar>
       </IonHeader>
