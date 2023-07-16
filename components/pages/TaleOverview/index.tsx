@@ -1,3 +1,4 @@
+import React, { useCallback, useRef } from 'react';
 import {
   IonButtons,
   IonContent,
@@ -13,35 +14,67 @@ import {
   IonItem,
   useIonRouter,
   IonButton,
+  IonFabButton,
+  IonIcon,
+  IonModal,
+  IonList,
+  IonThumbnail,
+  IonImg,
 } from '@ionic/react';
+import {
+  pencil,
+  close,
+  cameraOutline,
+  closeOutline,
+  trash,
+  cloudUpload,
+  pencilOutline,
+} from 'ionicons/icons';
+import { OverlayEventDetail } from '@ionic/core/components';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { currentTale, currentTaleIdState, currentTaleStory } from '../../../states/explore';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Story from './Story';
 import Map from './Map';
+import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
+import { Filesystem } from '@capacitor/filesystem';
+import { Directory } from '@capacitor/filesystem';
+import { LocalFile } from '../../../types/types';
+import { updateTaleCoverPhoto } from '../../../managers/tales-manager';
+import ImageUpload from '../../common/ImageUpload';
 
 enum Segments {
   viewOnMap = 'View on map',
   story = 'Story',
 }
 
+const IMAGE_DIR = 'stored-images';
+
 const TaleOverview = () => {
   const [edit, setEdit] = useState(false);
-  const [currentTaleId, setCurrenetTaleId] = useRecoilState(currentTaleIdState);
+  const [currentTaleId, setCurrentTaleId] = useRecoilState(currentTaleIdState);
+  const taleStory = useRecoilValue(currentTaleStory);
   const tale = useRecoilValue(currentTale);
   const [segment, setSegment] = useState<Segments>(Segments.story);
+  const [coverPhoto, setCoverPhoto] = useState<LocalFile>({ name: '', path: '', data: '' });
+
+  const modal = useRef<HTMLIonModalElement>(null);
   let { taleId } = useParams();
 
-  useEffect(() => () => setCurrenetTaleId(null), []);
+  useEffect(() => () => setCurrentTaleId(null), []);
+  useEffect(() => {
+    console.log(`this is the tale obj: ${JSON.stringify(tale)}`);
+  }, [tale]);
 
-  if (currentTaleId != taleId) setCurrenetTaleId(Number(taleId));
+  if (currentTaleId != taleId) setCurrentTaleId(Number(taleId));
 
   if (!tale) {
     return <div>no tail</div>;
   }
 
   const { title, catch_phrase, author, avatar_photo, cover_photo_url } = tale;
+
   return (
     <IonPage>
       <IonHeader>
@@ -56,11 +89,21 @@ const TaleOverview = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className={''}>
-        {segment === Segments.story && (
+        {segment === Segments.story && (<div className="relative">
           <img
             className="lg:h-96 lg:w-3/6 m-auto object-cover sm:h-full sm:w-48"
             src={cover_photo_url}
           />
+          {edit && <>
+
+            <IonFabButton className="absolute bottom-0 right-0">
+              <IonIcon id='fab-trigger' icon={pencil} />
+            </IonFabButton>
+            <ImageUpload isMultiUpload={false} trigger='fab-trigger' onUpload={(coverPhoto) => updateTaleCoverPhoto(taleId, coverPhoto)}/>
+          </>
+          }
+
+        </div>
         )}
         <div className={'w-full'}>
           <IonSegment
@@ -81,5 +124,6 @@ const TaleOverview = () => {
     </IonPage>
   );
 };
+
 
 export default TaleOverview;

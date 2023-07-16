@@ -11,5 +11,4 @@ async function getStory(req: NextApiRequest, res: NextApiResponse<StoryResponse>
   res.status(StatusCodes.OK).send(tales);
 }
 
-
 export default createApiHandler().get<NextApiRequest, NextApiResponse<StoryResponse>>(getStory);

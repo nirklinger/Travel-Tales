@@ -24,3 +24,7 @@ const patchActivity = async (req: PatchActivityRequest, res: NextApiResponse) =>
 export default createApiHandler()
   .patch<PatchActivityRequest, PatchActivityResponse>(patchActivity)
   .delete<DeleteActivityRequest, NextApiResponse>(delActivity);
+
+
+
+

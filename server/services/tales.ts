@@ -4,11 +4,10 @@ import {
   getTaleDestinations,
   getTales,
   insertNewTale,
-  saveTaleCoverPhoto,
+  uploadTaleCoverPhoto,
+  updateTaleDbCoverPhoto
 } from '../dal/tales';
-import { ActivitiesWithMedia, ParsedDestination, NewTrip } from '../../types/types';
-import { act } from 'react-dom/test-utils';
-import { Trips } from '../../types/db-schema-definitions';
+import { ActivitiesWithMedia, LocalFile, NewTrip } from '../../types/types';
 
 export async function getAllTales() {
   return getTales();
@@ -33,9 +32,14 @@ export async function getTaleStory(taleId: number) {
 }
 
 export const createNewTale = async (newTale: NewTrip) => {
-  const newTaleId = await Promise.all([
-    insertNewTale(newTale),
-    saveTaleCoverPhoto(newTale.cover_photo),
-  ]);
-  return newTaleId[0];
+  const newTaleId = await insertNewTale(newTale);
+
+  return newTaleId;
+}
+
+export const updateTaleCoverPhoto = async (taleId: number, newCoverPhoto: LocalFile) => {
+  console.log(`server>services>tales - update tale cover photo`);
+  console.log(`server>services>tales - taleId: ${taleId}`);
+  await uploadTaleCoverPhoto(taleId, newCoverPhoto);
+  await updateTaleDbCoverPhoto(taleId);
 };

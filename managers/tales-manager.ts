@@ -1,7 +1,7 @@
 import { fetchWrapper } from '../utils/fetchWrapper';
 import { StatusCodes } from 'http-status-codes';
 import { Activities, Trips, Users } from '../types/db-schema-definitions';
-import { NewTrip, StoryResponse, Tale, TalesResponse } from '../types/types';
+import { LocalFile, NewTrip, StoryResponse, Tale, TalesResponse } from '../types/types';
 
 export async function fetchTales(): Promise<Tale[]> {
   const res = await fetchWrapper.get('/api/tales');
@@ -65,3 +65,12 @@ export const search = async (searchText: string): Promise<Tale[]> => {
     end_date: new Date(tale.end_date),
   }));
 };
+
+export const updateTaleCoverPhoto = async (taleId: number, coverPhoto: LocalFile): Promise<any> => {
+  console.log(`tale manager - update tale cover photo`);
+  console.log(`tale manager - taleId: ${taleId}`);
+  const reqBody = {taleId, coverPhoto}
+  const res = await fetchWrapper.put(`/api/tales/${taleId}/coverPhoto`, reqBody);
+};
+
+

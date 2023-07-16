@@ -17,8 +17,3 @@ const createTale = async (req: NextApiRequest, res: NextApiResponse<CreateTaleRe
 export default createApiHandler().get<NextApiRequest, NextApiResponse<TalesResponse>>(getTales)
 .post<NextApiRequest, NextApiResponse<CreateTaleResponse>>(createTale);
 
-
-
-
-
-
