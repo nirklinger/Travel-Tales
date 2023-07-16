@@ -24,7 +24,14 @@ import {
 import { pencil, close, cameraOutline, closeOutline, trash, cloudUpload } from 'ionicons/icons';
 import { OverlayEventDetail } from '@ionic/core/components';
 import { useEffect, useState } from 'react';
-import { Camera, CameraResultType, CameraSource, GalleryPhoto, GalleryPhotos, Photo } from '@capacitor/camera';
+import {
+  Camera,
+  CameraResultType,
+  CameraSource,
+  GalleryPhoto,
+  GalleryPhotos,
+  Photo,
+} from '@capacitor/camera';
 import { Filesystem } from '@capacitor/filesystem';
 import { Directory } from '@capacitor/filesystem';
 import { LocalFile } from '../../../types/types';
@@ -74,10 +81,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, trigger, onUpl
     return convertedObjects;
   }
 
-  const convertToBase64 = async (webPath) => {
+  const convertToBase64 = async webPath => {
     const response = await fetch(webPath);
     const blob = await response.blob();
-  
+
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -87,7 +94,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, trigger, onUpl
       reader.onerror = reject;
       reader.readAsDataURL(blob);
     });
-  }
+  };
 
   const selectPhotoHandler = async () => {
     if (isMultiUpload) {
@@ -99,7 +106,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, trigger, onUpl
       await savePhoto(photo);
     }
     await loadPhoto();
-  }
+  };
 
   const savePhoto = async (photo: Photo) => {
     const fileName = new Date().getTime() + '.jpeg';
@@ -112,15 +119,17 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, trigger, onUpl
 
   const savePhotos = async (photos: Photo[]) => {
     let index = 0;
-    photos.map(async photo => {
-      index = index + 1;
-      const fileName = (new Date().getTime()) + index + '.jpeg';
-      await Filesystem.writeFile({
-        directory: Directory.Data,
-        path: `${IMAGE_DIR}/${fileName}`,
-        data: photo.base64String,
-      });
-    });
+    await Promise.all(
+      photos.map(async photo => {
+        index = index + 1;
+        const fileName = new Date().getTime() + index + '.jpeg';
+        await Filesystem.writeFile({
+          directory: Directory.Data,
+          path: `${IMAGE_DIR}/${fileName}`,
+          data: photo.base64String,
+        });
+      })
+    );
   };
 
   const loadPhoto = async () => {
@@ -157,9 +166,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, trigger, onUpl
     const imageDirectory = await Filesystem.readdir({
       directory: Directory.Data,
       path: IMAGE_DIR,
-    })
-    if (imageDirectory.files.length > 0)
-    {
+    });
+    if (imageDirectory.files.length > 0) {
       await Filesystem.rmdir({
         directory: Directory.Data,
         path: IMAGE_DIR,
@@ -176,6 +184,9 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, trigger, onUpl
 
   const uploadPhotoHandler = useCallback(async () => {
     const promises = photos.map(photo => onUpload(photo));
+    await Promise.all(promises);
+    // fetch specific activity media
+    // return s3 images paths
   }, [photos, onUpload]);
 
   function onWillDismiss(ev: CustomEvent<OverlayEventDetail>) {
