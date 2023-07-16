@@ -5,25 +5,29 @@ import {
   IonIcon,
   IonInput,
   IonItem,
-  IonLabel,
   IonReorder,
   IonSelect,
   IonSelectOption,
   useIonAlert,
 } from '@ionic/react';
-import { todayOutline, trash } from 'ionicons/icons';
+import { location as locationIcon, todayOutline, trash } from 'ionicons/icons';
 import React, { useCallback, useState } from 'react';
-import { ActivitiesWithMedia, NewActivitiesWithMedia } from '../../../../types/types';
-import { TripDestinations } from '../../../../types/db-schema-definitions';
+import {
+  ActivitiesWithMedia,
+  NewActivitiesWithMedia,
+  ParsedDestination,
+} from '../../../../types/types';
 import parse from 'postgres-interval';
 import { createActivity, deleteActivity } from '../../../../managers/activity-manager';
 import { patchDestination } from '../../../../managers/destination-manager';
 import { debounce } from 'lodash';
+import { GeocodingFeature } from '@maptiler/client';
+import LocationInputModal from './LocationInputModal';
 
 interface DestinationProps {
   onDeleteDestination: () => void;
   activities: ActivitiesWithMedia[];
-  destination: TripDestinations;
+  destination: ParsedDestination;
   tripDurationInDays: number;
   isEditMode?: boolean;
 }
@@ -36,7 +40,7 @@ export function Destination({
   onDeleteDestination,
 }: DestinationProps) {
   const [presentAlert] = useIonAlert();
-  const [destination, setDestination] = useState<TripDestinations>(readonlyDestination);
+  const [destination, setDestination] = useState<ParsedDestination>(readonlyDestination);
   const [activities, setActivities] = useState<ActivitiesWithMedia[]>(readOnlyActivities);
 
   async function handleDeleteActivity(id: number) {
@@ -87,6 +91,18 @@ export function Destination({
   const updateDestination = useCallback(
     debounce(changes => patchDestination(destination.id, changes), 2000),
     [destination.id]
+  );
+
+  const handleDestinationLocationChange = useCallback(
+    (geo_location: GeocodingFeature) => {
+      if (!geo_location) {
+        return;
+      }
+      const changes = { geo_location };
+      setDestination({ ...destination, geo_location });
+      patchDestination(destination.id, changes);
+    },
+    [setDestination, destination]
   );
 
   const handleDestinationNameChange = useCallback(
@@ -174,6 +190,18 @@ export function Destination({
     </span>
   );
 
+  const location = isEditMode ? (
+    <LocationInputModal
+      destination={destination}
+      onSaveNewLocation={handleDestinationLocationChange}
+    />
+  ) : (
+    <>
+      <span>{destination?.geo_location?.place_name}</span>
+      <IonIcon color={'tertiary'} icon={locationIcon} />
+    </>
+  );
+
   return (
     <IonAccordion value={`${destination.name}-${destination.id}`}>
       <IonItem slot="header">
@@ -198,6 +226,9 @@ export function Destination({
             {days}
             <IonIcon color={'tertiary'} icon={todayOutline} />
           </div>
+        </div>
+        <div className={'h-full -mb-4 ml-1 flex flex-row items-center gap-1 text-lg font-medium'}>
+          {location}
         </div>
         <IonReorder slot="end"></IonReorder>
       </IonItem>

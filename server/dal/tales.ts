@@ -9,8 +9,9 @@ import {
   Trips,
   Users,
 } from '../../types/db-schema-definitions';
-import { LocalFile, NewTrip } from '../../types/types';
+import { LocalFile, NewTrip, ParsedDestination } from '../../types/types';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {logger} from '../../utils/server-logger'
 
 const DEFAULT_COVER_PHOTO = '/Tales/Default.jpg';
 const BUCKET_NAME = 'travel-tales-s3';
@@ -41,7 +42,7 @@ export async function getTales() {
   return tales;
 }
 
-export const insertNewTale = async (tale: Omit<Trips, 'trip_id' | 'cover_photo_url'>) => {
+export const insertNewTale = async (tale: NewTrip) => {
   const newTale: Omit<Trips, 'trip_id'> = {
     title: tale.title,
     catch_phrase: tale.catch_phrase,
@@ -50,12 +51,6 @@ export const insertNewTale = async (tale: Omit<Trips, 'trip_id' | 'cover_photo_u
     start_date: tale.start_date,
     end_date: tale.end_date,
   };
-  /* to do:
-  {
-    ...tale,
-    cover_photo_url: DEFAULT_COVER_PHOTO
-  }
-  */
   const connection = getConnection();
   const taleId = await connection.insert(newTale, 'trip_id').into(Table.Trips);
   const userLinkObj = { user_id: tale.created_by, trip_id: taleId[0].trip_id };
@@ -63,10 +58,9 @@ export const insertNewTale = async (tale: Omit<Trips, 'trip_id' | 'cover_photo_u
   return taleId[0];
 };
 
-export const saveTaleCoverPhoto = async (coverPhoto: LocalFile, taleId: number) => {
+export const saveTaleCoverPhoto = async (coverPhoto: LocalFile) => {
   const base64Data = coverPhoto.data.replace(/^data:image\/jpeg;base64,/, '');
   const buffer = Buffer.from(base64Data, 'base64');
-  const coverPhotoFullName = ``;
   saveCoverPhoto(buffer, coverPhoto.name);
 };
 
@@ -80,14 +74,17 @@ const saveCoverPhoto = async (buffer: Buffer, fileName: string) => {
   } else {
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
-      Key: fileName, // /
+      Key: fileName,
       Body: buffer,
     });
     try {
+      logger.info(
+        `############################################# aws response: #############################################`
+      );
       const response = await client.send(command);
-      console.log(response);
+      logger.info(response);
     } catch (err) {
-      console.error(err);
+      logger.error({ err });
     }
   }
 };
@@ -95,7 +92,7 @@ const saveCoverPhoto = async (buffer: Buffer, fileName: string) => {
 export async function getTaleDestinations(taleId: number) {
   const connection = getConnection();
   const destinations = await connection
-    .select<TripDestinations[]>(`${Table.TripDestinations}.*`)
+    .select<ParsedDestination[]>(`${Table.TripDestinations}.*`)
     .from(Table.TripDestinations)
     .where('trip_id', taleId);
   return destinations;
@@ -130,10 +127,23 @@ export async function getTaleActivityMedia(taleId: number) {
   return media;
 }
 
+export async function getTalesByActivityIds(activityIds: number[]) {
+  const connection = getConnection();
+  const tales = await connection
+    .select<(Trips & Users)[]>([`${Table.Trips}.*`, `${Table.Users}.*`])
+    .from(Table.Trips)
+    .join(Table.UsersTrips, `${Table.Trips}.trip_id`, `${Table.UsersTrips}.trip_id`)
+    .join(Table.Users, `${Table.Users}.user_id`, `${Table.UsersTrips}.user_id`)
+    .join(Table.TripDestinations, `${Table.TripDestinations}.trip_id`, `${Table.Trips}.trip_id`)
+    .join(Table.Activities, `${Table.TripDestinations}.id`, `${Table.Activities}.destination_id`)
+    .whereIn(`${Table.Activities}.id`, activityIds);
+  return tales;
+}
+
 export const uploadTaleCoverPhoto = async (taleId: number, coverPhoto: LocalFile) => {
-  console.log(`upload cover photo dal - updating cover photo`);
+  logger.info(`upload cover photo dal - updating cover photo`);
   const isDevEnvironment = process.env.NODE_ENV === 'development';
-  console.log(`upload cover photo dal - isDevEnvironment ${isDevEnvironment}`);
+  logger.info(`upload cover photo dal - isDevEnvironment ${isDevEnvironment}`);
 
   const base64Data = coverPhoto.data.replace(/^data:image\/jpeg;base64,/, '');
   const buffer = Buffer.from(base64Data, 'base64');
@@ -141,32 +151,32 @@ export const uploadTaleCoverPhoto = async (taleId: number, coverPhoto: LocalFile
     const taleFolderPath = path.join(TALES_FOLDER, taleId.toString());
     const filePath = path.join(taleFolderPath, COVER_PHOTO_FILE_NAME);
     const envFullFilePath = path.join(PUBLIC_FOLDER, filePath);
-    console.log(`upload cover photo dal - fullFilePath: ${envFullFilePath}`);
+    logger.info(`upload cover photo dal - fullFilePath: ${envFullFilePath}`);
     await fs.promises.writeFile(envFullFilePath, buffer);
   } else {
     const filePath = `Tales/${taleId.toString()}/${COVER_PHOTO_FILE_NAME}`;
-    console.log(`upload cover photo dal - fullFilePath: ${filePath}`);
+    logger.info(`upload cover photo dal - fullFilePath: ${filePath}`);
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
       Key: filePath,
       Body: buffer,
     });
     try {
-      console.log(
+      logger.info(
         `############################################# aws response: #############################################`
       );
       const response = await client.send(command);
-      console.log(response);
+      logger.info(response);
     } catch (err) {
-      console.error(err);
+      logger.error({ err });
     }
   }
 };
 
 export const updateTaleDbCoverPhoto = async (taleId: number) => {
-  console.log(`updateTaleDbCoverPhoto - taleId ${taleId}`);
+  logger.info(`updateTaleDbCoverPhoto - taleId ${taleId}`);
   const coverPhotoUrl = `/Tales/${taleId}/${COVER_PHOTO_FILE_NAME}`;
-  console.log(`updateTaleDbCoverPhoto - coverPhotoUrl ${coverPhotoUrl}`);
+  logger.info(`updateTaleDbCoverPhoto - coverPhotoUrl ${coverPhotoUrl}`);
   const connection = getConnection();
   await connection(Table.Trips)
     .where(`${Table.Trips}.trip_id`, taleId)

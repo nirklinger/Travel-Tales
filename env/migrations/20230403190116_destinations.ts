@@ -8,7 +8,8 @@ export async function up(knex: Knex): Promise<void> {
     table.integer('first_day');
     table.integer('last_day');
     table.string('name').notNullable();
-    table.integer('sequential_number');
+    table.integer('sequential_number').notNullable();
+    table.json('geo_location');
     table
       .foreign('trip_id')
       .references('trip_id')

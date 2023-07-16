@@ -18,11 +18,38 @@ import TripCard from '../../TripCard';
 import { useRecoilValue } from 'recoil';
 import { currentTale, tales } from '../../../states/explore';
 import { useIonRouter } from '@ionic/react';
+import { debounce } from 'lodash';
+import parse from 'postgres-interval';
+import { search } from '../../../managers/tales-manager';
+import { Tale } from '../../../types/types';
 
 const Explore = () => {
   const tripList = useRecoilValue(tales);
+  const [searchedTales, setSearchedTales] = useState<Tale[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [searchText, setSearchText] = useState('');
   const router = useIonRouter();
+
+  const searchActivities = useCallback(
+    debounce(async searchText => {
+      const tales = await search(searchText);
+      setSearchedTales(tales);
+    }, 2000),
+    [setSearchedTales]
+  );
+
+  const handleSearchChange = useCallback(
+    e => {
+      const search = e.detail.value || '';
+      setSearchText(search);
+      if (!search) {
+        setSearchedTales([]);
+        return;
+      }
+      searchActivities(search);
+    },
+    [setSearchText, searchActivities, setSearchedTales]
+  );
 
   const selectTale = useCallback((id: number) => {
     router.push(`/tabs/tale/${id}`);
@@ -51,10 +78,14 @@ const Explore = () => {
         </IonHeader>
         <Notifications open={showNotifications} onDidDismiss={() => setShowNotifications(false)} />
         <IonItem>
-          <IonInput placeholder="Where you wanna go?"></IonInput>
+          <IonInput
+            onIonChange={handleSearchChange}
+            value={searchText}
+            placeholder="Where you wanna go?"
+          ></IonInput>
         </IonItem>
         <div className="grid grid-flow-row gap-8 text-neutral-600 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {tripList.map((tale, index) => (
+          {(searchedTales.length ? searchedTales : tripList).map((tale, index) => (
             <TripCard {...tale} key={index} onClick={() => selectTale(tale.trip_id)} />
           ))}
         </div>
