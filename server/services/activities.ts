@@ -1,13 +1,15 @@
-import { NewActivitiesWithMedia } from '../../types/types';
+import { NewActivitiesWithMedia ,LocalFile} from '../../types/types';
 import {
   deleteActivityAndMedia,
   insertNewActivity,
   searchCosineSimilarity,
   updateActivityById,
+  updateDbActivityMediaTable, uploadActivityMedia
 } from '../dal/activities';
 import { Activities } from '../../types/db-schema-definitions';
 import { embedActivities } from './embedding';
 import { generateEmbeddings } from './open-ai';
+import { fetchTaleByActivityId } from '../dal/tales';
 
 export const createNewActivity = async (newActivity: NewActivitiesWithMedia) => {
   const { media, ...activity } = newActivity;
@@ -1570,3 +1572,9 @@ export const searchActivitiesBySemantics = async (search: string) => {
   const acts = await searchCosineSimilarity(searchEmbeddings);
   return acts;
 };
+
+export const uploadActivityMediaToServer = async (id: number, photo: LocalFile) => {
+  const taleId = (await fetchTaleByActivityId(id)).trip_id;
+  await uploadActivityMedia(taleId, id, photo);
+  await updateDbActivityMediaTable(taleId, id, photo);
+}
