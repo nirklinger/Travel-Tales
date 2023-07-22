@@ -29,16 +29,16 @@ enum Segments {
 
 const TaleOverview = () => {
   const [edit, setEdit] = useState(false);
-  const [currentTaleId, setCurrenetTaleId] = useRecoilState(currentTaleIdState);
+  const [currentTaleId, setCurrentTaleId] = useRecoilState(currentTaleIdState);
   const tale = useRecoilValue(currentTale);
   const [segment, setSegment] = useState<Segments>(Segments.story);
   let { taleId } = useParams();
   const { data: session, status } = useSession();
 
 
-  useEffect(() => () => setCurrenetTaleId(null), []);
+  useEffect(() => () => setCurrentTaleId(null), []);
 
-  if (currentTaleId != taleId) setCurrenetTaleId(Number(taleId));
+  if (currentTaleId != taleId) setCurrentTaleId(Number(taleId));
 
   if (!tale) {
     return <div>no tail</div>;
@@ -53,11 +53,9 @@ const TaleOverview = () => {
             <IonBackButton defaultHref="/tabs/explore"></IonBackButton>
           </IonButtons>
           <IonTitle className={'lg:text-center'}>{title + (edit ? ' (Edit Mode)' : '')}</IonTitle>
-          <IonButton fill={'clear'} slot={'end'} onClick={() => setEdit(!edit)}>
-            {session && <>
-              {edit ? 'Done' : 'Edit'}
-            </>}
-          </IonButton>
+          {session && <IonButton fill={'clear'} slot={'end'} onClick={() => setEdit(!edit)}>
+          {edit ? 'Done' : 'Edit'}
+          </IonButton>}
         </IonToolbar>
       </IonHeader>
       <IonContent className={''}>

@@ -14,6 +14,7 @@ import {
   IonCardTitle,
   IonCardContent,
   IonCardHeader,
+  IonAvatar,
 } from '@ionic/react';
 import Notifications from '../Notifications';
 import { useCallback, useEffect, useState } from 'react';
@@ -30,7 +31,8 @@ const Explore = () => {
 
   useEffect(() => {
     setSessionState(status);
-  },[status]);
+    console.log(session);
+  }, [status]);
 
   return (
     <IonPage>
@@ -57,8 +59,14 @@ const Explore = () => {
         {session ? (
           <IonCard>
             <IonCardHeader>
-              <IonCardTitle>Welcome {session.user.name}!</IonCardTitle>
-              
+              <IonCardTitle>
+              <IonAvatar>
+                <img
+                  alt="Silhouette of a person's head"
+                  src="https://ionicframework.com/docs/img/demos/avatar.svg"
+                />
+              </IonAvatar>
+              Welcome {session.user.name}!</IonCardTitle>
               <IonButton onClick={() => signOut()}>Sign out</IonButton>
             </IonCardHeader>
           </IonCard>
