@@ -95,9 +95,8 @@ const TaleOverview = () => {
             src={cover_photo_url}
           />
           {edit && <>
-
-            <IonFabButton className="absolute bottom-0 right-0">
-              <IonIcon id='fab-trigger' icon={pencil} />
+            <IonFabButton id='fab-trigger' className="absolute bottom-0 right-0">
+              <IonIcon icon={pencil} />
             </IonFabButton>
             <ImageUpload isMultiUpload={false} trigger='fab-trigger' onUpload={(coverPhoto) => updateTaleCoverPhoto(taleId, coverPhoto)}/>
           </>

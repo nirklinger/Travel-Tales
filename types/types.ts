@@ -55,7 +55,7 @@ export interface LocalFile {
 }
 
 export interface NewTrip extends Omit<Trips, 'trip_id' | 'cover_photo_url'> {
-  cover_photo: LocalFile;
+  cover_photo?: LocalFile;
 }
 
 export type Override<T1, T2> = Omit<T1, keyof T2> & T2;

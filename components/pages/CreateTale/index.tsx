@@ -93,80 +93,10 @@ const CreateTale = () => {
     setEndDate(new Date(newDate));
     setShowEndDateModal(false);
   };
-
-  const selectPhoto = useCallback(async () => {
-    const photo = await Camera.getPhoto({
-      quality: 100,
-      allowEditing: false,
-      resultType: CameraResultType.Base64,
-      source: CameraSource.Photos,
-    });
-    if (photo) {
-      savePhoto(photo);
-    }
-  }, []);
-
-  const savePhoto = async (photo: Photo) => {
-    const fileName = new Date().getTime() + '.jpeg';
-    const savedFile = await Filesystem.writeFile({
-      directory: Directory.Data,
-      path: `${IMAGE_DIR}/${fileName}`,
-      data: photo.base64String,
-    });
-    loadPhoto();
-  };
-
-  const loadPhoto = useCallback(async () => {
-    Filesystem.readdir({
-      directory: Directory.Data,
-      path: IMAGE_DIR,
-    })
-      .then(
-        result => {
-          console.log(`reading directory, result: ${JSON.stringify(result.files)}`);
-          const fileNames = result.files.map(file => {
-            return file.name;
-          });
-          if (fileNames.length > 0) {
-            loadFileData(fileNames);
-          }
-        },
-        async err => {
-          console.log(`error - ${err}`);
-          await Filesystem.mkdir({
-            directory: Directory.Data,
-            path: IMAGE_DIR,
-          });
-        }
-      )
-      .then(() => {});
-  }, []);
-
-  const loadFileData = useCallback(async (fileNames: string[]) => {
-    const fileName = fileNames[fileNames.length - 1];
-    const filePath = `${IMAGE_DIR}/${fileName}`;
-    const readFile = await Filesystem.readFile({
-      directory: Directory.Data,
-      path: filePath,
-    });
-    setCoverPhoto({
-      name: fileName,
-      path: filePath,
-      data: `data:image/jpeg;base64,${readFile.data}`,
-    });
-  }, []);
-
-  const deletePhoto = useCallback(async () => {
-    await Filesystem.deleteFile({
-      directory: Directory.Data,
-      path: coverPhoto.path,
-    });
-    setCoverPhoto({ name: '', path: '', data: '' });
-  }, [coverPhoto]);
   
   const createTaleHandler = async () => {
     if (isTripNameValid && isCatchphraseValid && isDatesValid) {
-      const newTale: Omit<Trips, 'trip_id' | 'cover_photo_url'> = {
+      const newTale: NewTrip = {
         title: tripName,
         catch_phrase: catchphrase,
         created_by: DEFAULT_USER_ID,
