@@ -42,6 +42,24 @@ export async function getTales() {
   return tales;
 }
 
+export async function getTalesByUserId(userId: string) {
+  const connection = getConnection();
+  const isDevEnvironment = process.env.NODE_ENV === 'development';
+  const tales = await connection
+    .select<(Trips & Users)[]>([`${Table.Trips}.*`, `${Table.Users}.*`])
+    .from(Table.Trips)
+    .join(Table.UsersTrips, `${Table.Trips}.trip_id`, `${Table.UsersTrips}.trip_id`)
+    .join(Table.Users, `${Table.Users}.user_id`, `${Table.UsersTrips}.user_id`)
+    .where(`${Table.Users}.user_id`, userId);
+  if (!isDevEnvironment) {
+    const envFitTales = tales.map(taleObj => {
+      return { ...taleObj, cover_photo_url: `${S3_URL}${taleObj.cover_photo_url}` };
+    });
+    return envFitTales;
+  }
+  return tales;
+}
+
 export const insertNewTale = async (tale: NewTrip) => {
   const newTale: Omit<Trips, 'trip_id'> = {
     title: tale.title,
@@ -52,6 +70,8 @@ export const insertNewTale = async (tale: NewTrip) => {
     end_date: tale.end_date,
   };
   const connection = getConnection();
+  console.log("i am here at insert New tale");
+  console.log(`${JSON.stringify(newTale)}`);
   const taleId = await connection.insert(newTale, 'trip_id').into(Table.Trips);
   const userLinkObj = { user_id: tale.created_by, trip_id: taleId[0].trip_id };
   const userLink = await connection.insert(userLinkObj).into(Table.UsersTrips);

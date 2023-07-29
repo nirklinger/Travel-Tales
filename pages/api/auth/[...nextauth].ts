@@ -12,13 +12,13 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     // Persist the OAuth access_token to the token right after signin
     async jwt({ token, account, profile, isNewUser, user }) {
-      console.group('jwt');
+      /*console.group('jwt');
       console.log('token:', token);
       console.log('account:', account);
       console.log('profile:', profile);
       console.log('isNewUser:', isNewUser);
       console.log('user:', user);
-      console.groupEnd();
+      console.groupEnd();**/
 
       if (account) {
         token.accessToken = account.access_token;
@@ -33,15 +33,14 @@ export const authOptions: NextAuthOptions = {
 
     // Send properties to the client, like an access_token from a provider.
     async session({ session, token, user }) {
-      console.group('session');
+      /*console.group('session');
       console.log('session:', session);
       console.log('token:', token);
       console.log('user:', user);
-      console.groupEnd();
+      console.groupEnd();*/
 
       session.accessToken = token.accessToken;
       session.profile = token.profile;
-      delete session.user;
 
       return session;
     },

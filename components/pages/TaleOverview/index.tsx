@@ -54,6 +54,7 @@ const IMAGE_DIR = 'stored-images';
 
 const TaleOverview = () => {
   const [edit, setEdit] = useState(false);
+  const [isUserTaleOwner, setIsUserTaleOwner] = useState(false);
   const [currentTaleId, setCurrentTaleId] = useRecoilState(currentTaleIdState);
   const taleStory = useRecoilValue(currentTaleStory);
   const tale = useRecoilValue(currentTale);
@@ -64,6 +65,10 @@ const TaleOverview = () => {
   let { taleId } = useParams();
   const { data: session, status } = useSession();
 
+  useEffect(() => {
+    const isUserSessionValid = (status === 'authenticated') && (tale.user_id === session.profile.sub);
+    setIsUserTaleOwner(isUserSessionValid);
+  }, []);
 
   useEffect(() => () => setCurrentTaleId(null), []);
 
@@ -83,7 +88,7 @@ const TaleOverview = () => {
             <IonBackButton defaultHref="/tabs/explore"></IonBackButton>
           </IonButtons>
           <IonTitle className={'lg:text-center'}>{title + (edit ? ' (Edit Mode)' : '')}</IonTitle>
-          {session && <IonButton fill={'clear'} slot={'end'} onClick={() => setEdit(!edit)}>
+          {isUserTaleOwner && <IonButton fill={'clear'} slot={'end'} onClick={() => setEdit(!edit)}>
           {edit ? 'Done' : 'Edit'}
           </IonButton>}
         </IonToolbar>

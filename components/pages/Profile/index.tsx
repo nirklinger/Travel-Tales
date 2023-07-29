@@ -17,6 +17,7 @@ import {
   IonAvatar,
   IonImg,
   IonCardSubtitle,
+  IonLabel,
 } from '@ionic/react';
 import Image from 'next/image';
 import Notifications from '../Notifications';
@@ -24,8 +25,21 @@ import { useCallback, useEffect, useState } from 'react';
 import { notificationsOutline } from 'ionicons/icons';
 import { useIonRouter } from '@ionic/react';
 import { useSession, signIn, signOut } from 'next-auth/react';
-import { CognitoIdentityProviderClient, UpdateUserAttributesCommand } from "@aws-sdk/client-cognito-identity-provider"; // ES Modules import
+import {
+  CognitoIdentityProviderClient,
+  UpdateUserAttributesCommand,
+} from '@aws-sdk/client-cognito-identity-provider'; // ES Modules import
 import Card from '../../ui/Card';
+import { useRecoilValue } from 'recoil';
+import { tales } from '../../../states/explore';
+import GuestProfilePage from './GuestProfilePage';
+import TempPage from './temp';
+
+const TaleEntry = ({ tale, ...props }) => (
+  <IonItem routerLink={`/tabs/tale/${tale.trip_id}`} className="list-entry">
+    <IonLabel>{tale.title}</IonLabel>
+  </IonItem>
+);
 
 const Explore = () => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -44,10 +58,9 @@ const Explore = () => {
     region: 'us-east-1',
   });
 
-
-  useEffect(() => {
+  /*useEffect(() => {
     console.log(session);
-  }, []);
+  }, []);*/
 
   useEffect(() => {
     setSessionState(status);
@@ -82,57 +95,21 @@ const Explore = () => {
     console.log(response);
   };
 
+  const AllTales = ({ onSelect }) => {
+    const myTales = useRecoilValue(tales);
+    return (
+      <>
+        {myTales.map((tale, i) => (
+          <TaleEntry tale={tale} key={i} />
+        ))}
+      </>
+    );
+  };
+
   return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Profile</IonTitle>
-          <IonButtons slot="start">
-            <IonMenuButton />
-          </IonButtons>
-          <IonButtons slot="end">
-            <IonButton onClick={() => setShowNotifications(true)}>
-              <IonIcon icon={notificationsOutline} />
-            </IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding" fullscreen>
-        <IonHeader collapse="condense">
-          <IonToolbar>
-            <IonTitle size="large">Profile</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-        <Notifications open={showNotifications} onDidDismiss={() => setShowNotifications(false)} />
-        {session ? (
-          <Card className="my-4 w-full mx-auto cursor-pointer">
-            <div className="h-52 w-full relative">
-              <Image
-                className="rounded-t-xl object-cover min-w-full min-h-full max-w-full max-h-full"
-                src={avatarImage}
-                fill
-                alt={` profile's picture`}
-                onClick={updateUserProfilePhoto}
-              />
-            </div>
-            <IonCardHeader>
-              <IonCardTitle>{'ors'}</IonCardTitle>
-              <IonCardSubtitle>
-                <IonButton onClick={() => signOut()}>Sign out</IonButton>
-              </IonCardSubtitle>
-            </IonCardHeader>
-          </Card>
-        ) : (
-          <IonCard>
-            <IonCardHeader>
-              <IonCardTitle>Welcome!</IonCardTitle>
-              <IonCardContent>Please sign in to access your Travel Tales profile!</IonCardContent>
-              <IonButton onClick={() => signIn()}>Sign in</IonButton>
-            </IonCardHeader>
-          </IonCard>
-        )}
-      </IonContent>
-    </IonPage>
+    <>
+      {session ? <TempPage session={session}/> : <GuestProfilePage />}
+    </>
   );
 };
 

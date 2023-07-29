@@ -8,7 +8,7 @@ export async function up(knex: Knex): Promise<void> {
     table.string('title').notNullable();
     table.string('catch_phrase').notNullable();
     table.string('cover_photo_url').notNullable();
-    table.integer('created_by').notNullable();
+    table.string('created_by').notNullable();
     table.datetime('start_date', { useTz: true }).notNullable();
     table.datetime('end_date', { useTz: true }).notNullable();
   });

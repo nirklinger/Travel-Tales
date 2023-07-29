@@ -69,13 +69,13 @@ export type Trips = {
   title: string;
   catch_phrase: string;
   cover_photo_url: string;
-  created_by: number;
+  created_by: string;
   start_date: Date;
   end_date: Date;
 };
 
 export type Users = {
-  user_id: number;
+  user_id: string;
   email: string;
   first_name: string;
   last_name: string;
@@ -84,6 +84,6 @@ export type Users = {
 
 export type UsersTrips = {
   id: number;
-  user_id: number;
+  user_id: string;
   trip_id: number;
 };

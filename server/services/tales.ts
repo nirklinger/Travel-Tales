@@ -3,6 +3,7 @@ import {
   getTaleActivityMedia,
   getTaleDestinations,
   getTales,
+  getTalesByUserId,
   insertNewTale,
   uploadTaleCoverPhoto,
   updateTaleDbCoverPhoto
@@ -11,6 +12,10 @@ import { ActivitiesWithMedia, LocalFile, NewTrip } from '../../types/types';
 
 export async function getAllTales() {
   return getTales();
+}
+
+export async function getUsersTales(userId: string) {
+  return getTalesByUserId(userId);
 }
 
 export async function getTaleStory(taleId: number) {

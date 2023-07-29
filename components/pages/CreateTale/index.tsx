@@ -31,6 +31,7 @@ import { Directory } from '@capacitor/filesystem';
 
 import { LocalFile, NewTrip } from '../../../types/types';
 import { Trips } from '../../../types/db-schema-definitions';
+import { useSession } from 'next-auth/react';
 
 const REDIRECT_PATH = '/tabs/tale/';
 const DEFAULT_USER_ID = 1;
@@ -47,11 +48,17 @@ const CreateTale = () => {
   const [endDate, setEndDate] = useState(new Date());
   const [showEndDateModal, setShowEndDateModal] = useState(false);
   const [isDatesValid, setIsDatesValid] = useState(false);
-
   const [isFileSelected, setIsFileSelected] = useState(false);
   const [coverPhoto, setCoverPhoto] = useState<LocalFile>({ name: '', path: '', data: '' });
-
+  const sessionObject = useSession();
   const router = useIonRouter();
+
+  const userId: string = sessionObject.data.profile.sub;
+
+  useEffect(() => {
+    console.log(sessionObject);
+  }, [sessionObject]);
+  
 
   useEffect(() => {
     setIsFileSelected(false);
@@ -99,7 +106,7 @@ const CreateTale = () => {
       const newTale: NewTrip = {
         title: tripName,
         catch_phrase: catchphrase,
-        created_by: DEFAULT_USER_ID,
+        created_by: userId,
         start_date: startDate,
         end_date: endDate,
       };
