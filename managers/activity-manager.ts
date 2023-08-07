@@ -1,7 +1,8 @@
-import { LocalFile, NewActivitiesWithMedia, NewTripDestination } from '../types/types';
+import { ActivitiesResponse, NewActivitiesWithMedia, LocalFile, NewTripDestination } from '../types/types';
 import { fetchWrapper } from '../utils/fetchWrapper';
 import { IPostgresInterval } from 'postgres-interval';
 import { Activities } from '../types/db-schema-definitions';
+import { StatusCodes } from 'http-status-codes';
 
 export const createActivity = async (activityToCreate: NewActivitiesWithMedia): Promise<number> => {
   const duration = (activityToCreate.duration as IPostgresInterval).toPostgres();
@@ -39,8 +40,23 @@ export const patchActivity = async (
   }
 };
 
+export const fetchActivitiesCategories = async (): Promise<ActivitiesResponse> => {
+  const res = await fetchWrapper.get('/api/activities');
+
+  if (!res.ok) {
+    switch (res.status) {
+      case StatusCodes.NOT_FOUND:
+        throw new Error('no current activities exists');
+        break;
+      default:
+        throw new Error('could not fetch activities');
+    }
+  }
+  return (await res.json()) as ActivitiesResponse;
+};
+
 export const uploadActivityMedias = async (activityId: number, photos: LocalFile[]) => {
-  photos.forEach(photo => 
+  photos.forEach(photo =>
     uploadActivityMedia(activityId, photo)
     )
 }

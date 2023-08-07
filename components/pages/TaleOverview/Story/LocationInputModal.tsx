@@ -37,7 +37,11 @@ export default function LocationInputModal({
   const [places, setPlaces] = useState<GeocodingSearchResult>();
   const [choosenPlace, setChoosenPlace] = useState<GeocodingFeature>();
   const modal = useRef<HTMLIonModalElement>(null);
-  const [inputValue, setInputValue] = useState(destination?.geo_location?.place_name);
+  const [inputValue, setInputValue] = useState('');
+
+  useEffect(() => {
+    setInputValue(destination?.geo_location?.place_name);
+  }, []);
 
   async function handleDestinationLocationLookup(search: string) {
     if (search?.length) {

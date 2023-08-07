@@ -14,7 +14,7 @@ import {
 import Notifications from '../Notifications';
 import { useCallback, useState } from 'react';
 import { notificationsOutline } from 'ionicons/icons';
-import TripCard from '../../TripCard';
+import TripCard from '../../ui/TripCard';
 import { useRecoilValue } from 'recoil';
 import { currentTale, tales } from '../../../states/explore';
 import { useIonRouter } from '@ionic/react';
@@ -85,7 +85,7 @@ const Explore = () => {
           ></IonInput>
         </IonItem>
         <div className="grid grid-flow-row gap-8 text-neutral-600 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {(searchedTales.length ? searchedTales : tripList).map((tale, index) => (
+          {(searchText && searchedTales.length ? searchedTales : tripList).map((tale, index) => (
             <TripCard {...tale} key={index} onClick={() => selectTale(tale.trip_id)} />
           ))}
         </div>

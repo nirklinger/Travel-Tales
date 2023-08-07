@@ -34,15 +34,13 @@ function Story({ isEditMode }: StoryProps) {
   const story = useRecoilValue(currentTaleStory);
   const taleId = useRecoilValue(currentTaleIdState);
   const tale = useRecoilValue(currentTale);
-  const resetStory = useRecoilRefresher_UNSTABLE(currentTaleStory);
   const [destinations, setDestinations] = useState<ParsedDestination[]>([]);
   const tripDurationInDays = Math.floor(
-      (tale.end_date.getTime() - tale.start_date.getTime()) / (1000 * 60 * 60 * 24)
+    (tale.end_date.getTime() - tale.start_date.getTime()) / (1000 * 60 * 60 * 24)
   );
 
   useEffect(() => {
     setDestinations(story.destinations);
-    return resetStory;
   }, [story]);
 
   function handleReorder(event: CustomEvent<ItemReorderEventDetail>) {
@@ -59,7 +57,7 @@ function Story({ isEditMode }: StoryProps) {
       Math.max(...destinations.map(dest => dest.last_day)) + 1,
       tripDurationInDays
     );
-    const sequential_number = Math.max(...destinations.map(dest => dest.sequential_number)) + 1;
+    const sequential_number = Math.max(...destinations.map(dest => dest.sequential_number), 0) + 1;
     const dest: NewTripDestination = {
       trip_id: taleId,
       first_day: day,

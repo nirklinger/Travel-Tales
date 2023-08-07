@@ -1,14 +1,18 @@
-import { NewActivitiesWithMedia ,LocalFile} from '../../types/types';
+import { ActivityWithMediaWithCategories, NewActivitiesWithMedia, LocalFile } from '../../types/types';
 import {
   deleteActivityAndMedia,
   insertNewActivity,
   searchCosineSimilarity,
+  selectActivities,
+  selectActivitiesCategories,
+  selectActivitiesMedia,
   updateActivityById,
   updateDbActivityMediaTable, uploadActivityMedia
 } from '../dal/activities';
 import { Activities } from '../../types/db-schema-definitions';
 import { embedActivities } from './embedding';
 import { generateEmbeddings } from './open-ai';
+import { classifyCategories } from '../dal/categories';
 import { fetchTaleByActivityId } from '../dal/tales';
 
 export const createNewActivity = async (newActivity: NewActivitiesWithMedia) => {
@@ -18,10 +22,12 @@ export const createNewActivity = async (newActivity: NewActivitiesWithMedia) => 
 };
 
 export const updateActivity = async (id: number, changes: Partial<Omit<Activities, 'id'>>) => {
-  const activityId = await updateActivityById(id, changes);
-  if (changes.description) {
-    await embedActivities({ id, description: changes.description });
+  if (changes.description || changes.name) {
+    changes.should_embed = true;
   }
+
+  const activityId = await updateActivityById(id, changes);
+
   return activityId;
 };
 
@@ -1571,6 +1577,24 @@ export const searchActivitiesBySemantics = async (search: string) => {
   //await generateEmbeddings(search);
   const acts = await searchCosineSimilarity(searchEmbeddings);
   return acts;
+};
+
+export const getActivitiesWithMediaWithCategories = async () => {
+  const [media, acts, actsCategories] = await Promise.all([
+    selectActivitiesMedia(),
+    selectActivities(),
+    selectActivitiesCategories(),
+  ]);
+
+  const activitiesWithMediaWithCategories: ActivityWithMediaWithCategories[] = acts.map(act => {
+    const actMedia = media.filter(media => media.activity_id === act.id);
+    const categories = actsCategories
+      .filter(cat => cat.activity_id === act.id)
+      .map(cat => cat.category_id);
+    return { ...act, media: actMedia, categories };
+  });
+
+  return activitiesWithMediaWithCategories;
 };
 
 export const uploadActivityMediaToServer = async (id: number, photo: LocalFile) => {

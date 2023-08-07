@@ -1,6 +1,6 @@
 import { Redirect, Route } from 'react-router-dom';
 import { IonRouterOutlet, IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel } from '@ionic/react';
-import { cog, list, search } from 'ionicons/icons';
+import { cog, list, search, trailSign } from 'ionicons/icons';
 
 import Lists from './Lists';
 import MyTales from './MyTales';
@@ -10,11 +10,21 @@ import Explore from './Explore';
 import { Suspense } from 'react';
 import TaleOverview from './TaleOverview';
 import CreateTale from './CreateTale';
+import ThingsToDo from './ThingsToDo';
 
 const Tabs = () => {
   return (
     <IonTabs>
       <IonRouterOutlet>
+        <Route
+          path="/tabs/things-to-do"
+          render={() => (
+            <Suspense>
+              <ThingsToDo />
+            </Suspense>
+          )}
+          exact={true}
+        />
         <Route
           path="/tabs/explore"
           render={() => (
@@ -52,11 +62,15 @@ const Tabs = () => {
           <IonIcon icon={search} />
           <IonLabel>Explore</IonLabel>
         </IonTabButton>
-        <IonTabButton tab="tab2" href="/tabs/tales">
+        <IonTabButton tab="tab2" href="/tabs/things-to-do">
+          <IonIcon icon={trailSign} />
+          <IonLabel>Things to do</IonLabel>
+        </IonTabButton>
+        <IonTabButton tab="tab3" href="/tabs/tales">
           <IonIcon icon={list} />
           <IonLabel>My Tales</IonLabel>
         </IonTabButton>
-        <IonTabButton tab="tab3" href="/tabs/settings">
+        <IonTabButton tab="tab4" href="/tabs/settings">
           <IonIcon icon={cog} />
           <IonLabel>Settings</IonLabel>
         </IonTabButton>
