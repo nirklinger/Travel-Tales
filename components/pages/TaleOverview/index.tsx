@@ -31,7 +31,7 @@ import {
   pencilOutline,
 } from 'ionicons/icons';
 import { OverlayEventDetail } from '@ionic/core/components';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilRefresher_UNSTABLE, useRecoilState, useRecoilValue } from 'recoil';
 import { currentTale, currentTaleIdState, currentTaleStory } from '../../../states/explore';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -55,6 +55,7 @@ const TaleOverview = () => {
   const [edit, setEdit] = useState(false);
   const [currentTaleId, setCurrentTaleId] = useRecoilState(currentTaleIdState);
   const taleStory = useRecoilValue(currentTaleStory);
+  const resetStory = useRecoilRefresher_UNSTABLE(currentTaleStory);
   const tale = useRecoilValue(currentTale);
   const [segment, setSegment] = useState<Segments>(Segments.story);
   const [coverPhoto, setCoverPhoto] = useState<LocalFile>({ name: '', path: '', data: '' });
@@ -62,7 +63,20 @@ const TaleOverview = () => {
   const modal = useRef<HTMLIonModalElement>(null);
   let { taleId } = useParams();
 
-  useEffect(() => () => setCurrentTaleId(null), []);
+  useEffect(
+    () => () => {
+      setCurrentTaleId(null);
+      resetStory();
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (currentTaleId) {
+      setSegment(Segments.story);
+    }
+  }, [currentTaleId, setSegment]);
+
   useEffect(() => {
     console.log(`this is the tale obj: ${JSON.stringify(tale)}`);
   }, [tale]);
@@ -89,21 +103,25 @@ const TaleOverview = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className={''}>
-        {segment === Segments.story && (<div className="relative">
-          <img
-            className="lg:h-96 lg:w-3/6 m-auto object-cover sm:h-full sm:w-48"
-            src={cover_photo_url}
-          />
-          {edit && <>
-
-            <IonFabButton className="absolute bottom-0 right-0">
-              <IonIcon id='fab-trigger' icon={pencil} />
-            </IonFabButton>
-            <ImageUpload isMultiUpload={false} trigger='fab-trigger' onUpload={(coverPhoto) => updateTaleCoverPhoto(taleId, coverPhoto)}/>
-          </>
-          }
-
-        </div>
+        {segment === Segments.story && (
+          <div className="relative">
+            <img
+              className="lg:h-96 lg:w-3/6 m-auto object-cover sm:h-full sm:w-48"
+              src={cover_photo_url}
+            />
+            {edit && (
+              <>
+                <IonFabButton className="absolute bottom-0 right-0">
+                  <IonIcon id="fab-trigger" icon={pencil} />
+                </IonFabButton>
+                <ImageUpload
+                  isMultiUpload={false}
+                  trigger="fab-trigger"
+                  onUpload={coverPhoto => updateTaleCoverPhoto(taleId, coverPhoto)}
+                />
+              </>
+            )}
+          </div>
         )}
         <div className={'w-full'}>
           <IonSegment
@@ -124,6 +142,5 @@ const TaleOverview = () => {
     </IonPage>
   );
 };
-
 
 export default TaleOverview;
