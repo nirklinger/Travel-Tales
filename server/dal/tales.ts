@@ -11,7 +11,7 @@ import {
 } from '../../types/db-schema-definitions';
 import { LocalFile, NewTrip, ParsedDestination } from '../../types/types';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import {logger} from '../../utils/server-logger'
+import { logger } from '../../utils/server-logger';
 
 const DEFAULT_COVER_PHOTO = '/Tales/Default.jpg';
 const BUCKET_NAME = 'travel-tales-s3';
@@ -149,9 +149,10 @@ export const uploadTaleCoverPhoto = async (taleId: number, coverPhoto: LocalFile
   const buffer = Buffer.from(base64Data, 'base64');
   if (isDevEnvironment) {
     const taleFolderPath = path.join(TALES_FOLDER, taleId.toString());
-    const filePath = path.join(taleFolderPath, COVER_PHOTO_FILE_NAME);
-    const envFullFilePath = path.join(PUBLIC_FOLDER, filePath);
+    const directoryPath = path.join(PUBLIC_FOLDER, taleFolderPath);
+    const envFullFilePath = path.join(directoryPath, COVER_PHOTO_FILE_NAME);
     logger.info(`upload cover photo dal - fullFilePath: ${envFullFilePath}`);
+    await fs.promises.mkdir(directoryPath, { recursive: true });
     await fs.promises.writeFile(envFullFilePath, buffer);
   } else {
     const filePath = `Tales/${taleId.toString()}/${COVER_PHOTO_FILE_NAME}`;
@@ -188,9 +189,9 @@ export const fetchTaleByActivityId = async (activityId: number) => {
   const ids = await connection
     .select<string[]>(`${Table.Trips}.trip_id`)
     .from(Table.Trips)
-    .join(Table.TripDestinations,`${Table.TripDestinations}.trip_id`,`${Table.Trips}.trip_id`)
-    .join(Table.Activities,`${Table.Activities}.destination_id`,`${Table.TripDestinations}.id`)
-    .where(`${Table.Activities}.id`,activityId);
+    .join(Table.TripDestinations, `${Table.TripDestinations}.trip_id`, `${Table.Trips}.trip_id`)
+    .join(Table.Activities, `${Table.Activities}.destination_id`, `${Table.TripDestinations}.id`)
+    .where(`${Table.Activities}.id`, activityId);
 
-    return ids[0];
-}
+  return ids[0];
+};

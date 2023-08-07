@@ -113,16 +113,17 @@ export const selectActivitiesCategories = async () => {
   return acts;
 };
 
-export const uploadActivityMedia = async (taleId: number, activityId:number, photo: LocalFile) => {
+export const uploadActivityMedia = async (taleId: number, activityId: number, photo: LocalFile) => {
   const isDevEnvironment = process.env.NODE_ENV === 'development';
   const base64Data = photo.data.replace(/^data:image\/jpeg;base64,/, '');
   const buffer = Buffer.from(base64Data, 'base64');
 
   if (isDevEnvironment) {
     const taleFolderPath = path.join(TALES_FOLDER, taleId.toString());
-    const filePath = path.join(taleFolderPath, photo.name);
-    const envFullFilePath = path.join(PUBLIC_FOLDER, filePath);
+    const directoryPath = path.join(PUBLIC_FOLDER, taleFolderPath);
+    const envFullFilePath = path.join(directoryPath, photo.name);
     console.log(`upload cover photo dal - fullFilePath: ${envFullFilePath}`);
+    await fs.promises.mkdir(directoryPath, { recursive: true });
     await fs.promises.writeFile(envFullFilePath, buffer);
   } else {
     const filePath = `Tales/${taleId.toString()}/${photo.name}`;
@@ -144,8 +145,16 @@ export const uploadActivityMedia = async (taleId: number, activityId:number, pho
   }
 };
 
-export const updateDbActivityMediaTable = async (taleId: number, activityId:number, photo: LocalFile) => {
+export const updateDbActivityMediaTable = async (
+  taleId: number,
+  activityId: number,
+  photo: LocalFile
+) => {
   const connection = getConnection();
-  const activityMedia = {activity_id: activityId, media_type: MediaType.Image, media_url:`/Tales/${taleId}/${photo.name}`};
-  await connection.insert(activityMedia,'id').into(Table.ActivityMedia);
-}
+  const activityMedia = {
+    activity_id: activityId,
+    media_type: MediaType.Image,
+    media_url: `/Tales/${taleId}/${photo.name}`,
+  };
+  await connection.insert(activityMedia, 'id').into(Table.ActivityMedia);
+};
