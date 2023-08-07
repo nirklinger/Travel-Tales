@@ -1,4 +1,4 @@
-import { ActivityWithMediaWithCategories, NewActivitiesWithMedia } from '../../types/types';
+import { ActivityWithMediaWithCategories, NewActivitiesWithMedia, LocalFile } from '../../types/types';
 import {
   deleteActivityAndMedia,
   insertNewActivity,
@@ -7,11 +7,13 @@ import {
   selectActivitiesCategories,
   selectActivitiesMedia,
   updateActivityById,
+  updateDbActivityMediaTable, uploadActivityMedia
 } from '../dal/activities';
 import { Activities } from '../../types/db-schema-definitions';
 import { embedActivities } from './embedding';
 import { generateEmbeddings } from './open-ai';
 import { classifyCategories } from '../dal/categories';
+import { fetchTaleByActivityId } from '../dal/tales';
 
 export const createNewActivity = async (newActivity: NewActivitiesWithMedia) => {
   const { media, ...activity } = newActivity;
@@ -1594,3 +1596,9 @@ export const getActivitiesWithMediaWithCategories = async () => {
 
   return activitiesWithMediaWithCategories;
 };
+
+export const uploadActivityMediaToServer = async (id: number, photo: LocalFile) => {
+  const taleId = (await fetchTaleByActivityId(id)).trip_id;
+  await uploadActivityMedia(taleId, id, photo);
+  await updateDbActivityMediaTable(taleId, id, photo);
+}

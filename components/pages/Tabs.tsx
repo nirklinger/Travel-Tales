@@ -3,6 +3,7 @@ import { IonRouterOutlet, IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel } 
 import { cog, list, search, trailSign } from 'ionicons/icons';
 
 import Lists from './Lists';
+import MyTales from './MyTales';
 import ListDetail from './ListDetail';
 import Settings from './Settings';
 import Explore from './Explore';
@@ -44,15 +45,15 @@ const Tabs = () => {
         />
         <Route path="/tabs/tale/create" exact={true} render={() => <CreateTale />} />
         <Route
-          path="/tabs/lists"
+          path="/tabs/tales"
           render={() => (
             <Suspense>
-              <Lists />
+              <MyTales />
             </Suspense>
           )}
           exact={true}
         />
-        <Route path="/tabs/lists/:listId" render={() => <ListDetail />} exact={true} />
+        <Route path="/tabs/tales/:listId" render={() => <ListDetail />} exact={true} />
         <Route path="/tabs/settings" render={() => <Settings />} exact={true} />
         <Route path="/tabs" render={() => <Redirect to="/tabs/explore" />} exact={true} />
       </IonRouterOutlet>
@@ -65,7 +66,7 @@ const Tabs = () => {
           <IonIcon icon={trailSign} />
           <IonLabel>Things to do</IonLabel>
         </IonTabButton>
-        <IonTabButton tab="tab3" href="/tabs/lists">
+        <IonTabButton tab="tab3" href="/tabs/tales">
           <IonIcon icon={list} />
           <IonLabel>My Tales</IonLabel>
         </IonTabButton>

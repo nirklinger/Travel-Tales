@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { createTale } from '..//..//..//managers/tales-manager';
-import { Trips } from '..//..//..//types/db-schema-definitions';
 import {
   IonCard,
   IonItem,
@@ -31,9 +30,12 @@ import Card from '../../ui/Card';
 import { Directory } from '@capacitor/filesystem';
 
 import { LocalFile, NewTrip } from '../../../types/types';
+import { Trips } from '../../../types/db-schema-definitions';
 
-const coverPhotoUrl = '/img/c2.avif';
-const IMAGE_DIR = 'stored-images';
+const REDIRECT_PATH = '/tabs/tale/';
+const DEFAULT_USER_ID = 1;
+const IMAGE_DIR = '';
+
 
 const CreateTale = () => {
   const [tripName, setTripName] = useState('');
@@ -41,17 +43,15 @@ const CreateTale = () => {
   const [catchphrase, setCatchphrase] = useState('');
   const [isCatchphraseValid, setIsCatchphraseValid] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
+  const [showStartDateModal, setShowStartDateModal] = useState(false);
   const [endDate, setEndDate] = useState(new Date());
+  const [showEndDateModal, setShowEndDateModal] = useState(false);
   const [isDatesValid, setIsDatesValid] = useState(false);
 
   const [isFileSelected, setIsFileSelected] = useState(false);
   const [coverPhoto, setCoverPhoto] = useState<LocalFile>({ name: '', path: '', data: '' });
 
   const router = useIonRouter();
-
-  useEffect(() => {
-    loadPhoto();
-  }, []);
 
   useEffect(() => {
     setIsFileSelected(false);
@@ -84,12 +84,14 @@ const CreateTale = () => {
     const newDate = e.target.value;
 
     setStartDate(new Date(newDate));
+    setShowStartDateModal(false);
   };
 
   const endDateChangeHandler = e => {
     const newDate = e.target.value;
 
     setEndDate(new Date(newDate));
+    setShowEndDateModal(false);
   };
 
   const selectPhoto = useCallback(async () => {
@@ -164,16 +166,15 @@ const CreateTale = () => {
   
   const createTaleHandler = async () => {
     if (isTripNameValid && isCatchphraseValid && isDatesValid) {
-      const newTale: NewTrip = {
+      const newTale: Omit<Trips, 'trip_id' | 'cover_photo_url'> = {
         title: tripName,
         catch_phrase: catchphrase,
-        cover_photo: coverPhoto,
-        created_by: 1,
+        created_by: DEFAULT_USER_ID,
         start_date: startDate,
         end_date: endDate,
       };
       const newTaleId = await createTale(newTale);
-      router.push(`/tabs/tale/${newTaleId}`, 'forward', 'replace');
+      router.push(`${REDIRECT_PATH}${newTaleId}`, 'forward', 'replace');
     } else {
       console.log('not inserted - validation failed');
     }
@@ -184,7 +185,7 @@ const CreateTale = () => {
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/tabs/lists" />
+            <IonBackButton defaultHref="/tabs/tales" />
           </IonButtons>
           <IonTitle>{'Creating a New Tale'}</IonTitle>
         </IonToolbar>
@@ -212,36 +213,10 @@ const CreateTale = () => {
                   value={catchphrase}
                 />
               </IonItem>
-              {isFileSelected ? (
-                <IonList>
-                  <IonItem>
-                    <IonLabel>Selected Cover Photo:</IonLabel>
-                  </IonItem>
-                  <IonItem>
-                    <IonThumbnail slot="start">
-                      <IonImg src={coverPhoto.data}></IonImg>
-                    </IonThumbnail>
-                    <IonLabel>{coverPhoto.name}</IonLabel>
-                    <IonButton slot="end" fill="clear" onClick={deletePhoto}>
-                      <IonIcon icon={closeOutline}></IonIcon>
-                    </IonButton>
-                  </IonItem>
-                </IonList>
-              ) : (
-                <IonItem>
-                  <IonToolbar color="primary">
-                    <IonButton fill="clear" expand="full" color="light" onClick={selectPhoto}>
-                      <IonIcon icon={cameraOutline}></IonIcon>
-                      Select A Cover Photo
-                    </IonButton>
-                  </IonToolbar>
-                </IonItem>
-              )}
-
               <IonItem>
                 <IonLabel>Start Date</IonLabel>
-                <IonDatetimeButton datetime="startDatetime"></IonDatetimeButton>
-                <IonModal keepContentsMounted={true}>
+                <IonDatetimeButton datetime="startDatetime" onClick={() => {setShowStartDateModal(true)}}></IonDatetimeButton>
+                <IonModal keepContentsMounted={true} isOpen={showStartDateModal}>
                   <IonDatetime
                     id="startDatetime"
                     presentation="date"
@@ -251,8 +226,8 @@ const CreateTale = () => {
               </IonItem>
               <IonItem>
                 <IonLabel>End Date</IonLabel>
-                <IonDatetimeButton datetime="endDatetime"></IonDatetimeButton>
-                <IonModal keepContentsMounted={true}>
+                <IonDatetimeButton datetime="endDatetime" onClick={() => {setShowEndDateModal(true)}}></IonDatetimeButton>
+                <IonModal keepContentsMounted={true} isOpen={showEndDateModal}>
                   <IonDatetime
                     id="endDatetime"
                     presentation="date"

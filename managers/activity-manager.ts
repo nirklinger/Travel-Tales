@@ -1,4 +1,4 @@
-import { ActivitiesResponse, NewActivitiesWithMedia } from '../types/types';
+import { ActivitiesResponse, NewActivitiesWithMedia, LocalFile, NewTripDestination } from '../types/types';
 import { fetchWrapper } from '../utils/fetchWrapper';
 import { IPostgresInterval } from 'postgres-interval';
 import { Activities } from '../types/db-schema-definitions';
@@ -54,3 +54,19 @@ export const fetchActivitiesCategories = async (): Promise<ActivitiesResponse> =
   }
   return (await res.json()) as ActivitiesResponse;
 };
+
+export const uploadActivityMedias = async (activityId: number, photos: LocalFile[]) => {
+  photos.forEach(photo =>
+    uploadActivityMedia(activityId, photo)
+    )
+}
+
+const uploadActivityMedia = async (activityId: number, photo:LocalFile) => {
+  const res = await fetchWrapper.post(`/api/activities/${activityId}/media`, photo);
+  if (!res.ok) {
+    switch (res.status) {
+      default:
+        throw new Error('could not upload activity media');
+    }
+  }
+}
