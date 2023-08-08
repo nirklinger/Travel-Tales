@@ -17,12 +17,13 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
-import { closeOutline, timeOutline } from 'ionicons/icons';
+import { closeOutline, locationOutline, timeOutline } from 'ionicons/icons';
 
 import { ActivityWithMediaWithCategories } from '../../../types/types';
 import { parseDuration } from '../../../utils/converters';
 import PostgresInterval from 'postgres-interval';
 import Image from 'next/image';
+import React from 'react';
 
 interface ActivityModalProps {
   activity: ActivityWithMediaWithCategories;
@@ -35,7 +36,7 @@ export default function ActivityModal({ activity, onDismiss }: ActivityModalProp
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonButton color="tertiary" onClick={() => onDismiss(null, 'confirm')}>
+            <IonButton color="tertiary" onClick={() => onDismiss(activity.trip_id, 'confirm')}>
               Go to story
             </IonButton>
           </IonButtons>
@@ -48,18 +49,24 @@ export default function ActivityModal({ activity, onDismiss }: ActivityModalProp
       </IonHeader>
       <IonContent className="ion-padding">
         <div className={'text-2xl font-semibold'}> {activity.name} </div>
-        <div className={'flex flex-row gap-1 items-center'}>
-          <IonLabel>
-            {parseDuration(activity.duration as PostgresInterval.IPostgresInterval)}
-          </IonLabel>
-          <IonIcon color={'tertiary'} icon={timeOutline} />
+        {activity.duration?.hours && (
+          <div className={'flex flex-row gap-1 items-center font-semibold text-gray-600'}>
+            <IonLabel>
+              {parseDuration(activity.duration as PostgresInterval.IPostgresInterval)}
+            </IonLabel>
+            <IonIcon color={'tertiary'} icon={timeOutline} />
+          </div>
+        )}
+        <div className="font-bold py-0 text-sm text-gray-400 dark:text-gray-500 flex flex-row items-center">
+          <label>{activity.geo_location?.place_name}</label>
+          <IonIcon color={'tertiary'} icon={locationOutline} />
         </div>
-        <div className={'mb-4'}>
+        <div className={'my-4'}>
           <IonTextarea autoGrow={true} value={activity.description} readonly={true}></IonTextarea>
         </div>
         <div
           className={
-            'grid grid-flow-row gap-2 text-neutral-600 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 h-full'
+            'grid grid-flow-row gap-2 text-neutral-600 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 h-full'
           }
         >
           {activity.media.map(media => (

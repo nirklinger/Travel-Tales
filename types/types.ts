@@ -19,7 +19,11 @@ export type ParsedDestination = Omit<TripDestinations, 'geo_location'> & {
 
 export type ActivitiesWithMedia = Activities & { media: Omit<ActivityMedia, 'activity_id'>[] };
 
-export type ActivityWithMediaWithCategories = ActivitiesWithMedia & { categories: number[] };
+export type ActivityWithMediaWithCategories = ActivitiesWithMedia & {
+  categories: number[];
+  trip_id: number;
+  geo_location?: GeocodingFeature | null;
+};
 
 export type NewActivitiesWithMedia = Omit<ActivitiesWithMedia, 'id'>;
 

@@ -14,7 +14,7 @@ interface ActivityCardProps {
 }
 
 const ActivityCard = ({ activity, onClick }: ActivityCardProps) => {
-  const { name, description, duration, destination_id, media, id } = activity;
+  const { name, description, duration, destination_id, media, id, geo_location } = activity;
   return (
     <Card className="my-4 w-full mx-auto cursor-pointer" onClick={() => onClick()}>
       <div className="h-36 w-full relative">
@@ -36,7 +36,7 @@ const ActivityCard = ({ activity, onClick }: ActivityCardProps) => {
             <IonIcon color={'tertiary'} icon={timeOutline} />
           </div>
           <div className="font-bold py-0 text-sm text-gray-400 dark:text-gray-500 flex flex-row items-center">
-            <label className={'w-36 truncate'}>Porto, asdawdkdfhskefh skdhfkjshekf shekj f</label>
+            <label className={'w-36 truncate'}>{geo_location?.place_name}</label>
             <IonIcon color={'tertiary'} icon={locationOutline} />
           </div>
         </div>

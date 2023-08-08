@@ -21,6 +21,7 @@ import { useIonRouter } from '@ionic/react';
 import { Tale } from '../../../types/types';
 import ActivitiesTape from '../../ui/ActivitiesTape';
 import ActivityModal from './ActivityModal';
+import { OverlayEventDetail } from '@ionic/core/components';
 
 const ThingsToDo = () => {
   const activities = useRecoilValue(activitiesWithCategoriesSelector);
@@ -30,18 +31,29 @@ const ThingsToDo = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchText, setSearchText] = useState('');
   const router = useIonRouter();
+
+  const onGoToStory = useCallback((id: number) => {
+    router.push(`/tabs/tale/${id}`);
+  }, []);
+
   const [present, dismiss] = useIonModal(ActivityModal, {
     id: 'activityModal',
     activity: activities.find(act => act.id === presentActivity),
-    onDismiss: (data: string, role: string) => dismiss(data, role),
+    onDismiss: (data: number, role: string) => dismiss(data, role),
   });
 
   const handleActivityClick = useCallback(
     (activityId: number) => {
       setPresentActivity(activityId);
-      present();
+      present({
+        onDidDismiss: (ev: CustomEvent<OverlayEventDetail>) => {
+          if (ev.detail.role === 'confirm') {
+            onGoToStory(ev.detail.data);
+          }
+        },
+      });
     },
-    [present, setPresentActivity]
+    [present, setPresentActivity, onGoToStory]
   );
 
   const activitiesByCategoties = useMemo(

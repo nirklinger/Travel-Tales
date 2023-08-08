@@ -36,7 +36,7 @@ export type Tables = {
 export type Activities = {
   id: number;
   destination_id: number;
-  duration: PostgresInterval.IPostgresInterval | string | null;
+  duration: PostgresInterval.IPostgresInterval | null;
   name: string;
   description: string | null;
   day_index: number;

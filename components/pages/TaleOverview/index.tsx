@@ -66,10 +66,15 @@ const TaleOverview = () => {
   useEffect(
     () => () => {
       setCurrentTaleId(null);
+      setEdit(false);
       resetStory();
     },
     []
   );
+
+  useEffect(() => {
+    if (currentTaleId != taleId) setCurrentTaleId(Number(taleId));
+  }, [currentTaleId, taleId, setCurrentTaleId]);
 
   useEffect(() => {
     if (currentTaleId) {
@@ -80,8 +85,6 @@ const TaleOverview = () => {
   useEffect(() => {
     console.log(`this is the tale obj: ${JSON.stringify(tale)}`);
   }, [tale]);
-
-  if (currentTaleId != taleId) setCurrentTaleId(Number(taleId));
 
   if (!tale) {
     return <div>no tail</div>;
