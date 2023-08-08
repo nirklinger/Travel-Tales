@@ -98,8 +98,17 @@ export const selectActivitiesMedia = async () => {
 export const selectActivities = async () => {
   const connection = getConnection();
   const acts = await connection
-    .select<Activities[]>(`${Table.Activities}.*`)
-    .from(Table.Activities);
+    .select<(Activities & { trip_id: number; geo_location })[]>(
+      `${Table.Activities}.*`,
+      `${Table.TripDestinations}.trip_id`,
+      `${Table.TripDestinations}.geo_location`
+    )
+    .from(Table.Activities)
+    .join(
+      Table.TripDestinations,
+      `${Table.TripDestinations}.id`,
+      `${Table.Activities}.destination_id`
+    );
 
   return acts;
 };
