@@ -66,7 +66,7 @@ function Story({ isEditMode, contentRef }: StoryProps) {
 
     setTimeout(() => {
       const y = activity.offsetTop + destination.offsetTop;
-      contentRef.current.scrollToBottom(y);
+      (contentRef.current as any).scrollToBottom(y);
     }, 500);
   };
 

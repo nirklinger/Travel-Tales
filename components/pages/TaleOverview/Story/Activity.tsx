@@ -78,7 +78,7 @@ export function Activity({ activity: activityReadonly, canEdit, onDeleteActivity
     <>
       <IonDatetimeButton color={'tertiary'} datetime={`datetime-${activity.id}`}>
         <IonLabel slot={'time-target'}>
-          {activity.duration?.hours
+          {(activity.duration as PostgresInterval.IPostgresInterval)?.hours
             ? parseDuration(activity.duration as PostgresInterval.IPostgresInterval)
             : '00:00'}
         </IonLabel>
@@ -101,7 +101,7 @@ export function Activity({ activity: activityReadonly, canEdit, onDeleteActivity
       </IonModal>
     </>
   ) : (
-    activity.duration?.hours && (
+    (activity.duration as PostgresInterval.IPostgresInterval)?.hours && (
       <>
         <IonLabel>
           {parseDuration(activity.duration as PostgresInterval.IPostgresInterval)}

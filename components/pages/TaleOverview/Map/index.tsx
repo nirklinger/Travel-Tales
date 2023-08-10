@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import maplibregl from 'maplibre-gl';
+import maplibregl, { LngLatBoundsLike, LngLatLike } from 'maplibre-gl';
 import { useRecoilValueLoadable } from 'recoil';
 import { currentTaleStory } from '../../../../states/explore';
 import { StoryResponse, Tale } from '../../../../types/types';
@@ -66,7 +66,7 @@ export default function Map({ taleId, tale }: MapProps) {
 
       // Fit the map to show all destinations and the route if coordinates are valid
       if (!isNaN(minLng) && !isNaN(minLat) && !isNaN(maxLng) && !isNaN(maxLat)) {
-        const bounds = [
+        const bounds: LngLatBoundsLike = [
           [minLng, minLat],
           [maxLng, maxLat],
         ];
@@ -155,7 +155,7 @@ export default function Map({ taleId, tale }: MapProps) {
         return new maplibregl.Marker({
           color: index === 0 ? 'green' : index === sortedDests.length - 1 ? 'red' : 'orange',
         })
-          .setLngLat(center)
+          .setLngLat(center as LngLatLike)
           .setPopup(new maplibregl.Popup().setHTML(`<p>${destination.name}</p>`))
           .addTo(map.current);
       });

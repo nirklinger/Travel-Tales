@@ -49,7 +49,7 @@ export default function ActivityModal({ activity, onDismiss }: ActivityModalProp
       </IonHeader>
       <IonContent className="ion-padding">
         <div className={'text-2xl font-semibold'}> {activity.name} </div>
-        {activity.duration?.hours && (
+        {(activity.duration as PostgresInterval.IPostgresInterval)?.hours && (
           <div className={'flex flex-row gap-1 items-center font-semibold text-gray-600'}>
             <IonLabel>
               {parseDuration(activity.duration as PostgresInterval.IPostgresInterval)}

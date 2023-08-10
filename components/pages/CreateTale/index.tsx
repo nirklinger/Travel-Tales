@@ -36,7 +36,6 @@ const REDIRECT_PATH = '/tabs/tale/';
 const DEFAULT_USER_ID = 1;
 const IMAGE_DIR = '';
 
-
 const CreateTale = () => {
   const [tripName, setTripName] = useState('');
   const [isTripNameValid, setIsTripNameValid] = useState(false);
@@ -163,10 +162,10 @@ const CreateTale = () => {
     });
     setCoverPhoto({ name: '', path: '', data: '' });
   }, [coverPhoto]);
-  
+
   const createTaleHandler = async () => {
     if (isTripNameValid && isCatchphraseValid && isDatesValid) {
-      const newTale: Omit<Trips, 'trip_id' | 'cover_photo_url'> = {
+      const newTale: NewTrip = {
         title: tripName,
         catch_phrase: catchphrase,
         created_by: DEFAULT_USER_ID,
@@ -215,7 +214,12 @@ const CreateTale = () => {
               </IonItem>
               <IonItem>
                 <IonLabel>Start Date</IonLabel>
-                <IonDatetimeButton datetime="startDatetime" onClick={() => {setShowStartDateModal(true)}}></IonDatetimeButton>
+                <IonDatetimeButton
+                  datetime="startDatetime"
+                  onClick={() => {
+                    setShowStartDateModal(true);
+                  }}
+                ></IonDatetimeButton>
                 <IonModal keepContentsMounted={true} isOpen={showStartDateModal}>
                   <IonDatetime
                     id="startDatetime"
@@ -226,7 +230,12 @@ const CreateTale = () => {
               </IonItem>
               <IonItem>
                 <IonLabel>End Date</IonLabel>
-                <IonDatetimeButton datetime="endDatetime" onClick={() => {setShowEndDateModal(true)}}></IonDatetimeButton>
+                <IonDatetimeButton
+                  datetime="endDatetime"
+                  onClick={() => {
+                    setShowEndDateModal(true);
+                  }}
+                ></IonDatetimeButton>
                 <IonModal keepContentsMounted={true} isOpen={showEndDateModal}>
                   <IonDatetime
                     id="endDatetime"

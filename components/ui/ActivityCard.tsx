@@ -31,7 +31,7 @@ const ActivityCard = ({ activity, onClick }: ActivityCardProps) => {
           {description}
         </div>
         <div className={'flex flex-row justify-between'}>
-          {duration?.hours && (
+          {(duration as PostgresInterval.IPostgresInterval)?.hours && (
             <div className="font-bold py-0 text-sm text-gray-400 dark:text-gray-500 flex flex-row items-center">
               <IonLabel>{parseDuration(duration as PostgresInterval.IPostgresInterval)}</IonLabel>
               <IonIcon color={'tertiary'} icon={timeOutline} />

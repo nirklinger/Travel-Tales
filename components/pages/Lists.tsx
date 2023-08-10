@@ -50,7 +50,7 @@ const MyTales = () => {
           </IonToolbar>
         </IonHeader>
         <IonList>
-          <AllTales />
+          <AllTales onSelect={() => {}} />
         </IonList>
       </IonContent>
       <IonButton href={'/tabs/tale/create'}>Create New Tale</IonButton>
