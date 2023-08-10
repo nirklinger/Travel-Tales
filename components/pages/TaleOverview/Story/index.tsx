@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { MutableRefObject, useEffect, useMemo, useState } from 'react';
 import {
   IonAccordionGroup,
   IonFab,
@@ -6,6 +6,7 @@ import {
   IonIcon,
   IonReorderGroup,
   ItemReorderEventDetail,
+  useIonRouter,
 } from '@ionic/react';
 import { NewTripDestination, ParsedDestination } from '../../../../types/types';
 import { Destination } from './Destination';
@@ -16,6 +17,7 @@ import { createDestination, deleteDestination } from '../../../../managers/desti
 
 type StoryProps = {
   isEditMode?: boolean;
+  contentRef: MutableRefObject<HTMLElement | null>;
 };
 
 function AddDestination({ handleAddDestination }) {
@@ -30,11 +32,15 @@ function AddDestination({ handleAddDestination }) {
   );
 }
 
-function Story({ isEditMode }: StoryProps) {
+function Story({ isEditMode, contentRef }: StoryProps) {
   const story = useRecoilValue(currentTaleStory);
   const taleId = useRecoilValue(currentTaleIdState);
   const tale = useRecoilValue(currentTale);
   const [destinations, setDestinations] = useState<ParsedDestination[]>([]);
+  const router = useIonRouter();
+  const activityIdQuery = new URLSearchParams(router.routeInfo.search?.replace('?', '')).get(
+    'activity-id'
+  );
   const tripDurationInDays = Math.floor(
     (tale.end_date.getTime() - tale.start_date.getTime()) / (1000 * 60 * 60 * 24)
   );
@@ -42,6 +48,45 @@ function Story({ isEditMode }: StoryProps) {
   useEffect(() => {
     setDestinations(story.destinations);
   }, [story]);
+
+  const scrollTo = (activityId: number, destinationId: number) => {
+    const destination = document.getElementById(`destination-${destinationId}`);
+
+    if (!destination || !contentRef.current) {
+      return;
+    }
+
+    destination.click();
+
+    const activity = document.getElementById(`activity-${activityId}`);
+
+    if (!activity || !contentRef.current) {
+      return;
+    }
+
+    setTimeout(() => {
+      const y = activity.offsetTop + destination.offsetTop;
+      contentRef.current.scrollToBottom(y);
+    }, 500);
+  };
+
+  useEffect(() => {
+    const activityId = Number(activityIdQuery);
+    if (!Number.isNaN(activityId)) {
+      const destinationId = story.activities.find(act => act.id === activityId)?.destination_id;
+
+      if (!destinationId) return;
+
+      const destination = document.getElementById(`destination-${destinationId}`);
+
+      if (!destination) {
+        return;
+      }
+
+      destination.click();
+      scrollTo(activityId, destinationId);
+    }
+  }, [story, activityIdQuery, scrollTo]);
 
   function handleReorder(event: CustomEvent<ItemReorderEventDetail>) {
     event.detail.complete();

@@ -32,8 +32,8 @@ const ThingsToDo = () => {
   const [searchText, setSearchText] = useState('');
   const router = useIonRouter();
 
-  const onGoToStory = useCallback((id: number) => {
-    router.push(`/tabs/tale/${id}`);
+  const onGoToStory = useCallback((taleId: number, activityId: number) => {
+    router.push(`/tabs/tale/${taleId}?activity-id=${activityId}`);
   }, []);
 
   const [present, dismiss] = useIonModal(ActivityModal, {
@@ -48,7 +48,7 @@ const ThingsToDo = () => {
       present({
         onDidDismiss: (ev: CustomEvent<OverlayEventDetail>) => {
           if (ev.detail.role === 'confirm') {
-            onGoToStory(ev.detail.data);
+            onGoToStory(ev.detail.data, activityId);
           }
         },
       });

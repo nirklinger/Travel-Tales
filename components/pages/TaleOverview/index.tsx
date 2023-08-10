@@ -59,6 +59,7 @@ const TaleOverview = () => {
   const tale = useRecoilValue(currentTale);
   const [segment, setSegment] = useState<Segments>(Segments.story);
   const [coverPhoto, setCoverPhoto] = useState<LocalFile>({ name: '', path: '', data: '' });
+  const contentRef = useRef<HTMLIonContentElement>();
 
   const modal = useRef<HTMLIonModalElement>(null);
   let { taleId } = useParams();
@@ -105,7 +106,7 @@ const TaleOverview = () => {
           </IonButton>
         </IonToolbar>
       </IonHeader>
-      <IonContent className={''}>
+      <IonContent ref={contentRef} className={''}>
         {segment === Segments.story && (
           <div className="relative">
             <img
@@ -139,7 +140,7 @@ const TaleOverview = () => {
             </IonSegmentButton>
           </IonSegment>
         </div>
-        {segment === Segments.story && <Story isEditMode={edit} />}
+        {segment === Segments.story && <Story isEditMode={edit} contentRef={contentRef} />}
         {segment === Segments.viewOnMap && <Map />}
       </IonContent>
     </IonPage>

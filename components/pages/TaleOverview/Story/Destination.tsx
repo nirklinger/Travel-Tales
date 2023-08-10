@@ -205,7 +205,7 @@ export function Destination({
 
   return (
     <IonAccordion value={`${destination.name}-${destination.id}`}>
-      <IonItem slot="header">
+      <IonItem slot="header" id={`destination-${destination.id}`}>
         {isEditMode && (
           <div className={'text-xl'} onClickCapture={handleDeleteDestination}>
             <IonIcon

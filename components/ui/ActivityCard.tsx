@@ -31,10 +31,12 @@ const ActivityCard = ({ activity, onClick }: ActivityCardProps) => {
           {description}
         </div>
         <div className={'flex flex-row justify-between'}>
-          <div className="font-bold py-0 text-sm text-gray-400 dark:text-gray-500 flex flex-row items-center">
-            <IonLabel>{parseDuration(duration as PostgresInterval.IPostgresInterval)}</IonLabel>
-            <IonIcon color={'tertiary'} icon={timeOutline} />
-          </div>
+          {duration?.hours && (
+            <div className="font-bold py-0 text-sm text-gray-400 dark:text-gray-500 flex flex-row items-center">
+              <IonLabel>{parseDuration(duration as PostgresInterval.IPostgresInterval)}</IonLabel>
+              <IonIcon color={'tertiary'} icon={timeOutline} />
+            </div>
+          )}
           <div className="font-bold py-0 text-sm text-gray-400 dark:text-gray-500 flex flex-row items-center">
             <label className={'w-36 truncate'}>{geo_location?.place_name}</label>
             <IonIcon color={'tertiary'} icon={locationOutline} />

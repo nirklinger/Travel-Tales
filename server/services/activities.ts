@@ -1,4 +1,8 @@
-import { ActivityWithMediaWithCategories, NewActivitiesWithMedia, LocalFile } from '../../types/types';
+import {
+  ActivityWithMediaWithCategories,
+  NewActivitiesWithMedia,
+  LocalFile,
+} from '../../types/types';
 import {
   deleteActivityAndMedia,
   insertNewActivity,
@@ -7,7 +11,8 @@ import {
   selectActivitiesCategories,
   selectActivitiesMedia,
   updateActivityById,
-  updateDbActivityMediaTable, uploadActivityMedia
+  updateDbActivityMediaTable,
+  uploadActivityMedia,
 } from '../dal/activities';
 import { Activities } from '../../types/db-schema-definitions';
 import { embedActivities } from './embedding';
@@ -1574,7 +1579,7 @@ export const searchActivitiesBySemantics = async (search: string) => {
     0.0021535237,
     -0.034212966,
   ];
-  //await generateEmbeddings(search);
+  // const searchEmbeddings = await generateEmbeddings(search);
   const acts = await searchCosineSimilarity(searchEmbeddings);
   return acts;
 };
@@ -1601,4 +1606,4 @@ export const uploadActivityMediaToServer = async (id: number, photo: LocalFile) 
   const taleId = (await fetchTaleByActivityId(id)).trip_id;
   await uploadActivityMedia(taleId, id, photo);
   await updateDbActivityMediaTable(taleId, id, photo);
-}
+};

@@ -95,6 +95,11 @@ const usersTrips: UsersTrips[] = [
     user_id: 3,
     trip_id: 3,
   },
+  {
+    id: 4,
+    user_id: 1,
+    trip_id: 4,
+  },
 ];
 
 const destinations: TripDestinations[] = [
@@ -627,73 +632,73 @@ const activityMedia: ActivityMedia[] = [
   {
     id: 5,
     activity_id: 10,
-    media_type: 'image',
+    media_type: MediaType.Image,
     media_url: '/Tales/4/1691443646162.jpeg',
   },
   {
     id: 6,
     activity_id: 8,
-    media_type: 'image',
+    media_type: MediaType.Image,
     media_url: '/Tales/4/1691443942963.jpeg',
   },
   {
     id: 7,
     activity_id: 8,
-    media_type: 'image',
+    media_type: MediaType.Image,
     media_url: '/Tales/4/1691444069944.jpeg',
   },
   {
     id: 8,
     activity_id: 11,
-    media_type: 'image',
+    media_type: MediaType.Image,
     media_url: '/Tales/4/1691444492456.jpeg',
   },
   {
     id: 9,
     activity_id: 9,
-    media_type: 'image',
+    media_type: MediaType.Image,
     media_url: '/Tales/4/1691444688394.jpeg',
   },
   {
     id: 10,
     activity_id: 12,
-    media_type: 'image',
+    media_type: MediaType.Image,
     media_url: '/Tales/4/1691448907687.jpeg',
   },
   {
     id: 12,
     activity_id: 12,
-    media_type: 'image',
+    media_type: MediaType.Image,
     media_url: '/Tales/4/1691448907685.jpeg',
   },
   {
     id: 11,
     activity_id: 12,
-    media_type: 'image',
+    media_type: MediaType.Image,
     media_url: '/Tales/4/1691448907688.jpeg',
   },
   {
     id: 13,
     activity_id: 12,
-    media_type: 'image',
+    media_type: MediaType.Image,
     media_url: '/Tales/4/1691448907686.jpeg',
   },
   {
     id: 14,
     activity_id: 13,
-    media_type: 'image',
+    media_type: MediaType.Image,
     media_url: '/Tales/4/1691449685297.jpeg',
   },
   {
     id: 15,
     activity_id: 13,
-    media_type: 'image',
+    media_type: MediaType.Image,
     media_url: '/Tales/4/1691449685296.jpeg',
   },
   {
     id: 16,
     activity_id: 13,
-    media_type: 'image',
+    media_type: MediaType.Image,
     media_url: '/Tales/4/1691449685295.jpeg',
   },
 ];

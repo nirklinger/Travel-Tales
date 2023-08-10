@@ -113,6 +113,7 @@ export function Activity({ activity: activityReadonly, canEdit, onDeleteActivity
 
   return (
     <div
+      id={`activity-${activity.id}`}
       className={
         'border border-gray-400 rounded-md bg-blue-50 lg:shadow-lg md:shadow-lg px-4 mx-2 py-4'
       }
