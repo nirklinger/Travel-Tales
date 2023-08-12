@@ -2,17 +2,21 @@ import React, { useRef, useEffect, useState } from 'react';
 import maplibregl, { LngLatBoundsLike, LngLatLike } from 'maplibre-gl';
 import { useRecoilValueLoadable } from 'recoil';
 import { currentTaleStory } from '../../../../states/explore';
-import { StoryResponse, Tale } from '../../../../types/types';
+import { ParsedDestination, StoryResponse, Tale } from '../../../../types/types';
+import { TripDestinations } from '../../../../types/db-schema-definitions';
+import { render } from 'react-dom';
+import { IonButton, IonHeader } from '@ionic/react';
 
 interface MapProps {
   taleId?: number;
   tale?: Tale;
   story?: StoryResponse;
+  viewDestinationInStory: (destination: ParsedDestination) => void;
 }
 
 const SOURCE_ID = 'route';
 
-export default function Map({ taleId, tale }: MapProps) {
+export default function Map({ taleId, tale, viewDestinationInStory }: MapProps) {
   const storyLoadable = useRecoilValueLoadable(currentTaleStory);
   const story = storyLoadable.valueMaybe();
   const mapContainer = useRef(null);
@@ -45,7 +49,8 @@ export default function Map({ taleId, tale }: MapProps) {
         },
         paint: {
           'line-color': '#003959',
-          'line-width': 4,
+          'line-width': 2,
+          'line-dasharray': [2, 2],
         },
       });
 
@@ -152,11 +157,12 @@ export default function Map({ taleId, tale }: MapProps) {
       // Add markers for each destination on the map
       const markers = sortedDests.map((destination, index) => {
         const { center } = destination.geo_location;
+        const tooltip = getDestinationTooltip(destination, viewDestinationInStory);
         return new maplibregl.Marker({
-          color: index === 0 ? 'green' : index === sortedDests.length - 1 ? 'red' : 'orange',
+          color: index === 0 ? 'green' : '#008080', //index === sortedDests.length - 1 ? '',
         })
           .setLngLat(center as LngLatLike)
-          .setPopup(new maplibregl.Popup().setHTML(`<p>${destination.name}</p>`))
+          .setPopup(new maplibregl.Popup().setDOMContent(tooltip))
           .addTo(map.current);
       });
 
@@ -169,11 +175,28 @@ export default function Map({ taleId, tale }: MapProps) {
         markers.forEach(marker => marker.remove());
       };
     }
-  }, [isMapLoaded, story]);
+  }, [isMapLoaded, story, viewDestinationInStory]);
 
   return (
     <div className="relative h-full w-full">
       <div ref={mapContainer} className="absolute w-full h-full" />
     </div>
   );
+}
+
+function getDestinationTooltip(
+  destination: ParsedDestination,
+  viewDestinationInStory: (destination: ParsedDestination) => void
+) {
+  const tooltip = (
+    <div className={'text-white'}>
+      <span className={'text-2xl'}>{destination.name}</span>
+      <div className={'cursor-pointer text-sm'}>
+        <a onClick={() => viewDestinationInStory(destination)}>view in story</a>
+      </div>
+    </div>
+  );
+  const placeholder = document.createElement('div');
+  render(tooltip, placeholder);
+  return placeholder;
 }

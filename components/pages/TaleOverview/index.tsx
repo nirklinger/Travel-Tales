@@ -31,8 +31,19 @@ import {
   pencilOutline,
 } from 'ionicons/icons';
 import { OverlayEventDetail } from '@ionic/core/components';
-import { useRecoilRefresher_UNSTABLE, useRecoilState, useRecoilValue } from 'recoil';
-import { currentTale, currentTaleIdState, currentTaleStory } from '../../../states/explore';
+import {
+  useRecoilRefresher_UNSTABLE,
+  useRecoilState,
+  useRecoilValue,
+  useSetRecoilState,
+} from 'recoil';
+import {
+  currentTale,
+  currentTaleIdState,
+  currentTaleStory,
+  focusOnActivity,
+  focusOnDestination,
+} from '../../../states/explore';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Story from './Story';
@@ -40,7 +51,7 @@ import Map from './Map';
 import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
 import { Filesystem } from '@capacitor/filesystem';
 import { Directory } from '@capacitor/filesystem';
-import { LocalFile } from '../../../types/types';
+import { LocalFile, ParsedDestination } from '../../../types/types';
 import { updateTaleCoverPhoto } from '../../../managers/tales-manager';
 import ImageUpload from '../../common/ImageUpload';
 
@@ -60,6 +71,8 @@ const TaleOverview = () => {
   const [segment, setSegment] = useState<Segments>(Segments.story);
   const [coverPhoto, setCoverPhoto] = useState<LocalFile>({ name: '', path: '', data: '' });
   const contentRef = useRef<HTMLIonContentElement>();
+  const setFocusDestination = useSetRecoilState(focusOnDestination);
+  const setFocusActivity = useSetRecoilState(focusOnActivity);
 
   const modal = useRef<HTMLIonModalElement>(null);
   let { taleId } = useParams();
@@ -67,6 +80,8 @@ const TaleOverview = () => {
   useEffect(
     () => () => {
       setCurrentTaleId(null);
+      setFocusDestination(null);
+      setFocusActivity(null);
       setEdit(false);
       resetStory();
     },
@@ -83,9 +98,13 @@ const TaleOverview = () => {
     }
   }, [currentTaleId, setSegment]);
 
-  useEffect(() => {
-    console.log(`this is the tale obj: ${JSON.stringify(tale)}`);
-  }, [tale]);
+  const viewDestinationInStory = useCallback(
+    (destination: ParsedDestination) => {
+      setSegment(Segments.story);
+      setFocusDestination(destination.id);
+    },
+    [setSegment, setFocusDestination]
+  );
 
   if (!tale) {
     return <div>no tail</div>;
@@ -141,7 +160,7 @@ const TaleOverview = () => {
           </IonSegment>
         </div>
         {segment === Segments.story && <Story isEditMode={edit} contentRef={contentRef} />}
-        {segment === Segments.viewOnMap && <Map />}
+        {segment === Segments.viewOnMap && <Map viewDestinationInStory={viewDestinationInStory} />}
       </IonContent>
     </IonPage>
   );

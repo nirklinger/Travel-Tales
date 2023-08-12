@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useEffect, useMemo, useState } from 'react';
+import React, { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react';
 import {
   IonAccordionGroup,
   IonFab,
@@ -11,8 +11,14 @@ import {
 import { NewTripDestination, ParsedDestination } from '../../../../types/types';
 import { Destination } from './Destination';
 import { add } from 'ionicons/icons';
-import { currentTale, currentTaleIdState, currentTaleStory } from '../../../../states/explore';
-import { useRecoilRefresher_UNSTABLE, useRecoilValue } from 'recoil';
+import {
+  currentTale,
+  currentTaleIdState,
+  currentTaleStory,
+  focusOnActivity,
+  focusOnDestination,
+} from '../../../../states/explore';
+import { useRecoilRefresher_UNSTABLE, useRecoilState, useRecoilValue } from 'recoil';
 import { createDestination, deleteDestination } from '../../../../managers/destination-manager';
 
 type StoryProps = {
@@ -37,10 +43,10 @@ function Story({ isEditMode, contentRef }: StoryProps) {
   const taleId = useRecoilValue(currentTaleIdState);
   const tale = useRecoilValue(currentTale);
   const [destinations, setDestinations] = useState<ParsedDestination[]>([]);
+  const accordionGroup = useRef<null | HTMLIonAccordionGroupElement>(null);
   const router = useIonRouter();
-  const activityIdQuery = new URLSearchParams(router.routeInfo.search?.replace('?', '')).get(
-    'activity-id'
-  );
+  const [focusDestination, setFocusDestination] = useRecoilState(focusOnDestination);
+  const [focusActivity, setFocusActivity] = useRecoilState(focusOnActivity);
   const tripDurationInDays = Math.floor(
     (tale.end_date.getTime() - tale.start_date.getTime()) / (1000 * 60 * 60 * 24)
   );
@@ -49,15 +55,7 @@ function Story({ isEditMode, contentRef }: StoryProps) {
     setDestinations(story.destinations);
   }, [story]);
 
-  const scrollTo = (activityId: number, destinationId: number) => {
-    const destination = document.getElementById(`destination-${destinationId}`);
-
-    if (!destination || !contentRef.current) {
-      return;
-    }
-
-    destination.click();
-
+  const scrollToActivity = (activityId: number) => {
     const activity = document.getElementById(`activity-${activityId}`);
 
     if (!activity || !contentRef.current) {
@@ -65,28 +63,56 @@ function Story({ isEditMode, contentRef }: StoryProps) {
     }
 
     setTimeout(() => {
-      const y = activity.offsetTop + destination.offsetTop;
-      (contentRef.current as any).scrollToBottom(y);
+      activity.scrollIntoView({ behavior: 'smooth' });
     }, 500);
   };
 
   useEffect(() => {
-    const activityId = Number(activityIdQuery);
-    if (!Number.isNaN(activityId)) {
-      const destinationId = story.activities.find(act => act.id === activityId)?.destination_id;
+    if (focusActivity) {
+      const destinationId = story.activities.find(act => act.id === focusActivity)?.destination_id;
 
       if (!destinationId) return;
 
-      const destination = document.getElementById(`destination-${destinationId}`);
+      const destination = destinations.find(dest => dest.id === destinationId);
 
       if (!destination) {
         return;
       }
 
-      destination.click();
-      scrollTo(activityId, destinationId);
+      setTimeout(() => {
+        toggleAccordion(destination);
+        scrollToActivity(focusActivity);
+        setFocusActivity(null);
+      }, 500);
+    } else if (focusDestination) {
+      if (!destinations.find(dest => dest.id === focusDestination)) {
+        return;
+      }
+
+      const destination = destinations.find(dest => dest.id === focusDestination);
+      const destinationElement = document.getElementById(`destination-${focusDestination}`);
+
+      if (!destination || !destinationElement) {
+        return;
+      }
+
+      setTimeout(() => {
+        toggleAccordion(destination);
+        setTimeout(() => {
+          destinationElement.scrollIntoView({ behavior: 'smooth' });
+          setFocusDestination(null);
+        }, 500);
+      }, 500);
     }
-  }, [story, activityIdQuery, scrollTo]);
+  }, [
+    story,
+    setFocusActivity,
+    focusActivity,
+    scrollToActivity,
+    destinations,
+    focusDestination,
+    setFocusDestination,
+  ]);
 
   function handleReorder(event: CustomEvent<ItemReorderEventDetail>) {
     event.detail.complete();
@@ -116,6 +142,15 @@ function Story({ isEditMode, contentRef }: StoryProps) {
     setDestinations([{ ...dest, id: newDestId }, ...destinations]);
   }
 
+  const toggleAccordion = (destination: ParsedDestination) => {
+    if (!accordionGroup.current) {
+      return;
+    }
+    const nativeEl = accordionGroup.current;
+
+    nativeEl.value = [`${destination.name}-${destination.id}`];
+  };
+
   const destinationsToRender = useMemo(
     () =>
       destinations
@@ -142,7 +177,7 @@ function Story({ isEditMode, contentRef }: StoryProps) {
   return (
     <>
       {isEditMode && <AddDestination handleAddDestination={handleAddDestination} />}
-      <IonAccordionGroup multiple>
+      <IonAccordionGroup multiple ref={accordionGroup}>
         <IonReorderGroup onIonItemReorder={handleReorder} disabled={!isEditMode}>
           {...destinationsToRender}
         </IonReorderGroup>

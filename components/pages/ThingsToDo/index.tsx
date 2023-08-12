@@ -15,8 +15,12 @@ import {
 import Notifications from '../Notifications';
 import { useCallback, useMemo, useState } from 'react';
 import { notificationsOutline } from 'ionicons/icons';
-import { useRecoilValue } from 'recoil';
-import { activitiesWithCategoriesSelector, categoriesSelector } from '../../../states/explore';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import {
+  activitiesWithCategoriesSelector,
+  categoriesSelector,
+  focusOnActivity,
+} from '../../../states/explore';
 import { useIonRouter } from '@ionic/react';
 import ActivitiesTape from '../../ui/ActivitiesTape';
 import ActivityModal from './ActivityModal';
@@ -31,11 +35,16 @@ const ThingsToDo = () => {
   const [presentActivity, setPresentActivity] = useState<number>();
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchText, setSearchText] = useState('');
+  const setFocusOnActivity = useSetRecoilState(focusOnActivity);
   const router = useIonRouter();
 
-  const onGoToStory = useCallback((taleId: number, activityId: number) => {
-    router.push(`/tabs/tale/${taleId}?activity-id=${activityId}`);
-  }, []);
+  const onGoToStory = useCallback(
+    (taleId: number, activityId: number) => {
+      setFocusOnActivity(activityId);
+      router.push(`/tabs/tale/${taleId}`);
+    },
+    [setFocusOnActivity]
+  );
 
   const [present, dismiss] = useIonModal(ActivityModal, {
     id: 'activityModal',

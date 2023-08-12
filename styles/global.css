@@ -221,3 +221,19 @@ ion-modal#hour-pick::part(backdrop) {
   background: rgba(209, 213, 219);
   opacity: 1;
 }
+
+.maplibregl-popup-content {
+  @apply
+  text-white
+    p-2
+  bg-gray-800;
+}
+
+.maplibregl-popup-tip {
+  border-top-color: #1F2937 !important;
+}
+
+.maplibregl-popup-close-button {
+    @apply
+    hidden;
+}

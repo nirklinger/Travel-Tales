@@ -56,3 +56,13 @@ export const currentTaleStory = selector<StoryResponse>({
     if (taleId) return await fetchTaleStory(taleId);
   },
 });
+
+export const focusOnDestination = atom<number>({
+  key: 'focusOnDestination',
+  default: null,
+});
+
+export const focusOnActivity = atom<number>({
+  key: 'focusOnActivity',
+  default: null,
+});
