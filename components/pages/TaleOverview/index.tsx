@@ -32,8 +32,19 @@ import {
   pencilOutline,
 } from 'ionicons/icons';
 import { OverlayEventDetail } from '@ionic/core/components';
-import { useRecoilState, useRecoilValue } from 'recoil';
-import { currentTale, currentTaleIdState, currentTaleStory } from '../../../states/explore';
+import {
+  useRecoilRefresher_UNSTABLE,
+  useRecoilState,
+  useRecoilValue,
+  useSetRecoilState,
+} from 'recoil';
+import {
+  currentTale,
+  currentTaleIdState,
+  currentTaleStory,
+  focusOnActivity,
+  focusOnDestination,
+} from '../../../states/explore';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Story from './Story';
@@ -41,7 +52,7 @@ import Map from './Map';
 import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
 import { Filesystem } from '@capacitor/filesystem';
 import { Directory } from '@capacitor/filesystem';
-import { LocalFile } from '../../../types/types';
+import { LocalFile, ParsedDestination } from '../../../types/types';
 import { updateTaleCoverPhoto } from '../../../managers/tales-manager';
 import ImageUpload from '../../common/ImageUpload';
 
@@ -57,9 +68,13 @@ const TaleOverview = () => {
   const [isUserTaleOwner, setIsUserTaleOwner] = useState(false);
   const [currentTaleId, setCurrentTaleId] = useRecoilState(currentTaleIdState);
   const taleStory = useRecoilValue(currentTaleStory);
+  const resetStory = useRecoilRefresher_UNSTABLE(currentTaleStory);
   const tale = useRecoilValue(currentTale);
   const [segment, setSegment] = useState<Segments>(Segments.story);
   const [coverPhoto, setCoverPhoto] = useState<LocalFile>({ name: '', path: '', data: '' });
+  const contentRef = useRef<HTMLIonContentElement>();
+  const setFocusDestination = useSetRecoilState(focusOnDestination);
+  const setFocusActivity = useSetRecoilState(focusOnActivity);
 
   const modal = useRef<HTMLIonModalElement>(null);
   let { taleId } = useParams();
@@ -72,9 +87,34 @@ const TaleOverview = () => {
     }
   }, [session?.profile.sub, status, tale]);
 
-  useEffect(() => () => setCurrentTaleId(null), []);
+  useEffect(
+    () => () => {
+      setCurrentTaleId(null);
+      setFocusDestination(null);
+      setFocusActivity(null);
+      setEdit(false);
+      resetStory();
+    },
+    []
+  );
 
-  if (currentTaleId != taleId) setCurrentTaleId(Number(taleId));
+  useEffect(() => {
+    if (currentTaleId != taleId) setCurrentTaleId(Number(taleId));
+  }, [currentTaleId, taleId, setCurrentTaleId]);
+
+  useEffect(() => {
+    if (currentTaleId) {
+      setSegment(Segments.story);
+    }
+  }, [currentTaleId, setSegment]);
+
+  const viewDestinationInStory = useCallback(
+    (destination: ParsedDestination) => {
+      setSegment(Segments.story);
+      setFocusDestination(destination.id);
+    },
+    [setSegment, setFocusDestination]
+  );
 
   if (!tale) {
     return <div>no tail</div>;
@@ -95,21 +135,26 @@ const TaleOverview = () => {
           </IonButton>}
         </IonToolbar>
       </IonHeader>
-      <IonContent className={''}>
-        {segment === Segments.story && (<div className="relative">
-          <img
-            className="lg:h-96 lg:w-3/6 m-auto object-cover sm:h-full sm:w-48"
-            src={cover_photo_url}
-          />
-          {edit && <>
-            <IonFabButton id='fab-trigger' className="absolute bottom-0 right-0">
-              <IonIcon icon={pencil} />
-            </IonFabButton>
-            <ImageUpload isMultiUpload={false} trigger='fab-trigger' onUpload={(coverPhoto) => updateTaleCoverPhoto(taleId, coverPhoto)}/>
-          </>
-          }
-
-        </div>
+      <IonContent ref={contentRef} className={''}>
+        {segment === Segments.story && (
+          <div className="relative">
+            <img
+              className="lg:h-96 lg:w-3/6 m-auto object-cover sm:h-full sm:w-48"
+              src={cover_photo_url}
+            />
+            {edit && (
+              <>
+                <IonFabButton className="absolute bottom-0 right-0">
+                  <IonIcon id="fab-trigger" icon={pencil} />
+                </IonFabButton>
+                <ImageUpload
+                  isMultiUpload={false}
+                  trigger="fab-trigger"
+                  onUpload={coverPhoto => updateTaleCoverPhoto(taleId, coverPhoto)}
+                />
+              </>
+            )}
+          </div>
         )}
         <div className={'w-full'}>
           <IonSegment
@@ -124,12 +169,11 @@ const TaleOverview = () => {
             </IonSegmentButton>
           </IonSegment>
         </div>
-        {segment === Segments.story && <Story isEditMode={edit} />}
-        {segment === Segments.viewOnMap && <Map />}
+        {segment === Segments.story && <Story isEditMode={edit} contentRef={contentRef} />}
+        {segment === Segments.viewOnMap && <Map viewDestinationInStory={viewDestinationInStory} />}
       </IonContent>
     </IonPage>
   );
 };
-
 
 export default TaleOverview;

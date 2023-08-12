@@ -46,5 +46,5 @@ export async function up(knex: Knex): Promise<void> {
 }
 
 export async function down(knex: Knex): Promise<void> {
-  await knex.schema.withSchema(SCHEMA_NAME).dropTable('activities');
+  await knex.schema.withSchema(SCHEMA_NAME).dropTable('activity_embeddings');
 }

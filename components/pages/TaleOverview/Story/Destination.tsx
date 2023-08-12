@@ -79,6 +79,7 @@ export function Destination({
       duration: parse('00:00:00'),
       name: '',
       description: '',
+      should_embed: false,
       day_index: 0,
       sequential_number: activities.length,
       media: [],
@@ -204,7 +205,7 @@ export function Destination({
 
   return (
     <IonAccordion value={`${destination.name}-${destination.id}`}>
-      <IonItem slot="header">
+      <IonItem slot="header" id={`destination-${destination.id}`}>
         {isEditMode && (
           <div className={'text-xl'} onClickCapture={handleDeleteDestination}>
             <IonIcon

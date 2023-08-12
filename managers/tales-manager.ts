@@ -1,7 +1,14 @@
 import { fetchWrapper } from '../utils/fetchWrapper';
 import { StatusCodes } from 'http-status-codes';
 import { Activities, Trips, Users } from '../types/db-schema-definitions';
-import { LocalFile, NewTrip, StoryResponse, Tale, TalesResponse } from '../types/types';
+import {
+  LocalFile,
+  NewTrip,
+  StoryResponse,
+  Tale,
+  TalesResponse,
+  TalesSearchResponse,
+} from '../types/types';
 
 export async function fetchTales(): Promise<Tale[]> {
   const res = await fetchWrapper.get('/api/tales');
@@ -49,29 +56,19 @@ export const createTale = async (taleToCreate: NewTrip): Promise<any> => {
   return newTaleId.trip_id;
 };
 
-export const search = async (searchText: string): Promise<Tale[]> => {
-  const res = await fetchWrapper.get(`/api/activities/search`, { search: searchText });
+export const search = async (searchText: string): Promise<number[]> => {
+  const res = await fetchWrapper.get(`/api/tales/search`, { search: searchText });
   if (!res.ok) {
     switch (res.status) {
       default:
         throw new Error('could not search activity');
     }
   }
-  const { tales } = (await res.json()) as TalesResponse;
-  return tales.map(tale => ({
-    ...tale,
-    author: `${tale.name}`,
-    start_date: new Date(tale.start_date),
-    end_date: new Date(tale.end_date),
-  }));
+  const { talesIds } = (await res.json()) as TalesSearchResponse;
+  return talesIds;
 };
 
 export const updateTaleCoverPhoto = async (taleId: number, coverPhoto: LocalFile): Promise<any> => {
-  const reqBody = {taleId, coverPhoto};
+  const reqBody = { taleId, coverPhoto };
   const res = await fetchWrapper.put(`/api/tales/${taleId}/coverPhoto`, reqBody);
-
-  const { url } = await res.json();
-  
-  return url;
-}
-
+};

@@ -38,7 +38,6 @@ const REDIRECT_PATH = '/tabs/tale/';
 const DEFAULT_USER_ID = 1;
 const IMAGE_DIR = '';
 
-
 const CreateTale = () => {
   const [tripName, setTripName] = useState('');
   const [isTripNameValid, setIsTripNameValid] = useState(false);
@@ -161,7 +160,12 @@ const CreateTale = () => {
               </IonItem>
               <IonItem>
                 <IonLabel>Start Date</IonLabel>
-                <IonDatetimeButton datetime="startDatetime" onClick={() => {setShowStartDateModal(true)}}></IonDatetimeButton>
+                <IonDatetimeButton
+                  datetime="startDatetime"
+                  onClick={() => {
+                    setShowStartDateModal(true);
+                  }}
+                ></IonDatetimeButton>
                 <IonModal keepContentsMounted={true} isOpen={showStartDateModal}>
                   <IonDatetime
                     id="startDatetime"
@@ -172,7 +176,12 @@ const CreateTale = () => {
               </IonItem>
               <IonItem>
                 <IonLabel>End Date</IonLabel>
-                <IonDatetimeButton datetime="endDatetime" onClick={() => {setShowEndDateModal(true)}}></IonDatetimeButton>
+                <IonDatetimeButton
+                  datetime="endDatetime"
+                  onClick={() => {
+                    setShowEndDateModal(true);
+                  }}
+                ></IonDatetimeButton>
                 <IonModal keepContentsMounted={true} isOpen={showEndDateModal}>
                   <IonDatetime
                     id="endDatetime"

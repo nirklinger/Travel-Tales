@@ -203,6 +203,15 @@ body {
   --ion-color-tint: var(--ion-color-purple-tint);
 }
 
+@media (min-width: 768px) {
+  ion-modal {
+    --height: 80vh;
+    --width: 80vw;
+    --border-radius: 16px;
+
+  }
+}
+
 ion-modal#hour-pick {
   --border-radius: 16px;
   --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
@@ -211,4 +220,20 @@ ion-modal#hour-pick {
 ion-modal#hour-pick::part(backdrop) {
   background: rgba(209, 213, 219);
   opacity: 1;
+}
+
+.maplibregl-popup-content {
+  @apply
+  text-white
+    p-2
+  bg-gray-800;
+}
+
+.maplibregl-popup-tip {
+  border-top-color: #1F2937 !important;
+}
+
+.maplibregl-popup-close-button {
+    @apply
+    hidden;
 }

@@ -12,9 +12,9 @@ import {
   IonInput,
 } from '@ionic/react';
 import Notifications from '../Notifications';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { notificationsOutline } from 'ionicons/icons';
-import TripCard from '../../TripCard';
+import TripCard from '../../ui/TripCard';
 import { useRecoilValue } from 'recoil';
 import { currentTale, tales } from '../../../states/explore';
 import { useIonRouter } from '@ionic/react';
@@ -26,7 +26,7 @@ import { cwd } from 'process';
 
 const Explore = () => {
   const tripList = useRecoilValue(tales);
-  const [searchedTales, setSearchedTales] = useState<Tale[]>([]);
+  const [searchedTales, setSearchedTales] = useState<number[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchText, setSearchText] = useState('');
   const router = useIonRouter();
@@ -55,6 +55,12 @@ const Explore = () => {
   const selectTale = useCallback((id: number) => {
     router.push(`/tabs/tale/${id}`);
   }, []);
+
+  const talesToPresent = useMemo(() => {
+    return searchedTales.length && searchText.length
+      ? tripList.filter(tale => searchedTales.includes(tale.trip_id))
+      : tripList;
+  }, [searchText, searchedTales]);
 
   return (
     <IonPage>
@@ -86,7 +92,7 @@ const Explore = () => {
           ></IonInput>
         </IonItem>
         <div className="grid grid-flow-row gap-8 text-neutral-600 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {(searchedTales.length ? searchedTales : tripList).map((tale, index) => (
+          {talesToPresent.map((tale, index) => (
             <TripCard {...tale} key={index} onClick={() => selectTale(tale.trip_id)} />
           ))}
         </div>

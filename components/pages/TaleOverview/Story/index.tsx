@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react';
 import {
   IonAccordionGroup,
   IonFab,
@@ -6,16 +6,24 @@ import {
   IonIcon,
   IonReorderGroup,
   ItemReorderEventDetail,
+  useIonRouter,
 } from '@ionic/react';
 import { NewTripDestination, ParsedDestination } from '../../../../types/types';
 import { Destination } from './Destination';
 import { add } from 'ionicons/icons';
-import { currentTale, currentTaleIdState, currentTaleStory } from '../../../../states/explore';
-import { useRecoilRefresher_UNSTABLE, useRecoilValue } from 'recoil';
+import {
+  currentTale,
+  currentTaleIdState,
+  currentTaleStory,
+  focusOnActivity,
+  focusOnDestination,
+} from '../../../../states/explore';
+import { useRecoilRefresher_UNSTABLE, useRecoilState, useRecoilValue } from 'recoil';
 import { createDestination, deleteDestination } from '../../../../managers/destination-manager';
 
 type StoryProps = {
   isEditMode?: boolean;
+  contentRef: MutableRefObject<HTMLElement | null>;
 };
 
 function AddDestination({ handleAddDestination }) {
@@ -30,20 +38,81 @@ function AddDestination({ handleAddDestination }) {
   );
 }
 
-function Story({ isEditMode }: StoryProps) {
+function Story({ isEditMode, contentRef }: StoryProps) {
   const story = useRecoilValue(currentTaleStory);
   const taleId = useRecoilValue(currentTaleIdState);
   const tale = useRecoilValue(currentTale);
-  const resetStory = useRecoilRefresher_UNSTABLE(currentTaleStory);
   const [destinations, setDestinations] = useState<ParsedDestination[]>([]);
+  const accordionGroup = useRef<null | HTMLIonAccordionGroupElement>(null);
+  const router = useIonRouter();
+  const [focusDestination, setFocusDestination] = useRecoilState(focusOnDestination);
+  const [focusActivity, setFocusActivity] = useRecoilState(focusOnActivity);
   const tripDurationInDays = Math.floor(
-      (tale.end_date.getTime() - tale.start_date.getTime()) / (1000 * 60 * 60 * 24)
+    (tale.end_date.getTime() - tale.start_date.getTime()) / (1000 * 60 * 60 * 24)
   );
 
   useEffect(() => {
     setDestinations(story.destinations);
-    return resetStory;
   }, [story]);
+
+  const scrollToActivity = (activityId: number) => {
+    const activity = document.getElementById(`activity-${activityId}`);
+
+    if (!activity || !contentRef.current) {
+      return;
+    }
+
+    setTimeout(() => {
+      activity.scrollIntoView({ behavior: 'smooth' });
+    }, 500);
+  };
+
+  useEffect(() => {
+    if (focusActivity) {
+      const destinationId = story.activities.find(act => act.id === focusActivity)?.destination_id;
+
+      if (!destinationId) return;
+
+      const destination = destinations.find(dest => dest.id === destinationId);
+
+      if (!destination) {
+        return;
+      }
+
+      setTimeout(() => {
+        toggleAccordion(destination);
+        scrollToActivity(focusActivity);
+        setFocusActivity(null);
+      }, 500);
+    } else if (focusDestination) {
+      if (!destinations.find(dest => dest.id === focusDestination)) {
+        return;
+      }
+
+      const destination = destinations.find(dest => dest.id === focusDestination);
+      const destinationElement = document.getElementById(`destination-${focusDestination}`);
+
+      if (!destination || !destinationElement) {
+        return;
+      }
+
+      setTimeout(() => {
+        toggleAccordion(destination);
+        setTimeout(() => {
+          destinationElement.scrollIntoView({ behavior: 'smooth' });
+          setFocusDestination(null);
+        }, 500);
+      }, 500);
+    }
+  }, [
+    story,
+    setFocusActivity,
+    focusActivity,
+    scrollToActivity,
+    destinations,
+    focusDestination,
+    setFocusDestination,
+  ]);
 
   function handleReorder(event: CustomEvent<ItemReorderEventDetail>) {
     event.detail.complete();
@@ -59,7 +128,7 @@ function Story({ isEditMode }: StoryProps) {
       Math.max(...destinations.map(dest => dest.last_day)) + 1,
       tripDurationInDays
     );
-    const sequential_number = Math.max(...destinations.map(dest => dest.sequential_number)) + 1;
+    const sequential_number = Math.max(...destinations.map(dest => dest.sequential_number), 0) + 1;
     const dest: NewTripDestination = {
       trip_id: taleId,
       first_day: day,
@@ -72,6 +141,15 @@ function Story({ isEditMode }: StoryProps) {
     const newDestId = await createDestination(dest);
     setDestinations([{ ...dest, id: newDestId }, ...destinations]);
   }
+
+  const toggleAccordion = (destination: ParsedDestination) => {
+    if (!accordionGroup.current) {
+      return;
+    }
+    const nativeEl = accordionGroup.current;
+
+    nativeEl.value = [`${destination.name}-${destination.id}`];
+  };
 
   const destinationsToRender = useMemo(
     () =>
@@ -99,7 +177,7 @@ function Story({ isEditMode }: StoryProps) {
   return (
     <>
       {isEditMode && <AddDestination handleAddDestination={handleAddDestination} />}
-      <IonAccordionGroup multiple>
+      <IonAccordionGroup multiple ref={accordionGroup}>
         <IonReorderGroup onIonItemReorder={handleReorder} disabled={!isEditMode}>
           {...destinationsToRender}
         </IonReorderGroup>

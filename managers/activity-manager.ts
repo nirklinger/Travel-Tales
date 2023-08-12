@@ -1,7 +1,13 @@
-import { LocalFile, NewActivitiesWithMedia, NewTripDestination } from '../types/types';
+import {
+  ActivitiesResponse,
+  NewActivitiesWithMedia,
+  LocalFile,
+  ActivitiesSearchResponse,
+} from '../types/types';
 import { fetchWrapper } from '../utils/fetchWrapper';
 import { IPostgresInterval } from 'postgres-interval';
 import { Activities } from '../types/db-schema-definitions';
+import { StatusCodes } from 'http-status-codes';
 
 export const createActivity = async (activityToCreate: NewActivitiesWithMedia): Promise<number> => {
   const duration = (activityToCreate.duration as IPostgresInterval).toPostgres();
@@ -39,13 +45,26 @@ export const patchActivity = async (
   }
 };
 
-export const uploadActivityMedias = async (activityId: number, photos: LocalFile[]) => {
-  photos.forEach(photo => 
-    uploadActivityMedia(activityId, photo)
-    )
-}
+export const fetchActivitiesCategories = async (): Promise<ActivitiesResponse> => {
+  const res = await fetchWrapper.get('/api/activities');
 
-const uploadActivityMedia = async (activityId: number, photo:LocalFile) => {
+  if (!res.ok) {
+    switch (res.status) {
+      case StatusCodes.NOT_FOUND:
+        throw new Error('no current activities exists');
+        break;
+      default:
+        throw new Error('could not fetch activities');
+    }
+  }
+  return (await res.json()) as ActivitiesResponse;
+};
+
+export const uploadActivityMedias = async (activityId: number, photos: LocalFile[]) => {
+  photos.forEach(photo => uploadActivityMedia(activityId, photo));
+};
+
+const uploadActivityMedia = async (activityId: number, photo: LocalFile) => {
   const res = await fetchWrapper.post(`/api/activities/${activityId}/media`, photo);
   if (!res.ok) {
     switch (res.status) {
@@ -53,4 +72,16 @@ const uploadActivityMedia = async (activityId: number, photo:LocalFile) => {
         throw new Error('could not upload activity media');
     }
   }
-}
+};
+
+export const search = async (searchText: string): Promise<number[]> => {
+  const res = await fetchWrapper.get(`/api/activities/search`, { search: searchText });
+  if (!res.ok) {
+    switch (res.status) {
+      default:
+        throw new Error('could not search activities');
+    }
+  }
+  const { activitiesIds } = (await res.json()) as ActivitiesSearchResponse;
+  return activitiesIds;
+};

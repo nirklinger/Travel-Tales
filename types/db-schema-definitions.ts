@@ -11,8 +11,10 @@ export enum MediaType {
 
 export enum Table {
   Activities = 'travel_tales.activities',
+  ActivityCategories = 'travel_tales.activity_categories',
   ActivityEmbeddings = 'travel_tales.activity_embeddings',
   ActivityMedia = 'travel_tales.activity_media',
+  Categories = 'travel_tales.categories',
   TripDestinations = 'travel_tales.trip_destinations',
   Trips = 'travel_tales.trips',
   Users = 'travel_tales.users',
@@ -21,8 +23,10 @@ export enum Table {
 
 export type Tables = {
   'travel_tales.activities': Activities;
+  'travel_tales.activity_categories': ActivityCategories;
   'travel_tales.activity_embeddings': ActivityEmbeddings;
   'travel_tales.activity_media': ActivityMedia;
+  'travel_tales.categories': Categories;
   'travel_tales.trip_destinations': TripDestinations;
   'travel_tales.trips': Trips;
   'travel_tales.users': Users;
@@ -32,11 +36,18 @@ export type Tables = {
 export type Activities = {
   id: number;
   destination_id: number;
-  duration: PostgresInterval.IPostgresInterval | string | null;
+  duration: PostgresInterval.IPostgresInterval | null | string;
   name: string;
   description: string | null;
   day_index: number;
+  should_embed: boolean;
   sequential_number: number;
+};
+
+export type ActivityCategories = {
+  id: number;
+  activity_id: number;
+  category_id: number;
 };
 
 export type ActivityEmbeddings = {
@@ -52,6 +63,14 @@ export type ActivityMedia = {
   activity_id: number;
   media_type: MediaType | null;
   media_url: string;
+};
+
+export type Categories = {
+  id: number;
+  name: string | null;
+  description: string | null;
+  content_tokens: number | null;
+  embedding: string;
 };
 
 export type TripDestinations = {

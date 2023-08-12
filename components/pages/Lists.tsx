@@ -35,7 +35,6 @@ const AllTales = ({ onSelect }) => {
 
 const MyTales = () => {
   const router = useIonRouter();
-  
 
   return (
     <IonPage>
@@ -51,10 +50,10 @@ const MyTales = () => {
           </IonToolbar>
         </IonHeader>
         <IonList>
-          <AllTales />
+          <AllTales onSelect={() => {}} />
         </IonList>
       </IonContent>
-      <IonButton href={"/tabs/tale/create"}>Create New Tale</IonButton>
+      <IonButton href={'/tabs/tale/create'}>Create New Tale</IonButton>
     </IonPage>
   );
 };

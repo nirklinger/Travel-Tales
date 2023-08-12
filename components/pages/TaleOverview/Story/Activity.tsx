@@ -78,13 +78,15 @@ export function Activity({ activity: activityReadonly, canEdit, onDeleteActivity
     <>
       <IonDatetimeButton color={'tertiary'} datetime={`datetime-${activity.id}`}>
         <IonLabel slot={'time-target'}>
-          {parseDuration(activity.duration as PostgresInterval.IPostgresInterval)}
+          {(activity.duration as PostgresInterval.IPostgresInterval)?.hours
+            ? parseDuration(activity.duration as PostgresInterval.IPostgresInterval)
+            : '00:00'}
         </IonLabel>
       </IonDatetimeButton>
       <IonIcon color={'tertiary'} icon={timeOutline} />
 
       <IonModal id="hour-pick" keepContentsMounted={true}>
-        <div className={'w-80 flex flex-col items-stretch bg-purple-200'}>
+        <div className={'w-80 flex flex-col items-stretch'}>
           <h3 className={'mx-auto'}>Set Activity duration.</h3>
           <span className={'mx-auto pb-1'}>(Hours - Minutes)</span>
           <IonDatetime
@@ -99,14 +101,19 @@ export function Activity({ activity: activityReadonly, canEdit, onDeleteActivity
       </IonModal>
     </>
   ) : (
-    <>
-      <IonLabel>{parseDuration(activity.duration as PostgresInterval.IPostgresInterval)}</IonLabel>
-      <IonIcon color={'tertiary'} icon={timeOutline} />
-    </>
+    (activity.duration as PostgresInterval.IPostgresInterval)?.hours && (
+      <>
+        <IonLabel>
+          {parseDuration(activity.duration as PostgresInterval.IPostgresInterval)}
+        </IonLabel>
+        <IonIcon color={'tertiary'} icon={timeOutline} />
+      </>
+    )
   );
 
   return (
     <div
+      id={`activity-${activity.id}`}
       className={
         'border border-gray-400 rounded-md bg-blue-50 lg:shadow-lg md:shadow-lg px-4 mx-2 py-4'
       }
@@ -159,7 +166,7 @@ export function Activity({ activity: activityReadonly, canEdit, onDeleteActivity
           readonly={!canEdit}
         ></IonTextarea>
       </div>
-      <ImageTape media={activity.media} isEdit={canEdit} activityId={activityReadonly.id}/>
+      <ImageTape media={activity.media} isEdit={canEdit} activityId={activityReadonly.id} />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import TripCard from '../TripCard';
+import TripCard from './TripCard';
 import { MediaType } from '../../types/db-schema-definitions';
 import Image from 'next/image';
 import ImageUpload from '../common/ImageUpload';
