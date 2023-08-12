@@ -1608,8 +1608,8 @@ export const uploadActivityMediaToServer = async (id: number, uploadPhotos: form
 
   const promises = uploadPhotos.map(async uploadPhoto => {
     await uploadActivityMedia(taleId, id, uploadPhoto);
-    await updateDbActivityMediaTable(taleId, id, uploadPhoto);
+    return await updateDbActivityMediaTable(taleId, id, uploadPhoto);
   });
 
-  return await Promise.allSettled(promises);
+  return await Promise.all(promises);
 };

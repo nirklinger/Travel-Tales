@@ -1,19 +1,27 @@
-import TripCard from './TripCard';
 import { MediaType } from '../../types/db-schema-definitions';
 import Image from 'next/image';
 import ImageUpload from '../common/ImageUpload';
 import { uploadActivityMedias } from '../../managers/activity-manager';
+import { useState } from 'react';
 
 function ImageTape({
-  media,
+  mediaReadonly,
   isEdit,
   activityId,
 }: {
-  media: { media_type: MediaType | null; media_url: string }[];
+  mediaReadonly: { media_type: MediaType | null; media_url: string }[];
   isEdit: boolean;
   activityId: number;
 }) {
   const uploadImage = '/img/clickHereToUpload.jpeg';
+  const [media, setMedia] = useState<{ media_type: MediaType | null; media_url: string }[]>(
+    mediaReadonly
+  );
+
+  const uploadMedia = async (photos: File[]) => {
+    const mediaUploaded = await uploadActivityMedias(activityId, photos);
+    setMedia([...media, ...mediaUploaded]);
+  };
 
   if (!media.length && !isEdit) return;
   return (
@@ -31,7 +39,7 @@ function ImageTape({
           <ImageUpload
             isMultiUpload={true}
             trigger={`activity-trigger-${activityId}`}
-            onUpload={photos => uploadActivityMedias(activityId, photos)}
+            onUpload={photos => uploadMedia(photos)}
           />
         </>
       )}

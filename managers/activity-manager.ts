@@ -3,6 +3,7 @@ import {
   NewActivitiesWithMedia,
   LocalFile,
   ActivitiesSearchResponse,
+  ActivityMediaUploadRes,
 } from '../types/types';
 import { fetchWrapper } from '../utils/fetchWrapper';
 import { IPostgresInterval } from 'postgres-interval';
@@ -61,7 +62,6 @@ export const fetchActivitiesCategories = async (): Promise<ActivitiesResponse> =
 };
 
 export const uploadActivityMedias = async (activityId: number, photos: File[]) => {
-  // photos.forEach(photo => uploadActivityMedia(activityId, photo));
   const formData = new FormData();
   formData.append('activityId', activityId.toString());
   photos.forEach(photo => formData.append('uploadPhotos', photo));
@@ -79,7 +79,7 @@ export const uploadActivityMedias = async (activityId: number, photos: File[]) =
     }
   }
 
-  return res.json();
+  return ((await res.json()) as ActivityMediaUploadRes)?.uploadedMedia;
 };
 
 const uploadActivityMedia = async (activityId: number, photo: LocalFile) => {

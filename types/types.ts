@@ -2,6 +2,7 @@ import {
   Activities,
   ActivityMedia,
   Categories,
+  MediaType,
   TripDestinations,
   Trips,
   Users,
@@ -39,6 +40,14 @@ export type CreateNewActivityResponse = { id: number };
 
 export type GetActivitiesResponse = {
   activities: ActivitiesWithMedia[];
+};
+
+export type ActivityMediaUploadRes = {
+  uploadedMedia: { activity_id: number; media_type: MediaType; media_url: string }[];
+};
+
+export type TaleCoverPhotoUploadRes = {
+  coverPhotoUrl: string;
 };
 
 export type TalesResponse = {

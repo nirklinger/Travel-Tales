@@ -65,11 +65,10 @@ const IMAGE_DIR = 'stored-images';
 const TaleOverview = () => {
   const [edit, setEdit] = useState(false);
   const [currentTaleId, setCurrentTaleId] = useRecoilState(currentTaleIdState);
-  const taleStory = useRecoilValue(currentTaleStory);
   const resetStory = useRecoilRefresher_UNSTABLE(currentTaleStory);
   const tale = useRecoilValue(currentTale);
   const [segment, setSegment] = useState<Segments>(Segments.story);
-  const [coverPhoto, setCoverPhoto] = useState<LocalFile>({ name: '', path: '', data: '' });
+  const [coverPhoto, setCoverPhoto] = useState<string>(tale?.cover_photo_url || '');
   const contentRef = useRef<HTMLIonContentElement>();
   const setFocusDestination = useSetRecoilState(focusOnDestination);
   const setFocusActivity = useSetRecoilState(focusOnActivity);
@@ -98,6 +97,11 @@ const TaleOverview = () => {
     }
   }, [currentTaleId, setSegment]);
 
+  const uploadCoverPhoto = async (coverPhoto: File) => {
+    const newCoverPhoto = await updateTaleCoverPhoto(taleId, coverPhoto);
+    setCoverPhoto(newCoverPhoto);
+  };
+
   const viewDestinationInStory = useCallback(
     (destination: ParsedDestination) => {
       setSegment(Segments.story);
@@ -110,7 +114,7 @@ const TaleOverview = () => {
     return <div>no tail</div>;
   }
 
-  const { title, catch_phrase, author, avatar_photo, cover_photo_url } = tale;
+  const { title } = tale;
 
   return (
     <IonPage>
@@ -130,7 +134,7 @@ const TaleOverview = () => {
           <div className="relative">
             <img
               className="lg:h-96 lg:w-3/6 m-auto object-cover sm:h-full sm:w-48"
-              src={cover_photo_url}
+              src={coverPhoto}
             />
             {edit && (
               <>
@@ -140,7 +144,7 @@ const TaleOverview = () => {
                 <ImageUpload
                   isMultiUpload={false}
                   trigger="fab-trigger"
-                  onUpload={coverPhoto => updateTaleCoverPhoto(taleId, coverPhoto)}
+                  onUpload={([coverPhoto]) => uploadCoverPhoto(coverPhoto)}
                 />
               </>
             )}

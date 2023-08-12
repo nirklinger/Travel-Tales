@@ -174,4 +174,5 @@ export const updateDbActivityMediaTable = async (
     media_url: `/Tales/${taleId}/${photo.originalFilename}`,
   };
   await connection.insert(activityMedia, 'id').into(Table.ActivityMedia);
+  return activityMedia;
 };
