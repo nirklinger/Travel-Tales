@@ -1,6 +1,7 @@
 import type { Knex } from 'knex';
-
+import dotenv from 'dotenv';
 // Update with your config settings.
+dotenv.config();
 
 const config: { [key: string]: Knex.Config } = {
   development: {
@@ -12,7 +13,6 @@ const config: { [key: string]: Knex.Config } = {
       user: 'postgres',
       password: 'postgres',
       database: 'travel_tales',
-      ssl: { rejectUnauthorized: false },
     },
     pool: {
       min: 2,
@@ -32,9 +32,11 @@ const config: { [key: string]: Knex.Config } = {
     client: 'postgresql',
     connection: {
       ssl: { rejectUnauthorized: false },
-      database: 'my_db',
-      user: 'username',
-      password: 'password',
+      port: Number(process.env.DB_PORT) || 5432,
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
     },
     pool: {
       min: 2,

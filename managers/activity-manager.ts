@@ -1,4 +1,9 @@
-import { ActivitiesResponse, NewActivitiesWithMedia, LocalFile, NewTripDestination } from '../types/types';
+import {
+  ActivitiesResponse,
+  NewActivitiesWithMedia,
+  LocalFile,
+  ActivitiesSearchResponse,
+} from '../types/types';
 import { fetchWrapper } from '../utils/fetchWrapper';
 import { IPostgresInterval } from 'postgres-interval';
 import { Activities } from '../types/db-schema-definitions';
@@ -56,12 +61,10 @@ export const fetchActivitiesCategories = async (): Promise<ActivitiesResponse> =
 };
 
 export const uploadActivityMedias = async (activityId: number, photos: LocalFile[]) => {
-  photos.forEach(photo =>
-    uploadActivityMedia(activityId, photo)
-    )
-}
+  photos.forEach(photo => uploadActivityMedia(activityId, photo));
+};
 
-const uploadActivityMedia = async (activityId: number, photo:LocalFile) => {
+const uploadActivityMedia = async (activityId: number, photo: LocalFile) => {
   const res = await fetchWrapper.post(`/api/activities/${activityId}/media`, photo);
   if (!res.ok) {
     switch (res.status) {
@@ -69,4 +72,16 @@ const uploadActivityMedia = async (activityId: number, photo:LocalFile) => {
         throw new Error('could not upload activity media');
     }
   }
-}
+};
+
+export const search = async (searchText: string): Promise<number[]> => {
+  const res = await fetchWrapper.get(`/api/activities/search`, { search: searchText });
+  if (!res.ok) {
+    switch (res.status) {
+      default:
+        throw new Error('could not search activities');
+    }
+  }
+  const { activitiesIds } = (await res.json()) as ActivitiesSearchResponse;
+  return activitiesIds;
+};

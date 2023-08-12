@@ -3,7 +3,7 @@ import knex from 'knex';
 const connection = knex({
   client: 'pg',
   connection: {
-    ssl: { rejectUnauthorized: false },
+    ssl: process.env.NODE_ENV === 'development' ? false : { rejectUnauthorized: false },
     port: Number(process.env.DB_PORT) || 5432,
     host: process.env.DB_HOST,
     user: process.env.DB_USER,

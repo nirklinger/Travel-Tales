@@ -13,6 +13,10 @@ export type StoryResponse = {
   activities: ActivitiesWithMedia[];
 };
 
+export type ActivitiesSearchResponse = { activitiesIds: number[] };
+
+export type TalesSearchResponse = { talesIds: number[] };
+
 export type ParsedDestination = Omit<TripDestinations, 'geo_location'> & {
   geo_location?: GeocodingFeature | null;
 };
@@ -33,7 +37,7 @@ export type CreateNewDestinationResponse = { id: number };
 
 export type CreateNewActivityResponse = { id: number };
 
-export type SearchActivitiesResponse = {
+export type GetActivitiesResponse = {
   activities: ActivitiesWithMedia[];
 };
 

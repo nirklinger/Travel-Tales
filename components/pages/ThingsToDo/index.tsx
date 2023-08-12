@@ -18,15 +18,16 @@ import { notificationsOutline } from 'ionicons/icons';
 import { useRecoilValue } from 'recoil';
 import { activitiesWithCategoriesSelector, categoriesSelector } from '../../../states/explore';
 import { useIonRouter } from '@ionic/react';
-import { Tale } from '../../../types/types';
 import ActivitiesTape from '../../ui/ActivitiesTape';
 import ActivityModal from './ActivityModal';
 import { OverlayEventDetail } from '@ionic/core/components';
+import { search } from '../../../managers/activity-manager';
+import { debounce } from 'lodash';
 
 const ThingsToDo = () => {
   const activities = useRecoilValue(activitiesWithCategoriesSelector);
   const categories = useRecoilValue(categoriesSelector);
-  const [searchedTales, setSearchedTales] = useState<Tale[]>([]);
+  const [filteredActivities, setFilteredActivities] = useState<number[]>([]);
   const [presentActivity, setPresentActivity] = useState<number>();
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchText, setSearchText] = useState('');
@@ -41,6 +42,27 @@ const ThingsToDo = () => {
     activity: activities.find(act => act.id === presentActivity),
     onDismiss: (data: number, role: string) => dismiss(data, role),
   });
+
+  const filterActivities = useCallback(
+    debounce(async searchText => {
+      const activitiesIds = await search(searchText);
+      setFilteredActivities(activitiesIds);
+    }, 2000),
+    [setFilteredActivities]
+  );
+
+  const handleSearchChange = useCallback(
+    e => {
+      const search = e.detail.value || '';
+      setSearchText(search);
+      if (!search) {
+        setFilteredActivities([]);
+        return;
+      }
+      filterActivities(search);
+    },
+    [setSearchText, filterActivities, setFilteredActivities]
+  );
 
   const handleActivityClick = useCallback(
     (activityId: number) => {
@@ -59,7 +81,13 @@ const ThingsToDo = () => {
   const activitiesByCategoties = useMemo(
     () =>
       categories.map(category => {
-        const categoryActivities = activities.filter(act => act.categories.includes(category.id));
+        const categoryActivities = activities.filter(
+          act =>
+            (!filteredActivities.length ||
+              !searchText.length ||
+              filteredActivities.includes(act.id)) &&
+            act.categories.includes(category.id)
+        );
         return (
           <div key={category.id}>
             <h2>{category.name}</h2>
@@ -67,7 +95,7 @@ const ThingsToDo = () => {
           </div>
         );
       }),
-    [activities, categories]
+    [activities, categories, filteredActivities, searchText]
   );
 
   return (
@@ -94,7 +122,7 @@ const ThingsToDo = () => {
         <Notifications open={showNotifications} onDidDismiss={() => setShowNotifications(false)} />
         <IonItem>
           <IonInput
-            onIonChange={() => {}}
+            onIonChange={handleSearchChange}
             value={searchText}
             placeholder="find your next activity!"
           ></IonInput>
