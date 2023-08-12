@@ -19,6 +19,7 @@ import { embedActivities } from './embedding';
 import { generateEmbeddings } from './open-ai';
 import { classifyCategories } from '../dal/categories';
 import { fetchTaleByActivityId } from '../dal/tales';
+import formidable from 'formidable';
 
 export const createNewActivity = async (newActivity: NewActivitiesWithMedia) => {
   const { media, ...activity } = newActivity;
@@ -1602,8 +1603,13 @@ export const getActivitiesWithMediaWithCategories = async () => {
   return activitiesWithMediaWithCategories;
 };
 
-export const uploadActivityMediaToServer = async (id: number, photo: LocalFile) => {
+export const uploadActivityMediaToServer = async (id: number, uploadPhotos: formidable.File[]) => {
   const taleId = (await fetchTaleByActivityId(id)).trip_id;
-  await uploadActivityMedia(taleId, id, photo);
-  await updateDbActivityMediaTable(taleId, id, photo);
+
+  const promises = uploadPhotos.map(async uploadPhoto => {
+    await uploadActivityMedia(taleId, id, uploadPhoto);
+    await updateDbActivityMediaTable(taleId, id, uploadPhoto);
+  });
+
+  return await Promise.allSettled(promises);
 };

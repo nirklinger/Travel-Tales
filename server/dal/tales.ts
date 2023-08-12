@@ -20,14 +20,13 @@ const PUBLIC_FOLDER = 'public';
 const TALES_FOLDER = 'Tales';
 const COVER_PHOTO_FILE_NAME = 'coverPhoto.jpg';
 const S3_URL = 'https://travel-tales-s3.s3.amazonaws.com';
-
+const isDevEnvironment = process.env.NODE_ENV === 'development';
 const client = new S3Client({
   region: S3_REGION,
 });
 
 export async function getTales() {
   const connection = getConnection();
-  const isDevEnvironment = process.env.NODE_ENV === 'development';
   const tales = await connection
     .select<(Trips & Users)[]>([`${Table.Trips}.*`, `${Table.Users}.*`])
     .from(Table.Trips)
@@ -65,7 +64,6 @@ export const saveTaleCoverPhoto = async (coverPhoto: LocalFile) => {
 };
 
 const saveCoverPhoto = async (buffer: Buffer, fileName: string) => {
-  const isDevEnvironment = process.env.NODE_ENV === 'development';
   if (!isDevEnvironment) {
     const ImageFilePath = path.join('public', 'img');
     const filePath = path.join(ImageFilePath, fileName);
@@ -142,7 +140,6 @@ export async function getTalesByActivityIds(activityIds: number[]) {
 
 export const uploadTaleCoverPhoto = async (taleId: number, coverPhoto: LocalFile) => {
   logger.info(`upload cover photo dal - updating cover photo`);
-  const isDevEnvironment = process.env.NODE_ENV === 'development';
   logger.info(`upload cover photo dal - isDevEnvironment ${isDevEnvironment}`);
 
   const base64Data = coverPhoto.data.replace(/^data:image\/jpeg;base64,/, '');

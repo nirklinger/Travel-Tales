@@ -41,7 +41,7 @@ const IMAGE_DIR = 'stored-images';
 interface ImageUploadProps {
   isMultiUpload: boolean;
   trigger: string;
-  onUpload: (photo: LocalFile) => void;
+  onUpload: (photo: File[]) => void;
 }
 
 const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, trigger, onUpload }) => {
@@ -183,8 +183,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, trigger, onUpl
   };
 
   const uploadPhotoHandler = useCallback(async () => {
-    const promises = photos.map(photo => onUpload(photo));
-    await Promise.all(promises);
+    const files = photos.map(photo => new File([photo.data], photo.name));
+    onUpload(files);
     // fetch specific activity media
     // return s3 images paths
   }, [photos, onUpload]);
