@@ -17,7 +17,7 @@ export async function fetchTales(): Promise<Tale[]> {
   const { tales } = (await res.json()) as TalesResponse;
   return tales.map(tale => ({
     ...tale,
-    author: `${tale.first_name} ${tale.last_name}`,
+    author: `${tale.name}`,
     start_date: new Date(tale.start_date),
     end_date: new Date(tale.end_date),
   }));
@@ -60,17 +60,18 @@ export const search = async (searchText: string): Promise<Tale[]> => {
   const { tales } = (await res.json()) as TalesResponse;
   return tales.map(tale => ({
     ...tale,
-    author: `${tale.first_name} ${tale.last_name}`,
+    author: `${tale.name}`,
     start_date: new Date(tale.start_date),
     end_date: new Date(tale.end_date),
   }));
 };
 
 export const updateTaleCoverPhoto = async (taleId: number, coverPhoto: LocalFile): Promise<any> => {
-  console.log(`tale manager - update tale cover photo`);
-  console.log(`tale manager - taleId: ${taleId}`);
-  const reqBody = {taleId, coverPhoto}
+  const reqBody = {taleId, coverPhoto};
   const res = await fetchWrapper.put(`/api/tales/${taleId}/coverPhoto`, reqBody);
-};
 
+  const { url } = await res.json();
+  
+  return url;
+}
 

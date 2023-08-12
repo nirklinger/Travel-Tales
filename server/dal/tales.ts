@@ -70,8 +70,6 @@ export const insertNewTale = async (tale: NewTrip) => {
     end_date: tale.end_date,
   };
   const connection = getConnection();
-  console.log("i am here at insert New tale");
-  console.log(`${JSON.stringify(newTale)}`);
   const taleId = await connection.insert(newTale, 'trip_id').into(Table.Trips);
   const userLinkObj = { user_id: tale.created_by, trip_id: taleId[0].trip_id };
   const userLink = await connection.insert(userLinkObj).into(Table.UsersTrips);
@@ -201,6 +199,7 @@ export const updateTaleDbCoverPhoto = async (taleId: number) => {
   await connection(Table.Trips)
     .where(`${Table.Trips}.trip_id`, taleId)
     .update({ cover_photo_url: coverPhotoUrl });
+  return coverPhotoUrl;
 };
 
 export const fetchTaleByActivityId = async (activityId: number) => {

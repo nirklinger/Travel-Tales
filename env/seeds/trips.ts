@@ -18,7 +18,7 @@ const trips: Trips[] = [
     title: 'Two Weeks In Portugal',
     catch_phrase: 'We just got back from a trip to Portugal, and we had a great time...',
     cover_photo_url: '/img/portugal.jpeg',
-    created_by: '84087408-20b1-7052-04f2-74ca15b5c866',
+    created_by: 1,
     start_date: new Date(2022, 10, 5, 0, 0, 0, 0),
     end_date: new Date(2022, 10, 22, 0, 0, 0, 0),
   },
@@ -28,7 +28,7 @@ const trips: Trips[] = [
     catch_phrase:
       'Last month we took a trek to the Arctic Circle. The isolation was just what we needed after...',
     cover_photo_url: '/img/c2.avif',
-    created_by: '84087408-20b1-7052-04f2-74ca15b5c866',
+    created_by: 1,
     start_date: new Date(2022, 3, 5, 0, 0, 0, 0),
     end_date: new Date(2022, 3, 22, 0, 0, 0, 0),
   },
@@ -38,32 +38,41 @@ const trips: Trips[] = [
     catch_phrase:
       'The Faroe Islands are a North Atlantic archipelago located 320 kilometres (200 mi) north-northwest of Scotland...',
     cover_photo_url: '/img/c3.avif',
-    created_by: '84087408-20b1-7052-04f2-74ca15b5c866',
+    created_by: 1,
     start_date: new Date(2022, 1, 7, 0, 0, 0, 0),
     end_date: new Date(2022, 1, 12, 0, 0, 0, 0),
+  },
+  {
+    trip_id: 4,
+    title: 'Sri Lanka',
+    catch_phrase: 'Amazing Surf and Safari',
+    cover_photo_url: '/Tales/4/coverPhoto.jpg',
+    created_by: 1,
+    start_date: new Date('2023-07-27T20:49:00.000Z'),
+    end_date: new Date('2023-08-05T20:49:00.000Z'),
   },
 ];
 
 const users: Users[] = [
   {
-    user_id: '84087408-20b1-7052-04f2-74ca15b5c866',
+    user_id: 1,
+    external_id: '',
     email: 'nirkl@mta.ac.il',
-    first_name: 'Nir',
-    last_name: 'Klinger',
+    name: 'Nir Klinger',
     avatar_photo: '/img/or.jpg',
   },
   {
-    user_id: '2',
+    user_id: 2,
+    external_id: '',
     email: 'orSamu@mta.ac.il',
-    first_name: 'Or',
-    last_name: 'Samu',
+    name: 'Or Samu',
     avatar_photo: '/img/or.jpg',
   },
   {
-    user_id: '3',
+    user_id: 3,
+    external_id: '',
     email: 'darEini@mta.ac.il',
-    first_name: 'Dar',
-    last_name: 'Eini',
+    name: 'Dar Eini',
     avatar_photo: '/img/or.jpg',
   },
 ];
@@ -71,20 +80,21 @@ const users: Users[] = [
 const usersTrips: UsersTrips[] = [
   {
     id: 1,
-    user_id: '84087408-20b1-7052-04f2-74ca15b5c866',
+    user_id: 1,
     trip_id: 1,
   },
   {
     id: 2,
-    user_id: '84087408-20b1-7052-04f2-74ca15b5c866',
+    user_id: 2,
     trip_id: 2,
   },
   {
     id: 3,
-    user_id: '84087408-20b1-7052-04f2-74ca15b5c866',
+    user_id: 3,
     trip_id: 3,
   },
 ];
+
 
 const destinations: TripDestinations[] = [
   {

@@ -69,21 +69,20 @@ export type Trips = {
   title: string;
   catch_phrase: string;
   cover_photo_url: string;
-  created_by: string;
+  created_by: number;
   start_date: Date;
   end_date: Date;
 };
 
 export type Users = {
-  user_id: string;
+  user_id: number;
+  external_id: string;
   email: string;
-  first_name: string;
-  last_name: string;
+  name: string;
   avatar_photo: string;
 };
-
 export type UsersTrips = {
   id: number;
-  user_id: string;
+  user_id: number;
   trip_id: number;
 };

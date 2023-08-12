@@ -43,8 +43,9 @@ export const createNewTale = async (newTale: NewTrip) => {
 }
 
 export const updateTaleCoverPhoto = async (taleId: number, newCoverPhoto: LocalFile) => {
-  console.log(`server>services>tales - update tale cover photo`);
-  console.log(`server>services>tales - taleId: ${taleId}`);
   await uploadTaleCoverPhoto(taleId, newCoverPhoto);
-  await updateTaleDbCoverPhoto(taleId);
+  const newPath = await updateTaleDbCoverPhoto(taleId);
+  return newPath;
 };
+
+

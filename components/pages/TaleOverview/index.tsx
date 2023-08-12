@@ -66,9 +66,11 @@ const TaleOverview = () => {
   const { data: session, status } = useSession();
 
   useEffect(() => {
-    const isUserSessionValid = (status === 'authenticated') && (tale.user_id === session.profile.sub);
-    setIsUserTaleOwner(isUserSessionValid);
-  }, []);
+    if (tale) {
+      const isUserSessionValid = (status === 'authenticated') && (tale) && (tale.user_id === session.profile.sub);
+      setIsUserTaleOwner(isUserSessionValid);
+    }
+  }, [session?.profile.sub, status, tale]);
 
   useEffect(() => () => setCurrentTaleId(null), []);
 

@@ -1,134 +1,130 @@
+import { useState, useEffect, useCallback } from 'react';
 import {
-  IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonButtons,
   IonButton,
-  IonIcon,
-  IonContent,
-  IonMenuButton,
-  IonItem,
-  IonInput,
-  IonCard,
-  IonCardTitle,
-  IonCardContent,
   IonCardHeader,
-  IonAvatar,
-  IonImg,
   IonCardSubtitle,
-  IonLabel,
+  IonCardTitle,
+  IonContent,
+  IonHeader,
+  IonInput,
+  IonPage,
+  IonTitle,
+  IonToolbar,
+  useIonRouter,
 } from '@ionic/react';
-import Image from 'next/image';
-import Notifications from '../Notifications';
-import { useCallback, useEffect, useState } from 'react';
-import { notificationsOutline } from 'ionicons/icons';
-import { useIonRouter } from '@ionic/react';
 import { signOut } from 'next-auth/react';
+import Image from 'next/image';
+import { debounce } from 'lodash';
+
 import Card from '../../ui/Card';
-import { useRecoilValue } from 'recoil';
-import { tales } from '../../../states/explore';
+import { Users } from '../../../types/db-schema-definitions';
 import { Tale } from '../../../types/types';
+import { fetchUserTalesById, fetchUserByExternalId, updateProfile } from '../../../managers/user-manager';
 import TripCard from '../../TripCard';
 
-
-const TaleEntry = ({ tale, ...props }) => (
-  <IonItem routerLink={`/tabs/tale/${tale.trip_id}`} className="list-entry">
-    <IonLabel>{tale.title}</IonLabel>
-  </IonItem>
-);
-
 interface UserProfilePageProps {
-  session: any
+  session: any;
 }
 
-const UserProfilePage: React.FC<UserProfilePageProps> = ({session}) => {
-  const [userTales, setUserTales] = useState<Tale[]>([]);
-  const tripList = useRecoilValue(tales);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [avatarImage, setAvatarImage] = useState<string>();
-  const [userAttributeData, setUserAttributeData] = useState<any>();
-  const [searchedTales, setSearchedTales] = useState<Tale[]>([]);
+const UserProfilePage: React.FC<UserProfilePageProps> = ({ session }) => {
+  const [edit, setEdit] = useState(false);
   const router = useIonRouter();
-  const defaultAvatarImage = 'https://ionicframework.com/docs/img/demos/avatar.svg';
-  /********************************/ const monkeyImage =
-    'https://media.npr.org/assets/img/2017/09/12/macaca_nigra_self-portrait-3e0070aa19a7fe36e802253048411a38f14a79f8-s1100-c50.jpg';
-  
-  /*  const imageAttributeName = 'image';
-  const client = new CognitoIdentityProviderClient({
-    region: 'us-east-1',
-  });
+  const [userTales, setUserTales] = useState<Tale[]>([]);
+  const [validatedUser, setValidatedUser] = useState<Users>(null);
+  const defaultAvatarImage = '/Users/default.svg';
 
   useEffect(() => {
-    console.log(session);
-  }, []);
+    const validateUserData = async () => {
+      const res = await fetchUserByExternalId(session.profile.sub);
+      const user = await res.json();
+      setValidatedUser(user);
+    }
 
-  */
+    const fetchUserTales = async () => {
+      if (validatedUser) {
+        const fetchedUserTales = await fetchUserTalesById(validatedUser.user_id);
+        setUserTales(fetchedUserTales);
+      }
+    }
 
-  useEffect(() => {
-    console.log(session);
-    console.log(tripList);
-  },[]);
- 
-  useEffect(() => {
-    const loadUserDataFromSession = () => {
-      const userPhoto = session.profile.image !== undefined ? session.profile.image : defaultAvatarImage;
-      setAvatarImage(defaultAvatarImage);
-     };
+    validateUserData();
+    fetchUserTales();
+  }, [session.profile.sub, validatedUser.user_id]);
 
-    loadUserDataFromSession();
-
-  }, [session]);
 
   const selectTale = useCallback((id: number) => {
     router.push(`/tabs/tale/${id}`);
   }, []);
 
-  const updateUserProfilePhoto = () => {
-  }
+  const updateUserProfile = useCallback(
+    debounce(changes => updateProfile(validatedUser.user_id, changes), 2000),
+    [validatedUser?.user_id]);
+
+  const handleUserNameChange = useCallback(
+    e => {
+      if (validatedUser) {
+        const newUserState = {...validatedUser, name: e.detail.value};
+        setValidatedUser(newUserState);
+        updateUserProfile({name: e.detail.value});
+      }
+    },
+    [validatedUser, setValidatedUser, updateUserProfile]
+  );
+
+
+
+  const userNameField = edit ? (
+    <div>
+      <IonInput placeholder="enter your username" onIonChange={handleUserNameChange} value={validatedUser.name}/>
+    </div>
+  ) : (
+    <div>
+      {validatedUser?.name}
+    </div>
+  );
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
           <IonTitle>Profile</IonTitle>
-          <IonButtons slot="start">
-            <IonMenuButton />
-          </IonButtons>
-          <IonButtons slot="end">
-            <IonButton onClick={() => setShowNotifications(true)}>
-              <IonIcon icon={notificationsOutline} />
-            </IonButton>
-          </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding" fullscreen>
-        <IonHeader collapse="condense">
-          <IonToolbar>
-            <IonTitle size="large">Profile</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-        <Notifications open={showNotifications} onDidDismiss={() => setShowNotifications(false)} />
+      <IonContent>
         <Card className="my-4 w-full mx-auto cursor-pointer">
           <div className="h-52 w-full relative">
             <Image
               className="rounded-t-xl object-cover min-w-full min-h-full max-w-full max-h-full"
-              src={avatarImage}
+              src={defaultAvatarImage}
               fill
               alt={` profile's picture`}
-              onClick={updateUserProfilePhoto}
+              onClick={()=>{}}
             />
           </div>
           <IonCardHeader>
-            <IonCardTitle>{'ors'}</IonCardTitle>
+            <IonCardTitle>{userNameField}</IonCardTitle>
             <IonCardSubtitle>
-              <IonButton onClick={() => signOut()}>Sign out</IonButton>
+              <IonButton onClick={() => setEdit(prevValue => !prevValue)} fill={'clear'}>{edit ? 'Done' : 'Edit Profile'}</IonButton>
+              <IonButton onClick={() => signOut()} fill={'clear'}>Sign out</IonButton>
             </IonCardSubtitle>
           </IonCardHeader>
         </Card>
-        <IonButton href={'/tabs/tale/create'}>Create New Tale</IonButton>
-        <IonTitle>My Tales:</IonTitle>
-
+        <div className="justify-center text-center	flex-col">
+          <IonButton
+            onClick={() => {
+              router.push(`/tabs/tale/create`);
+            }}
+          >
+            Create New Tale
+          </IonButton>
+          <IonTitle>Your Tales:</IonTitle>
+        </div>
+        {userTales.length > 0 ? <div className="grid grid-flow-row gap-8 text-neutral-600 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {userTales.map((tale, index) => (
+            <TripCard {...tale} key={index} onClick={() => selectTale(tale.trip_id)} />
+          ))}
+        </div> : <p>No Tales To Show</p>}
+        
       </IonContent>
     </IonPage>
   );

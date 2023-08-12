@@ -100,7 +100,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, trigger, onUpl
     if (isMultiUpload) {
       const photos = await selectPhotos();
       await savePhotos(photos);
-      console.log(`finished with saving photos`);
     } else {
       const photo = await selectPhoto();
       await savePhoto(photo);
@@ -178,7 +177,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, trigger, onUpl
         path: IMAGE_DIR,
       });
     }
-    console.log(imageDirectory.files.length);
     setPhotos([]);
   };
 

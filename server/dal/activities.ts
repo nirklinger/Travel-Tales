@@ -74,22 +74,16 @@ export const uploadActivityMedia = async (taleId: number, activityId:number, pho
     const taleFolderPath = path.join(TALES_FOLDER, taleId.toString());
     const filePath = path.join(taleFolderPath, photo.name);
     const envFullFilePath = path.join(PUBLIC_FOLDER, filePath);
-    console.log(`upload cover photo dal - fullFilePath: ${envFullFilePath}`);
     await fs.promises.writeFile(envFullFilePath, buffer);
   } else {
     const filePath = `Tales/${taleId.toString()}/${photo.name}`;
-    console.log(`upload cover photo dal - fullFilePath: ${filePath}`);
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
       Key: filePath,
       Body: buffer,
     });
     try {
-      console.log(
-        `############################################# aws response: #############################################`
-      );
       const response = await client.send(command);
-      console.log(response);
     } catch (err) {
       console.error(err);
     }

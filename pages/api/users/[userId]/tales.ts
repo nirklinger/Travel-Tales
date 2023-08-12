@@ -7,7 +7,7 @@ import { StoryResponse } from '../../../../types/types';
 async function getUserTalesEndpoint(req: NextApiRequest, res: NextApiResponse<StoryResponse>) {
   const userId = req.query.userId as string;
   const tales = await getUsersTales(userId);
-  console.log(`sending back tales!!! \n ${tales}`);
+  
   res.status(StatusCodes.OK).send(tales);
 }
 

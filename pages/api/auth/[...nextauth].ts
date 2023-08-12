@@ -1,5 +1,7 @@
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import CognitoProvider from 'next-auth/providers/cognito';
+import { logger } from '../../../utils/server-logger';
+import { insertUserOnFirstSignIn } from '../../../server/services/users';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -18,7 +20,19 @@ export const authOptions: NextAuthOptions = {
       console.log('profile:', profile);
       console.log('isNewUser:', isNewUser);
       console.log('user:', user);
-      console.groupEnd();**/
+      console.groupEnd();*/
+      if (token) {
+        try {
+          const signedInUser = {
+            external_id: token.sub,
+            email: token.email,
+            name: token.name,
+          }
+          await insertUserOnFirstSignIn(signedInUser);
+        } catch (err) {
+          logger.error({err}, 'Error inserting user on first sign in');
+        }
+      }
 
       if (account) {
         token.accessToken = account.access_token;

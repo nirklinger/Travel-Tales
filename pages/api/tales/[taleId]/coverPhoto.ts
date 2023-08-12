@@ -6,9 +6,9 @@ import { updateTaleCoverPhoto } from '../../../../server/services/tales';
 const updateCoverPhoto = async (req: NextApiRequest, res: NextApiResponse) => {
     const bodyTaleToUpdate = req.body.taleId;
     const bodyCoverPhoto = req.body.coverPhoto;
-    await updateTaleCoverPhoto(bodyTaleToUpdate, bodyCoverPhoto);
-  
-    res.status(StatusCodes.OK);
+    const newPath = await updateTaleCoverPhoto(bodyTaleToUpdate, bodyCoverPhoto);
+
+    res.status(StatusCodes.OK).send({url: newPath});
 };
 
 
