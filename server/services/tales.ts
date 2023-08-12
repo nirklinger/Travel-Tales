@@ -5,9 +5,10 @@ import {
   getTales,
   insertNewTale,
   uploadTaleCoverPhoto,
-  updateTaleDbCoverPhoto
+  updateTaleDbCoverPhoto,
 } from '../dal/tales';
 import { ActivitiesWithMedia, LocalFile, NewTrip } from '../../types/types';
+import formidable from 'formidable';
 
 export async function getAllTales() {
   return getTales();
@@ -35,11 +36,11 @@ export const createNewTale = async (newTale: NewTrip) => {
   const newTaleId = await insertNewTale(newTale);
 
   return newTaleId;
-}
+};
 
-export const updateTaleCoverPhoto = async (taleId: number, newCoverPhoto: LocalFile) => {
+export const updateTaleCoverPhoto = async (taleId: number, newCoverPhoto: formidable.File) => {
   console.log(`server>services>tales - update tale cover photo`);
   console.log(`server>services>tales - taleId: ${taleId}`);
   await uploadTaleCoverPhoto(taleId, newCoverPhoto);
-  await updateTaleDbCoverPhoto(taleId);
+  return await updateTaleDbCoverPhoto(taleId);
 };

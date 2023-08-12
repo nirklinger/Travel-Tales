@@ -20,12 +20,14 @@ import parse, { IPostgresInterval } from 'postgres-interval';
 import { SCHEMA_NAME } from '../../constants';
 import path from 'path';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import formidable from 'formidable';
 
 const BUCKET_NAME = 'travel-tales-s3';
 const S3_REGION = 'us-east-1';
 const PUBLIC_FOLDER = 'public';
 const TALES_FOLDER = 'Tales';
 const S3_URL = 'https://travel-tales-s3.s3.amazonaws.com';
+const isDevEnvironment = process.env.NODE_ENV === 'development';
 
 const client = new S3Client({
   region: S3_REGION,
@@ -92,6 +94,9 @@ export const selectActivitiesMedia = async () => {
     .select<ActivityMedia[]>(`${Table.ActivityMedia}.*`)
     .from(Table.ActivityMedia);
 
+  if (!isDevEnvironment) {
+    return media.map(photo => ({ ...photo, media_url: S3_URL + photo.media_url }));
+  }
   return media;
 };
 
@@ -122,20 +127,23 @@ export const selectActivitiesCategories = async () => {
   return acts;
 };
 
-export const uploadActivityMedia = async (taleId: number, activityId: number, photo: LocalFile) => {
-  const isDevEnvironment = process.env.NODE_ENV === 'development';
-  const base64Data = photo.data.replace(/^data:image\/jpeg;base64,/, '');
-  const buffer = Buffer.from(base64Data, 'base64');
+export const uploadActivityMedia = async (
+  taleId: number,
+  activityId: number,
+  photo: formidable.File
+) => {
+  const base64 = fs.readFileSync(photo.filepath, 'utf8');
+  const buffer = Buffer.from(base64.replace(/^data:image\/jpeg;base64,/, ''), 'base64');
 
   if (isDevEnvironment) {
     const taleFolderPath = path.join(TALES_FOLDER, taleId.toString());
     const directoryPath = path.join(PUBLIC_FOLDER, taleFolderPath);
-    const envFullFilePath = path.join(directoryPath, photo.name);
+    const envFullFilePath = path.join(directoryPath, photo.originalFilename);
     console.log(`upload cover photo dal - fullFilePath: ${envFullFilePath}`);
     await fs.promises.mkdir(directoryPath, { recursive: true });
     await fs.promises.writeFile(envFullFilePath, buffer);
   } else {
-    const filePath = `Tales/${taleId.toString()}/${photo.name}`;
+    const filePath = `Tales/${taleId.toString()}/${photo.originalFilename}`;
     console.log(`upload cover photo dal - fullFilePath: ${filePath}`);
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
@@ -157,13 +165,14 @@ export const uploadActivityMedia = async (taleId: number, activityId: number, ph
 export const updateDbActivityMediaTable = async (
   taleId: number,
   activityId: number,
-  photo: LocalFile
+  photo: formidable.File
 ) => {
   const connection = getConnection();
   const activityMedia = {
     activity_id: activityId,
     media_type: MediaType.Image,
-    media_url: `/Tales/${taleId}/${photo.name}`,
+    media_url: `/Tales/${taleId}/${photo.originalFilename}`,
   };
   await connection.insert(activityMedia, 'id').into(Table.ActivityMedia);
+  return activityMedia;
 };

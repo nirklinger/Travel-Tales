@@ -12,6 +12,7 @@ import {
 import { LocalFile, NewTrip, ParsedDestination } from '../../types/types';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { logger } from '../../utils/server-logger';
+import formidable from 'formidable';
 
 const DEFAULT_COVER_PHOTO = '/Tales/Default.jpg';
 const BUCKET_NAME = 'travel-tales-s3';
@@ -20,14 +21,13 @@ const PUBLIC_FOLDER = 'public';
 const TALES_FOLDER = 'Tales';
 const COVER_PHOTO_FILE_NAME = 'coverPhoto.jpg';
 const S3_URL = 'https://travel-tales-s3.s3.amazonaws.com';
-
+const isDevEnvironment = process.env.NODE_ENV === 'development';
 const client = new S3Client({
   region: S3_REGION,
 });
 
 export async function getTales() {
   const connection = getConnection();
-  const isDevEnvironment = process.env.NODE_ENV === 'development';
   const tales = await connection
     .select<(Trips & Users)[]>([`${Table.Trips}.*`, `${Table.Users}.*`])
     .from(Table.Trips)
@@ -65,7 +65,6 @@ export const saveTaleCoverPhoto = async (coverPhoto: LocalFile) => {
 };
 
 const saveCoverPhoto = async (buffer: Buffer, fileName: string) => {
-  const isDevEnvironment = process.env.NODE_ENV === 'development';
   if (!isDevEnvironment) {
     const ImageFilePath = path.join('public', 'img');
     const filePath = path.join(ImageFilePath, fileName);
@@ -140,13 +139,13 @@ export async function getTalesByActivityIds(activityIds: number[]) {
   return tales;
 }
 
-export const uploadTaleCoverPhoto = async (taleId: number, coverPhoto: LocalFile) => {
+export const uploadTaleCoverPhoto = async (taleId: number, coverPhoto: formidable.File) => {
   logger.info(`upload cover photo dal - updating cover photo`);
-  const isDevEnvironment = process.env.NODE_ENV === 'development';
   logger.info(`upload cover photo dal - isDevEnvironment ${isDevEnvironment}`);
 
-  const base64Data = coverPhoto.data.replace(/^data:image\/jpeg;base64,/, '');
-  const buffer = Buffer.from(base64Data, 'base64');
+  const base64 = fs.readFileSync(coverPhoto.filepath, 'utf8');
+  const buffer = Buffer.from(base64.replace(/^data:image\/jpeg;base64,/, ''), 'base64');
+
   if (isDevEnvironment) {
     const taleFolderPath = path.join(TALES_FOLDER, taleId.toString());
     const directoryPath = path.join(PUBLIC_FOLDER, taleFolderPath);
@@ -182,6 +181,8 @@ export const updateTaleDbCoverPhoto = async (taleId: number) => {
   await connection(Table.Trips)
     .where(`${Table.Trips}.trip_id`, taleId)
     .update({ cover_photo_url: coverPhotoUrl });
+
+  return coverPhotoUrl;
 };
 
 export const fetchTaleByActivityId = async (activityId: number) => {
