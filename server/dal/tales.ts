@@ -132,6 +132,7 @@ export async function getTaleActivities(taleId: number) {
 }
 
 export async function getTaleActivityMedia(taleId: number) {
+  const isDevEnvironment = process.env.NODE_ENV === 'development';
   const connection = getConnection();
   const media = await connection
     .select<ActivityMedia[]>(`${Table.ActivityMedia}.*`)
@@ -143,6 +144,13 @@ export async function getTaleActivityMedia(taleId: number) {
     )
     .join(Table.ActivityMedia, `${Table.Activities}.id`, `${Table.ActivityMedia}.activity_id`)
     .where(`${Table.TripDestinations}.trip_id`, taleId);
+    if (!isDevEnvironment) {
+      const envFitMedia = media.map(mediaObj => {
+        return { ...mediaObj, media_url: `${S3_URL}${mediaObj.media_url}` };
+      });
+      return envFitMedia;
+    }
+
   return media;
 }
 

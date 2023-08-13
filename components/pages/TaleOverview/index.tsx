@@ -78,7 +78,7 @@ const TaleOverview = () => {
    else {
     setIsUserTaleOwner(false);
    }
-  }, [status, taleId, session.profile.sub, isUserTaleOwner]);
+  }, [status, taleId, session?.profile.sub, isUserTaleOwner]);
 
   useEffect(
     () => () => {
