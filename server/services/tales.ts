@@ -6,9 +6,12 @@ import {
   getTalesByUserId,
   insertNewTale,
   uploadTaleCoverPhoto,
-  updateTaleDbCoverPhoto
+  updateTaleDbCoverPhoto,
+  getTaleOwnerByTaleId,
+  getTaleOwnerIdByTaleId
 } from '../dal/tales';
 import { ActivitiesWithMedia, LocalFile, NewTrip } from '../../types/types';
+import { getUserByExternalId } from '../dal/users';
 
 export async function getAllTales() {
   return getTales();
@@ -48,4 +51,19 @@ export const updateTaleCoverPhoto = async (taleId: number, newCoverPhoto: LocalF
   return newPath;
 };
 
+export const checkIfUserIsTaleOwnerByExternalId = async (taleId: number, userExternalId: string) => {
+  const taleOwnerId = await getTaleOwnerIdByTaleId(taleId);
+  const users = await getUserByExternalId(userExternalId);
+  const user = users[0];
+
+  console.log(`taleOwnerId - ${taleOwnerId} - ${JSON.stringify(taleOwnerId)}`);
+
+  console.log(`users = ${users} - ${JSON.stringify(users)}`);
+
+  console.log(`user = ${user} - ${JSON.stringify(user)}`);
+
+  console.log(`taleOwnerId.user_id === user.user_id = ${taleOwnerId.user_id === user.user_id}`);
+
+  return taleOwnerId.user_id === user.user_id;
+}
 

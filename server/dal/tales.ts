@@ -215,3 +215,13 @@ export const fetchTaleByActivityId = async (activityId: number) => {
 
   return ids[0];
 };
+
+export const getTaleOwnerIdByTaleId = async (taleId: number) => {
+  const connection = getConnection();
+  const userIds = await connection
+    .select<number[]>(`${Table.UsersTrips}.user_id`)
+    .from(Table.UsersTrips)
+    .where(`${Table.UsersTrips}.trip_id`, taleId);
+
+    return userIds[0];
+}

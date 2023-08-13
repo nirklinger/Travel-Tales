@@ -45,15 +45,6 @@ const Tabs = () => {
           exact={false}
         />
         <Route path="/tabs/tale/create" exact={true} render={() => <CreateTale />} />
-        <Route
-          path="/tabs/tales"
-          render={() => (
-            <Suspense>
-              <MyTales />
-            </Suspense>
-          )}
-          exact={true}
-        />
         <Route path="/tabs/profile" render={() => <Profile />} exact={true} />
         <Route path="/tabs/tales/:listId" render={() => <ListDetail />} exact={true} />
         <Route path="/tabs/settings" render={() => <Settings />} exact={true} />
@@ -67,10 +58,6 @@ const Tabs = () => {
         <IonTabButton tab="tab2" href="/tabs/things-to-do">
           <IonIcon icon={trailSign} />
           <IonLabel>Things to do</IonLabel>
-        </IonTabButton>
-        <IonTabButton tab="tab3" href="/tabs/tales">
-          <IonIcon icon={list} />
-          <IonLabel>My Tales</IonLabel>
         </IonTabButton>
         <IonTabButton tab="tab3" href="/tabs/profile">
           <IonIcon icon={personCircleOutline} />

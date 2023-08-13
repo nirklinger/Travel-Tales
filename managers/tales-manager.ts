@@ -72,3 +72,15 @@ export const updateTaleCoverPhoto = async (taleId: number, coverPhoto: LocalFile
   const reqBody = { taleId, coverPhoto };
   const res = await fetchWrapper.put(`/api/tales/${taleId}/coverPhoto`, reqBody);
 };
+
+export const checkIfUserIsTaleOwner = async (taleId: number, userExternalId: string) => {
+  const res = await fetchWrapper.get(`/api/tales/${taleId}/user`, {external_id: userExternalId});
+  if (!res.ok) {
+    switch (res.status) {
+      default:
+        throw new Error('could not validate the owner of the tale');
+    }
+  }
+  
+  return res;
+}
