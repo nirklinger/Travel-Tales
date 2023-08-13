@@ -23,10 +23,12 @@ export const authOptions: NextAuthOptions = {
       console.groupEnd();*/
       if (token) {
         try {
+          const partsOfName = token.name.trim().split(' ');
           const signedInUser = {
             external_id: token.sub,
             email: token.email,
-            name: token.name,
+            first_name: partsOfName[0],
+            last_name: partsOfName.slice(1).join(' ')
           }
           await insertUserOnFirstSignIn(signedInUser);
         } catch (err) {

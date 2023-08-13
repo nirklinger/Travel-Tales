@@ -24,7 +24,7 @@ export async function fetchTales(): Promise<Tale[]> {
   const { tales } = (await res.json()) as TalesResponse;
   return tales.map(tale => ({
     ...tale,
-    author: `${tale.name}`,
+    author: `${tale.first_name} ${tale.last_name}`,
     start_date: new Date(tale.start_date),
     end_date: new Date(tale.end_date),
   }));

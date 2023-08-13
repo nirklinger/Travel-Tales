@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, SetStateAction, Dispatch } from 'react';
 import {
   IonButton,
   IonCardHeader,
@@ -20,26 +20,21 @@ import Card from '../../ui/Card';
 import { Users } from '../../../types/db-schema-definitions';
 import { Tale } from '../../../types/types';
 import { fetchUserTalesById, fetchUserByExternalId, updateProfile } from '../../../managers/user-manager';
-import TripCard from '../../TripCard';
+import TripCard from '../../ui/TripCard';
 
 interface UserProfilePageProps {
-  session: any;
+  validatedUser: Users;
+  setValidatedUser: Dispatch<SetStateAction<Users>>;
 }
 
-const UserProfilePage: React.FC<UserProfilePageProps> = ({ session }) => {
+const UserProfilePage: React.FC<UserProfilePageProps> = ({ validatedUser, setValidatedUser }) => {
+  const [userName, setUserName] = useState(`${validatedUser.first_name} ${validatedUser.last_name}`)
   const [edit, setEdit] = useState(false);
   const router = useIonRouter();
   const [userTales, setUserTales] = useState<Tale[]>([]);
-  const [validatedUser, setValidatedUser] = useState<Users>(null);
   const defaultAvatarImage = '/Users/default.svg';
 
   useEffect(() => {
-    const validateUserData = async () => {
-      const res = await fetchUserByExternalId(session.profile.sub);
-      const user = await res.json();
-      setValidatedUser(user);
-    }
-
     const fetchUserTales = async () => {
       if (validatedUser) {
         const fetchedUserTales = await fetchUserTalesById(validatedUser.user_id);
@@ -47,9 +42,8 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ session }) => {
       }
     }
 
-    validateUserData();
     fetchUserTales();
-  }, [session.profile.sub, validatedUser.user_id]);
+  }, [validatedUser.user_id]);
 
 
   const selectTale = useCallback((id: number) => {
@@ -62,24 +56,24 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ session }) => {
 
   const handleUserNameChange = useCallback(
     e => {
-      if (validatedUser) {
-        const newUserState = {...validatedUser, name: e.detail.value};
-        setValidatedUser(newUserState);
-        updateUserProfile({name: e.detail.value});
-      }
+      const partsOfName = e.detail.value.trim().split(' ');
+      const firstName = partsOfName[0];
+      const lastName = partsOfName.slice(1).join(' ');
+      setUserName(e.detail.value)
+      updateUserProfile({ first_name: firstName, last_name: lastName });
     },
-    [validatedUser, setValidatedUser, updateUserProfile]
+    [updateUserProfile]
   );
 
 
 
   const userNameField = edit ? (
     <div>
-      <IonInput placeholder="enter your username" onIonChange={handleUserNameChange} value={validatedUser.name}/>
+      <IonInput placeholder="enter your username" onIonChange={handleUserNameChange} value={userName}/>
     </div>
   ) : (
     <div>
-      {validatedUser?.name}
+      {`${userName}`}
     </div>
   );
 

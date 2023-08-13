@@ -18,7 +18,7 @@ export async function fetchUserTalesById(userId: number): Promise<Tale[]> {
     
   return tales.map(tale => ({
     ...tale,
-    author: `${tale.name}`,
+    author: `${tale.first_name} ${tale.last_name}`,
     start_date: new Date(tale.start_date),
     end_date: new Date(tale.end_date),
   }));

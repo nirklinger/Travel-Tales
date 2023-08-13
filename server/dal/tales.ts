@@ -57,6 +57,7 @@ export async function getTalesByUserId(userId: string) {
     });
     return envFitTales;
   }
+  
   return tales;
 }
 

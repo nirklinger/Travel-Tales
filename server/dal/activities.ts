@@ -87,11 +87,17 @@ export const fetchAllActivitiesToEmbed = async () => {
 };
 
 export const selectActivitiesMedia = async () => {
+  const isDevEnvironment = process.env.NODE_ENV === 'development';
   const connection = getConnection();
   const media = await connection
     .select<ActivityMedia[]>(`${Table.ActivityMedia}.*`)
     .from(Table.ActivityMedia);
 
+  if (isDevEnvironment) {
+    const mediaFitToEnvironment = media.map(activityMedia => {
+      return {...activityMedia, media_url: `${process.env.AWS_S3_URL}/${activityMedia.media_url}`}
+    })
+  }
   return media;
 };
 
