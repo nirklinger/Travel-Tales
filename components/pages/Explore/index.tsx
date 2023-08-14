@@ -22,7 +22,6 @@ import { debounce } from 'lodash';
 import parse from 'postgres-interval';
 import { search } from '../../../managers/tales-manager';
 import { Tale } from '../../../types/types';
-import { cwd } from 'process';
 
 const Explore = () => {
   const tripList = useRecoilValue(tales);
