@@ -2,10 +2,12 @@ import { fetchWrapper } from '../utils/fetchWrapper';
 import { StatusCodes } from 'http-status-codes';
 import { Activities, Trips, Users } from '../types/db-schema-definitions';
 import {
+  ActivityMediaUploadRes,
   LocalFile,
   NewTrip,
   StoryResponse,
   Tale,
+  TaleCoverPhotoUploadRes,
   TalesResponse,
   TalesSearchResponse,
 } from '../types/types';
@@ -68,9 +70,25 @@ export const search = async (searchText: string): Promise<number[]> => {
   return talesIds;
 };
 
-export const updateTaleCoverPhoto = async (taleId: number, coverPhoto: LocalFile): Promise<any> => {
-  const reqBody = { taleId, coverPhoto };
-  const res = await fetchWrapper.put(`/api/tales/${taleId}/coverPhoto`, reqBody);
+export const updateTaleCoverPhoto = async (taleId: number, coverPhoto: File): Promise<string> => {
+  const formData = new FormData();
+  formData.append('taleId', taleId.toString());
+  formData.append('coverPhoto', coverPhoto);
+
+  // Don't use fetchWrapper we want the content type to be set automatically
+  const res = await fetch(`/api/tales/${taleId}/coverPhoto`, {
+    method: 'PUT',
+    body: formData,
+  });
+
+  if (!res.ok) {
+    switch (res.status) {
+      default:
+        throw new Error('could not upload cover photo');
+    }
+  }
+
+  return ((await res.json()) as TaleCoverPhotoUploadRes)?.coverPhotoUrl;
 };
 
 export const checkIfUserIsTaleOwner = async (taleId: number, userExternalId: string) => {

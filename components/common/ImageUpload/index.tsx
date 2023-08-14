@@ -3,45 +3,28 @@ import {
   IonButtons,
   IonContent,
   IonHeader,
-  IonLabel,
-  IonPage,
-  IonSegment,
-  IonSegmentButton,
   IonTitle,
   IonToolbar,
-  IonBackButton,
-  IonNavLink,
   IonItem,
-  useIonRouter,
   IonButton,
-  IonFabButton,
   IonIcon,
   IonModal,
-  IonList,
-  IonThumbnail,
-  IonImg,
 } from '@ionic/react';
-import { pencil, close, cameraOutline, closeOutline, trash, cloudUpload } from 'ionicons/icons';
+import { close, cameraOutline, trash, cloudUpload } from 'ionicons/icons';
 import { OverlayEventDetail } from '@ionic/core/components';
 import { useEffect, useState } from 'react';
-import {
-  Camera,
-  CameraResultType,
-  CameraSource,
-  GalleryPhoto,
-  GalleryPhotos,
-  Photo,
-} from '@capacitor/camera';
+import { Camera, CameraResultType, CameraSource, GalleryPhoto, Photo } from '@capacitor/camera';
 import { Filesystem } from '@capacitor/filesystem';
 import { Directory } from '@capacitor/filesystem';
 import { LocalFile } from '../../../types/types';
+import Image from 'next/image';
 
 const IMAGE_DIR = 'stored-images';
 
 interface ImageUploadProps {
   isMultiUpload: boolean;
   trigger: string;
-  onUpload: (photo: LocalFile) => void;
+  onUpload: (photo: File[]) => void;
 }
 
 const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, trigger, onUpload }) => {
@@ -181,16 +164,15 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, trigger, onUpl
   };
 
   const uploadPhotoHandler = useCallback(async () => {
-    const promises = photos.map(photo => onUpload(photo));
-    await Promise.all(promises);
+    const files = photos.map(photo => new File([photo.data], photo.name));
+    onUpload(files);
+    modal.current?.dismiss();
     // fetch specific activity media
     // return s3 images paths
   }, [photos, onUpload]);
 
   function onWillDismiss(ev: CustomEvent<OverlayEventDetail>) {
     deletePhotoHandler();
-    if (ev.detail.role === 'confirm') {
-    }
   }
 
   return (
@@ -207,28 +189,44 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, trigger, onUpl
           </IonToolbar>
         </IonHeader>
         <IonContent className="ion-padding">
-          <ul>
+          <div
+            className={
+              isMultiUpload
+                ? 'grid grid-flow-row gap-8 text-neutral-600 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 '
+                : ''
+            }
+          >
             {photos.map(photo => {
               return (
-                <li key={photo.name}>
-                  <img src={photo.data} />
-                </li>
+                <div key={photo.name} className={isMultiUpload ? 'h-80 relative' : ''}>
+                  <Image
+                    className="w-min"
+                    src={photo.data}
+                    layout={'fill'}
+                    objectFit={'contain'}
+                    alt=""
+                  />
+                </div>
               );
             })}
-          </ul>
+          </div>
           {photos.length > 0 && (
-            <div>
-              <IonButtons slot="center">
-                <IonButton onClick={deletePhotoHandler}>
-                  Cancel <IonIcon icon={trash}></IonIcon>
+            <div className={'flex flex-row justify-center gap-4 py-4'}>
+              <IonButton onClick={deletePhotoHandler}>
+                {isMultiUpload ? 'Clear All' : 'Clear'} <IonIcon icon={trash}></IonIcon>
+              </IonButton>
+              {isMultiUpload && (
+                <IonButton onClick={selectPhotoHandler}>
+                  <IonIcon icon={cameraOutline}></IonIcon>
+                  Select More Photos
                 </IonButton>
-                <IonButton onClick={uploadPhotoHandler}>
-                  Upload <IonIcon icon={cloudUpload}></IonIcon>
-                </IonButton>
-              </IonButtons>
+              )}
+              <IonButton onClick={uploadPhotoHandler}>
+                Upload <IonIcon icon={cloudUpload}></IonIcon>
+              </IonButton>
             </div>
           )}
-          {(photos.length === 0 || isMultiUpload) && (
+          {photos.length === 0 && (
             <IonItem>
               <IonToolbar color="primary">
                 <IonButton fill="clear" expand="full" color="light" onClick={selectPhotoHandler}>

@@ -3,6 +3,7 @@ import {
   NewActivitiesWithMedia,
   LocalFile,
   ActivitiesSearchResponse,
+  ActivityMediaUploadRes,
 } from '../types/types';
 import { fetchWrapper } from '../utils/fetchWrapper';
 import { IPostgresInterval } from 'postgres-interval';
@@ -60,8 +61,25 @@ export const fetchActivitiesCategories = async (): Promise<ActivitiesResponse> =
   return (await res.json()) as ActivitiesResponse;
 };
 
-export const uploadActivityMedias = async (activityId: number, photos: LocalFile[]) => {
-  photos.forEach(photo => uploadActivityMedia(activityId, photo));
+export const uploadActivityMedias = async (activityId: number, photos: File[]) => {
+  const formData = new FormData();
+  formData.append('activityId', activityId.toString());
+  photos.forEach(photo => formData.append('uploadPhotos', photo));
+
+  // Don't use fetchWrapper we want the content type to be set automatically
+  const res = await fetch(`/api/activities/${activityId}/media`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!res.ok) {
+    switch (res.status) {
+      default:
+        throw new Error('could not upload activity media');
+    }
+  }
+
+  return ((await res.json()) as ActivityMediaUploadRes)?.uploadedMedia;
 };
 
 const uploadActivityMedia = async (activityId: number, photo: LocalFile) => {

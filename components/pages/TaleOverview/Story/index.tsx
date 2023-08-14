@@ -50,6 +50,9 @@ function Story({ isEditMode, contentRef }: StoryProps) {
   const tripDurationInDays = Math.floor(
     (tale.end_date.getTime() - tale.start_date.getTime()) / (1000 * 60 * 60 * 24)
   );
+  const resetStory = useRecoilRefresher_UNSTABLE(currentTaleStory);
+
+  useEffect(() => () => resetStory(), []);
 
   useEffect(() => {
     setDestinations(story.destinations);

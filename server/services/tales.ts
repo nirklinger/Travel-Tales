@@ -7,11 +7,9 @@ import {
   insertNewTale,
   uploadTaleCoverPhoto,
   updateTaleDbCoverPhoto,
-  getTaleOwnerByTaleId,
-  getTaleOwnerIdByTaleId
 } from '../dal/tales';
 import { ActivitiesWithMedia, LocalFile, NewTrip } from '../../types/types';
-import { getUserByExternalId } from '../dal/users';
+import formidable from 'formidable';
 
 export async function getAllTales() {
   return getTales();
@@ -43,12 +41,11 @@ export const createNewTale = async (newTale: NewTrip) => {
   const newTaleId = await insertNewTale(newTale);
 
   return newTaleId;
-}
+};
 
-export const updateTaleCoverPhoto = async (taleId: number, newCoverPhoto: LocalFile) => {
+export const updateTaleCoverPhoto = async (taleId: number, newCoverPhoto: formidable.File) => {
   await uploadTaleCoverPhoto(taleId, newCoverPhoto);
-  const newPath = await updateTaleDbCoverPhoto(taleId);
-  return newPath;
+  return await updateTaleDbCoverPhoto(taleId);
 };
 
 export const checkIfUserIsTaleOwnerByExternalId = async (taleId: number, userExternalId: string) => {

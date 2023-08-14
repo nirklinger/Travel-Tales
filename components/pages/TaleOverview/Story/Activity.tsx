@@ -166,7 +166,7 @@ export function Activity({ activity: activityReadonly, canEdit, onDeleteActivity
           readonly={!canEdit}
         ></IonTextarea>
       </div>
-      <ImageTape media={activity.media} isEdit={canEdit} activityId={activityReadonly.id} />
+      <ImageTape mediaReadonly={activity.media} isEdit={canEdit} activityId={activityReadonly.id} />
     </div>
   );
 }
