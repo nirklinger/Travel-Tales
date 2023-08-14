@@ -21,21 +21,7 @@ export const authOptions: NextAuthOptions = {
       console.log('isNewUser:', isNewUser);
       console.log('user:', user);
       console.groupEnd();*/
-      if (token) {
-        try {
-          const partsOfName = token.name.trim().split(' ');
-          const signedInUser = {
-            external_id: token.sub,
-            email: token.email,
-            first_name: partsOfName[0],
-            last_name: partsOfName.slice(1).join(' ')
-          }
-          await insertUserOnFirstSignIn(signedInUser);
-        } catch (err) {
-          logger.error({err}, 'Error inserting user on first sign in');
-        }
-      }
-
+     
       if (account) {
         token.accessToken = account.access_token;
       }
@@ -49,6 +35,22 @@ export const authOptions: NextAuthOptions = {
 
     // Send properties to the client, like an access_token from a provider.
     async session({ session, token, user }) {
+      if (token) {
+        try {
+          const partsOfName = token.name.trim().split(' ');
+          const signedInUser = {
+            external_id: token.sub,
+            email: token.email,
+            first_name: partsOfName[0],
+            last_name: partsOfName.slice(1).join(' ')
+          }
+          const userId = await insertUserOnFirstSignIn(signedInUser);
+          token.profile.userId = userId;
+        } catch (err) {
+          logger.error({err}, 'Error inserting user on first sign in');
+        }
+      }
+
       /*console.group('session');
       console.log('session:', session);
       console.log('token:', token);
@@ -57,6 +59,8 @@ export const authOptions: NextAuthOptions = {
 
       session.accessToken = token.accessToken;
       session.profile = token.profile;
+
+       
 
       return session;
     },

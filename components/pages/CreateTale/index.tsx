@@ -32,7 +32,6 @@ import { Directory } from '@capacitor/filesystem';
 import { LocalFile, NewTrip } from '../../../types/types';
 import { Trips, Users } from '../../../types/db-schema-definitions';
 import { useSession } from 'next-auth/react';
-import { insertNewUserToUsersTable } from '../../../managers/user-manager';
 
 const REDIRECT_PATH = '/tabs/tale/';
 const DEFAULT_USER_ID = 1;
@@ -50,10 +49,10 @@ const CreateTale = () => {
   const [isDatesValid, setIsDatesValid] = useState(false);
   const [isFileSelected, setIsFileSelected] = useState(false);
   const [coverPhoto, setCoverPhoto] = useState<LocalFile>({ name: '', path: '', data: '' });
-  const sessionObject = useSession();
+  const { data: session, status } = useSession();
   const router = useIonRouter();
 
-  const userId: string = sessionObject.data.profile.sub;
+  const userExternalId: string = session.profile.sub;
 
   useEffect(() => {
     setIsFileSelected(false);
@@ -96,28 +95,16 @@ const CreateTale = () => {
     setShowEndDateModal(false);
   };
   
-  const getSessionDetails = () => {
-    const sessionUser: Users = {
-      user_id: userId,
-      email: sessionObject.data.profile.email,
-      first_name: sessionObject.data.profile.name.split(" ")[0],
-      last_name: sessionObject.data.profile.name.split(" ").slice(1).join(" "),
-      avatar_photo: "/img/or.jpg"
-    };
-
-    return sessionUser;
-  }
-
   const createTaleHandler = async () => {
     if (isTripNameValid && isCatchphraseValid && isDatesValid) {
+      console.log(session);
       const newTale: NewTrip = {
         title: tripName,
         catch_phrase: catchphrase,
-        created_by: userId,
+        created_by: session.profile.userId,
         start_date: startDate,
         end_date: endDate,
       };
-      const res = await insertNewUserToUsersTable(getSessionDetails());
       const newTaleId = await createTale(newTale);
       router.push(`${REDIRECT_PATH}${newTaleId}`, 'forward', 'replace');
     } else {

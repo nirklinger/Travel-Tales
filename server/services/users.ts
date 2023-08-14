@@ -15,6 +15,9 @@ export async function validateUserService(userToValidate: ExternalUser) {
 export async function insertUserOnFirstSignIn(userToInsert: Omit<ExternalUser, 'avatar_photo'>){
     const externalUser = {...userToInsert, avatar_photo: '/Users/default.svg' }
     await insertUserToDb(externalUser);
+    const user = await getUserByExternalId(userToInsert.external_id);
+
+    return user[0].user_id;
 }
 
 export async function getUserByExternalIdService(externalId: string) {
