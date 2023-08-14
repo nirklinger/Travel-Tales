@@ -140,16 +140,10 @@ export const uploadActivityMedia = async (
     const taleFolderPath = path.join(TALES_FOLDER, taleId.toString());
     const directoryPath = path.join(PUBLIC_FOLDER, taleFolderPath);
     const envFullFilePath = path.join(directoryPath, photo.originalFilename);
-    console.log(`upload cover photo dal - fullFilePath: ${envFullFilePath}`);
     await fs.promises.mkdir(directoryPath, { recursive: true });
     await fs.promises.writeFile(envFullFilePath, buffer);
   } else {
-<<<<<<< HEAD
-    const filePath = `Tales/${taleId.toString()}/${photo.name}`;
-=======
     const filePath = `Tales/${taleId.toString()}/${photo.originalFilename}`;
-    console.log(`upload cover photo dal - fullFilePath: ${filePath}`);
->>>>>>> main
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
       Key: filePath,

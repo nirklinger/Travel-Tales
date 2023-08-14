@@ -5,14 +5,6 @@ import { updateTaleCoverPhoto } from '../../../../server/services/tales';
 import { IncomingForm } from 'formidable';
 import { TaleCoverPhotoUploadRes } from '../../../../types/types';
 
-<<<<<<< HEAD
-const updateCoverPhoto = async (req: NextApiRequest, res: NextApiResponse) => {
-    const bodyTaleToUpdate = req.body.taleId;
-    const bodyCoverPhoto = req.body.coverPhoto;
-    const newPath = await updateTaleCoverPhoto(bodyTaleToUpdate, bodyCoverPhoto);
-
-    res.status(StatusCodes.OK).send({url: newPath});
-=======
 const updateCoverPhoto = async (
   req: NextApiRequest,
   res: NextApiResponse<TaleCoverPhotoUploadRes>
@@ -24,7 +16,6 @@ const updateCoverPhoto = async (
   const coverPhotoUrl = await updateTaleCoverPhoto(taleId, coverPhoto);
 
   res.status(StatusCodes.OK).json({ coverPhotoUrl });
->>>>>>> main
 };
 
 export default createApiHandler().put<NextApiRequest, NextApiResponse<TaleCoverPhotoUploadRes>>(

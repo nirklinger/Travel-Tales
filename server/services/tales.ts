@@ -7,9 +7,11 @@ import {
   insertNewTale,
   uploadTaleCoverPhoto,
   updateTaleDbCoverPhoto,
+  getTaleOwnerIdByTaleId,
 } from '../dal/tales';
 import { ActivitiesWithMedia, LocalFile, NewTrip } from '../../types/types';
 import formidable from 'formidable';
+import { getUserByExternalId } from '../dal/users';
 
 export async function getAllTales() {
   return getTales();
@@ -52,14 +54,6 @@ export const checkIfUserIsTaleOwnerByExternalId = async (taleId: number, userExt
   const taleOwnerId = await getTaleOwnerIdByTaleId(taleId);
   const users = await getUserByExternalId(userExternalId);
   const user = users[0];
-
-  console.log(`taleOwnerId - ${taleOwnerId} - ${JSON.stringify(taleOwnerId)}`);
-
-  console.log(`users = ${users} - ${JSON.stringify(users)}`);
-
-  console.log(`user = ${user} - ${JSON.stringify(user)}`);
-
-  console.log(`taleOwnerId.user_id === user.user_id = ${taleOwnerId.user_id === user.user_id}`);
 
   return taleOwnerId.user_id === user.user_id;
 }

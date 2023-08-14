@@ -65,6 +65,10 @@ const TaleOverview = () => {
   const AUTHENTICATED = 'authenticated';
 
   useEffect(() => {
+    setCoverPhoto(tale?.cover_photo_url);
+  },[tale]);
+
+  useEffect(() => {
    const checkIfUserIsOwner = async () => {
     const userExternalId = session.profile.sub;
     const res = await checkIfUserIsTaleOwner(taleId, userExternalId);
