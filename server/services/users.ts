@@ -17,7 +17,7 @@ export async function insertUserOnFirstSignIn(userToInsert: Omit<ExternalUser, '
     await insertUserToDb(externalUser);
     const user = await getUserByExternalId(userToInsert.external_id);
 
-    return user[0].user_id;
+    return user[0];
 }
 
 export async function getUserByExternalIdService(externalId: string) {

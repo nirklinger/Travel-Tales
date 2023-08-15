@@ -16,30 +16,19 @@ const TaleEntry = ({ tale, ...props }) => (
 );
 
 const Explore = () => {
-  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
-  const [validatedUser, setValidatedUser] = useState<Users>();
+  const [isUserValid, setIsUserValid] = useState(false);
   const { data: session, status } = useSession();
   const AUTHENTICATED = 'authenticated';
-
+  
   useEffect(() => {
-    const validateUserData = async () => {
-      const res = await fetchUserByExternalId(session.profile.sub);
-      const user = await res.json();
-      setValidatedUser(user);
-      setIsUserLoggedIn(true);
-    }
+    const isUserLoggedIn = (status === AUTHENTICATED) && (session?.profile?.user_id !== undefined);
+    setIsUserValid(isUserLoggedIn);
+  },[session?.profile?.user_id]);
 
-    if(status === AUTHENTICATED) {
-      validateUserData();
-    }
-    else {
-      setIsUserLoggedIn(false);
-    }
-  }, [status]);
 
   return (
     <>
-      {isUserLoggedIn ? <UserProfilePage validatedUser={validatedUser} setValidatedUser={setValidatedUser}/> : <GuestProfilePage />}
+      {isUserValid ? <UserProfilePage session={session} /> : <GuestProfilePage />}
     </>
   );
 };

@@ -1,5 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { createTale } from '..//..//..//managers/tales-manager';
+import React, { useEffect, useState } from 'react';
 import {
   IonCard,
   IonItem,
@@ -16,22 +15,13 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
-  IonIcon,
-  IonThumbnail,
-  IonImg,
-  IonList,
 } from '@ionic/react';
-import { cameraOutline, closeOutline } from 'ionicons/icons';
 import { useIonRouter } from '@ionic/react';
-import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
-import { Filesystem } from '@capacitor/filesystem';
+import { useSession } from 'next-auth/react';
 
 import Card from '../../ui/Card';
-import { Directory } from '@capacitor/filesystem';
-
 import { LocalFile, NewTrip } from '../../../types/types';
-import { Trips, Users } from '../../../types/db-schema-definitions';
-import { useSession } from 'next-auth/react';
+import { createTale } from '..//..//..//managers/tales-manager';
 
 const REDIRECT_PATH = '/tabs/tale/';
 const DEFAULT_USER_ID = 1;
@@ -101,7 +91,7 @@ const CreateTale = () => {
       const newTale: NewTrip = {
         title: tripName,
         catch_phrase: catchphrase,
-        created_by: session.profile.userId,
+        created_by: session.profile.user_id,
         start_date: startDate,
         end_date: endDate,
       };

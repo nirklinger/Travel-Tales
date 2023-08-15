@@ -77,6 +77,7 @@ const TaleOverview = () => {
     console.log(`isUserTaleOwner - ${isUserTaleOwner}`);
     setIsUserTaleOwner(isUserOwnerOfTale);
    }
+
    if(status === AUTHENTICATED) {
      checkIfUserIsOwner();
    }

@@ -21,14 +21,14 @@ import { Users } from '../../../types/db-schema-definitions';
 import { Tale } from '../../../types/types';
 import { fetchUserTalesById, fetchUserByExternalId, updateProfile } from '../../../managers/user-manager';
 import TripCard from '../../ui/TripCard';
+import { Session } from 'next-auth';
 
 interface UserProfilePageProps {
-  validatedUser: Users;
-  setValidatedUser: Dispatch<SetStateAction<Users>>;
+  session: Session;
 }
 
-const UserProfilePage: React.FC<UserProfilePageProps> = ({ validatedUser, setValidatedUser }) => {
-  const [userName, setUserName] = useState(`${validatedUser.first_name} ${validatedUser.last_name}`)
+const UserProfilePage: React.FC<UserProfilePageProps> = ({session}) => {
+  const [userName, setUserName] = useState(`${session.profile.first_name} ${session.profile.last_name}`)
   const [edit, setEdit] = useState(false);
   const router = useIonRouter();
   const [userTales, setUserTales] = useState<Tale[]>([]);
@@ -36,14 +36,12 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ validatedUser, setVal
 
   useEffect(() => {
     const fetchUserTales = async () => {
-      if (validatedUser) {
-        const fetchedUserTales = await fetchUserTalesById(validatedUser.user_id);
-        setUserTales(fetchedUserTales);
-      }
+      const fetchedUserTales = await fetchUserTalesById(session.profile.user_id);
+      setUserTales(fetchedUserTales);
     }
 
     fetchUserTales();
-  }, [validatedUser.user_id]);
+  }, [session.profile.user_id]);
 
 
   const selectTale = useCallback((id: number) => {
@@ -51,8 +49,8 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ validatedUser, setVal
   }, []);
 
   const updateUserProfile = useCallback(
-    debounce(changes => updateProfile(validatedUser.user_id, changes), 2000),
-    [validatedUser?.user_id]);
+    debounce(changes => updateProfile(session.profile.user_id, changes), 2000),
+    [session.profile?.user_id]);
 
   const handleUserNameChange = useCallback(
     e => {

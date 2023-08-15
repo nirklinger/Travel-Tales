@@ -41,10 +41,9 @@ export const getUserByExternalId = async (externalId: string) => {
 }
 
 export const insertUserToDb = async (newUser: Users | ExternalUser) => {
+  console.log(`inserting user - ${JSON.stringify(newUser)}`);
     const connection = getConnection();
-    const temp = await connection.insert(newUser).into(Table.Users).onConflict().ignore();
-
-    return temp;
+    await connection.insert(newUser).into(Table.Users).onConflict().ignore();
 }
 
 export const UpdateUserProfile = async (userId: number, updateData: Partial<Users>) => {
