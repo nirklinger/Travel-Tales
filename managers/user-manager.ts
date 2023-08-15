@@ -1,6 +1,6 @@
 import { fetchWrapper } from '../utils/fetchWrapper';
 import { StatusCodes } from 'http-status-codes';
-import { Tale, TalesResponse, ExternalUser } from '../types/types';
+import { Tale, TalesResponse, ExternalUser, UserProfilePhotoUploadRes } from '../types/types';
 import { Users } from '../types/db-schema-definitions';
 
 export async function fetchUserTalesById(userId: number): Promise<Tale[]> {
@@ -44,4 +44,25 @@ export async function updateProfile(userId: number, updateData: Partial<Users>):
         throw new Error('could not update destination');
     }
   }
+}
+
+export async function updateUserProfilePhoto(userId: number, profilePhoto: File): Promise<string> {
+  const formData = new FormData();
+  formData.append('userId', userId.toString());
+  formData.append('profilePhoto', profilePhoto);
+
+  // Don't use fetchWrapper we want the content type to be set automatically
+  const res = await fetch(`/api/users/${userId}/profilePhoto`, {
+    method: 'PUT',
+    body: formData,
+  });
+
+  if (!res.ok) {
+    switch (res.status) {
+      default:
+        throw new Error('could not upload profile photo');
+    }
+  }
+
+  return ((await res.json()) as UserProfilePhotoUploadRes)?.profilePhotoUrl;
 }

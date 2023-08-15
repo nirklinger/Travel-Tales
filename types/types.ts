@@ -50,6 +50,10 @@ export type TaleCoverPhotoUploadRes = {
   coverPhotoUrl: string;
 };
 
+export type UserProfilePhotoUploadRes = {
+  profilePhotoUrl: string;
+};
+
 export type TalesResponse = {
   tales: (Trips & Users)[];
 };

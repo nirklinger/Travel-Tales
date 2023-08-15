@@ -5,7 +5,9 @@ import {
   IonCardSubtitle,
   IonCardTitle,
   IonContent,
+  IonFabButton,
   IonHeader,
+  IonIcon,
   IonInput,
   IonPage,
   IonTitle,
@@ -19,16 +21,19 @@ import { debounce } from 'lodash';
 import Card from '../../ui/Card';
 import { Users } from '../../../types/db-schema-definitions';
 import { Tale } from '../../../types/types';
-import { fetchUserTalesById, fetchUserByExternalId, updateProfile } from '../../../managers/user-manager';
+import { fetchUserTalesById, fetchUserByExternalId, updateProfile, updateUserProfilePhoto } from '../../../managers/user-manager';
 import TripCard from '../../ui/TripCard';
 import { Session } from 'next-auth';
+import { pencil } from 'ionicons/icons';
+import ImageUpload from '../../common/ImageUpload';
 
 interface UserProfilePageProps {
   session: Session;
 }
 
 const UserProfilePage: React.FC<UserProfilePageProps> = ({session}) => {
-  const [userName, setUserName] = useState(`${session.profile.first_name} ${session.profile.last_name}`)
+  const [userName, setUserName] = useState(`${session.profile.first_name} ${session.profile.last_name}`);
+  const [profilePhoto, setProfilePhoto] = useState<string>(session?.profile?.avatar_photo || '');
   const [edit, setEdit] = useState(false);
   const router = useIonRouter();
   const [userTales, setUserTales] = useState<Tale[]>([]);
@@ -63,7 +68,10 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({session}) => {
     [updateUserProfile]
   );
 
-
+  const uploadProfilePhoto = async (profilePhoto: File) => {
+    const newProfilePhoto = await updateUserProfilePhoto(session.profile.user_id, profilePhoto);
+    setProfilePhoto(newProfilePhoto);
+  };
 
   const userNameField = edit ? (
     <div>
@@ -87,11 +95,23 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({session}) => {
           <div className="h-52 w-full relative">
             <Image
               className="rounded-t-xl object-cover min-w-full min-h-full max-w-full max-h-full"
-              src={defaultAvatarImage}
+              src={profilePhoto}
               fill
               alt={` profile's picture`}
               onClick={()=>{}}
             />
+            {edit && (
+              <>
+                <IonFabButton className="absolute bottom-0 right-0 pr-1 pb-1" id="fab-trigger-profile">
+                  <IonIcon icon={pencil} />
+                </IonFabButton>
+                <ImageUpload
+                  isMultiUpload={false}
+                  trigger="fab-trigger-profile"
+                  onUpload={([profilePhoto]) => {uploadProfilePhoto(profilePhoto)}}
+                />
+              </>
+            )}
           </div>
           <IonCardHeader>
             <IonCardTitle>{userNameField}</IonCardTitle>

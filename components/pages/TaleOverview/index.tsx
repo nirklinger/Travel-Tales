@@ -108,7 +108,7 @@ const TaleOverview = () => {
   }, [currentTaleId, setSegment]);
 
   const uploadCoverPhoto = async (coverPhoto: File) => {
-    const newCoverPhoto = await updateTaleCoverPhoto(taleId, coverPhoto);
+    const newCoverPhoto = await updateUserProfilePhoto(taleId, coverPhoto);
     setCoverPhoto(newCoverPhoto);
   };
 

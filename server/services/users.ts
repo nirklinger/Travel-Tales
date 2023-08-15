@@ -1,6 +1,8 @@
 import { Users } from '../../types/db-schema-definitions';
 import { ExternalUser } from '../../types/types';
-import { UpdateUserProfile, getUserByExternalId, insertUserToDb } from '../dal/users';
+import { PROFILE_PHOTO_FILE_NAME, UpdateUserProfile, getUserByExternalId, insertUserToDb, uploadUserProfilePhoto } from '../dal/users';
+import formidable from 'formidable';
+
 
 export async function validateUserService(userToValidate: ExternalUser) {
     let user = await getUserByExternalId(userToValidate.external_id);
@@ -29,3 +31,9 @@ export async function getUserByExternalIdService(externalId: string) {
 export async function updateUserProfileService(userId: number, userDataToUpdate: Partial<Users>) {
     await UpdateUserProfile(userId, userDataToUpdate);
 }
+
+export const updateUserProfilePhoto = async (userId: number, newProfilePhoto: formidable.File) => {
+    const userProfilePhotoUrl = `/Users/${userId}/${PROFILE_PHOTO_FILE_NAME}`;
+    await uploadUserProfilePhoto(userId, newProfilePhoto);
+    return await UpdateUserProfile(userId, {avatar_photo: userProfilePhotoUrl});
+  };
