@@ -95,12 +95,12 @@ export type Trips = {
 
 export type Users = {
   user_id: number;
+  external_id: string;
   email: string;
   first_name: string;
   last_name: string;
   avatar_photo: string;
 };
-
 export type UsersTrips = {
   id: number;
   user_id: number;

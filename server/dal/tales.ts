@@ -42,6 +42,25 @@ export async function getTales() {
   return tales;
 }
 
+export async function getTalesByUserId(userId: string) {
+  const connection = getConnection();
+  const isDevEnvironment = process.env.NODE_ENV === 'development';
+  const tales = await connection
+    .select<(Trips & Users)[]>([`${Table.Trips}.*`, `${Table.Users}.*`])
+    .from(Table.Trips)
+    .join(Table.UsersTrips, `${Table.Trips}.trip_id`, `${Table.UsersTrips}.trip_id`)
+    .join(Table.Users, `${Table.Users}.user_id`, `${Table.UsersTrips}.user_id`)
+    .where(`${Table.Users}.user_id`, userId);
+  if (!isDevEnvironment) {
+    const envFitTales = tales.map(taleObj => {
+      return { ...taleObj, cover_photo_url: `${S3_URL}${taleObj.cover_photo_url}` };
+    });
+    return envFitTales;
+  }
+
+  return tales;
+}
+
 export const insertNewTale = async (tale: NewTrip) => {
   const newTale: Omit<Trips, 'trip_id'> = {
     title: tale.title,
@@ -112,6 +131,7 @@ export async function getTaleActivities(taleId: number) {
 }
 
 export async function getTaleActivityMedia(taleId: number) {
+  const isDevEnvironment = process.env.NODE_ENV === 'development';
   const connection = getConnection();
   const media = await connection
     .select<ActivityMedia[]>(`${Table.ActivityMedia}.*`)
@@ -123,6 +143,13 @@ export async function getTaleActivityMedia(taleId: number) {
     )
     .join(Table.ActivityMedia, `${Table.Activities}.id`, `${Table.ActivityMedia}.activity_id`)
     .where(`${Table.TripDestinations}.trip_id`, taleId);
+  if (!isDevEnvironment) {
+    const envFitMedia = media.map(mediaObj => {
+      return { ...mediaObj, media_url: `${S3_URL}${mediaObj.media_url}` };
+    });
+    return envFitMedia;
+  }
+
   return media;
 }
 
@@ -181,7 +208,6 @@ export const updateTaleDbCoverPhoto = async (taleId: number) => {
   await connection(Table.Trips)
     .where(`${Table.Trips}.trip_id`, taleId)
     .update({ cover_photo_url: coverPhotoUrl });
-
   return coverPhotoUrl;
 };
 
@@ -195,4 +221,14 @@ export const fetchTaleByActivityId = async (activityId: number) => {
     .where(`${Table.Activities}.id`, activityId);
 
   return ids[0];
+};
+
+export const getTaleOwnerIdByTaleId = async (taleId: number) => {
+  const connection = getConnection();
+  const userIds = await connection
+    .select<{ user_id: number }[]>(`${Table.UsersTrips}.user_id`)
+    .from(Table.UsersTrips)
+    .where(`${Table.UsersTrips}.trip_id`, taleId);
+
+  return userIds[0];
 };

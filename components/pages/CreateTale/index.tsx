@@ -1,5 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { createTale } from '..//..//..//managers/tales-manager';
+import React, { useEffect, useState } from 'react';
 import {
   IonCard,
   IonItem,
@@ -16,21 +15,13 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
-  IonIcon,
-  IonThumbnail,
-  IonImg,
-  IonList,
 } from '@ionic/react';
-import { cameraOutline, closeOutline } from 'ionicons/icons';
 import { useIonRouter } from '@ionic/react';
-import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
-import { Filesystem } from '@capacitor/filesystem';
+import { useSession } from 'next-auth/react';
 
 import Card from '../../ui/Card';
-import { Directory } from '@capacitor/filesystem';
-
 import { LocalFile, NewTrip } from '../../../types/types';
-import { Trips } from '../../../types/db-schema-definitions';
+import { createTale } from '..//..//..//managers/tales-manager';
 
 const REDIRECT_PATH = '/tabs/tale/';
 const DEFAULT_USER_ID = 1;
@@ -46,11 +37,12 @@ const CreateTale = () => {
   const [endDate, setEndDate] = useState(new Date());
   const [showEndDateModal, setShowEndDateModal] = useState(false);
   const [isDatesValid, setIsDatesValid] = useState(false);
-
   const [isFileSelected, setIsFileSelected] = useState(false);
   const [coverPhoto, setCoverPhoto] = useState<LocalFile>({ name: '', path: '', data: '' });
-
+  const { data: session, status } = useSession();
   const router = useIonRouter();
+
+  const userExternalId: string = session.profile.sub;
 
   useEffect(() => {
     setIsFileSelected(false);
@@ -93,82 +85,13 @@ const CreateTale = () => {
     setShowEndDateModal(false);
   };
 
-  const selectPhoto = useCallback(async () => {
-    const photo = await Camera.getPhoto({
-      quality: 100,
-      allowEditing: false,
-      resultType: CameraResultType.Base64,
-      source: CameraSource.Photos,
-    });
-    if (photo) {
-      savePhoto(photo);
-    }
-  }, []);
-
-  const savePhoto = async (photo: Photo) => {
-    const fileName = new Date().getTime() + '.jpeg';
-    const savedFile = await Filesystem.writeFile({
-      directory: Directory.Data,
-      path: `${IMAGE_DIR}/${fileName}`,
-      data: photo.base64String,
-    });
-    loadPhoto();
-  };
-
-  const loadPhoto = useCallback(async () => {
-    Filesystem.readdir({
-      directory: Directory.Data,
-      path: IMAGE_DIR,
-    })
-      .then(
-        result => {
-          console.log(`reading directory, result: ${JSON.stringify(result.files)}`);
-          const fileNames = result.files.map(file => {
-            return file.name;
-          });
-          if (fileNames.length > 0) {
-            loadFileData(fileNames);
-          }
-        },
-        async err => {
-          console.log(`error - ${err}`);
-          await Filesystem.mkdir({
-            directory: Directory.Data,
-            path: IMAGE_DIR,
-          });
-        }
-      )
-      .then(() => {});
-  }, []);
-
-  const loadFileData = useCallback(async (fileNames: string[]) => {
-    const fileName = fileNames[fileNames.length - 1];
-    const filePath = `${IMAGE_DIR}/${fileName}`;
-    const readFile = await Filesystem.readFile({
-      directory: Directory.Data,
-      path: filePath,
-    });
-    setCoverPhoto({
-      name: fileName,
-      path: filePath,
-      data: `data:image/jpeg;base64,${readFile.data}`,
-    });
-  }, []);
-
-  const deletePhoto = useCallback(async () => {
-    await Filesystem.deleteFile({
-      directory: Directory.Data,
-      path: coverPhoto.path,
-    });
-    setCoverPhoto({ name: '', path: '', data: '' });
-  }, [coverPhoto]);
-
   const createTaleHandler = async () => {
     if (isTripNameValid && isCatchphraseValid && isDatesValid) {
+      console.log(session);
       const newTale: NewTrip = {
         title: tripName,
         catch_phrase: catchphrase,
-        created_by: DEFAULT_USER_ID,
+        created_by: session.profile.user_id,
         start_date: startDate,
         end_date: endDate,
       };
@@ -224,6 +147,7 @@ const CreateTale = () => {
                   <IonDatetime
                     id="startDatetime"
                     presentation="date"
+                    showDefaultButtons={true}
                     onIonChange={startDateChangeHandler}
                   ></IonDatetime>
                 </IonModal>
@@ -240,6 +164,7 @@ const CreateTale = () => {
                   <IonDatetime
                     id="endDatetime"
                     presentation="date"
+                    showDefaultButtons={true}
                     onIonChange={endDateChangeHandler}
                   ></IonDatetime>
                 </IonModal>

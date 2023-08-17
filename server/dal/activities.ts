@@ -89,6 +89,7 @@ export const fetchAllActivitiesToEmbed = async () => {
 };
 
 export const selectActivitiesMedia = async () => {
+  const isDevEnvironment = process.env.NODE_ENV === 'development';
   const connection = getConnection();
   const media = await connection
     .select<ActivityMedia[]>(`${Table.ActivityMedia}.*`)
@@ -139,23 +140,17 @@ export const uploadActivityMedia = async (
     const taleFolderPath = path.join(TALES_FOLDER, taleId.toString());
     const directoryPath = path.join(PUBLIC_FOLDER, taleFolderPath);
     const envFullFilePath = path.join(directoryPath, photo.originalFilename);
-    console.log(`upload cover photo dal - fullFilePath: ${envFullFilePath}`);
     await fs.promises.mkdir(directoryPath, { recursive: true });
     await fs.promises.writeFile(envFullFilePath, buffer);
   } else {
     const filePath = `Tales/${taleId.toString()}/${photo.originalFilename}`;
-    console.log(`upload cover photo dal - fullFilePath: ${filePath}`);
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
       Key: filePath,
       Body: buffer,
     });
     try {
-      console.log(
-        `############################################# aws response: #############################################`
-      );
       const response = await client.send(command);
-      console.log(response);
     } catch (err) {
       console.error(err);
     }

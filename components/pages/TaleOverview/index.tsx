@@ -10,27 +10,12 @@ import {
   IonTitle,
   IonToolbar,
   IonBackButton,
-  IonNavLink,
-  IonItem,
-  useIonRouter,
   IonButton,
   IonFabButton,
   IonIcon,
-  IonModal,
-  IonList,
-  IonThumbnail,
-  IonImg,
 } from '@ionic/react';
-import {
-  pencil,
-  close,
-  cameraOutline,
-  closeOutline,
-  trash,
-  cloudUpload,
-  pencilOutline,
-} from 'ionicons/icons';
-import { OverlayEventDetail } from '@ionic/core/components';
+import { useSession } from 'next-auth/react';
+import { pencil } from 'ionicons/icons';
 import {
   useRecoilRefresher_UNSTABLE,
   useRecoilState,
@@ -48,11 +33,8 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Story from './Story';
 import Map from './Map';
-import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
-import { Filesystem } from '@capacitor/filesystem';
-import { Directory } from '@capacitor/filesystem';
 import { LocalFile, ParsedDestination } from '../../../types/types';
-import { updateTaleCoverPhoto } from '../../../managers/tales-manager';
+import { checkIfUserIsTaleOwner, updateTaleCoverPhoto } from '../../../managers/tales-manager';
 import ImageUpload from '../../common/ImageUpload';
 
 enum Segments {
@@ -64,6 +46,7 @@ const IMAGE_DIR = 'stored-images';
 
 const TaleOverview = () => {
   const [edit, setEdit] = useState(false);
+  const [isUserTaleOwner, setIsUserTaleOwner] = useState(false);
   const [currentTaleId, setCurrentTaleId] = useRecoilState(currentTaleIdState);
   const resetStory = useRecoilRefresher_UNSTABLE(currentTaleStory);
   const tale = useRecoilValue(currentTale);
@@ -75,6 +58,30 @@ const TaleOverview = () => {
 
   const modal = useRef<HTMLIonModalElement>(null);
   let { taleId } = useParams();
+  const { data: session, status } = useSession();
+
+  const AUTHENTICATED = 'authenticated';
+
+  useEffect(() => {
+    setCoverPhoto(tale?.cover_photo_url);
+  }, [tale]);
+
+  useEffect(() => {
+    const checkIfUserIsOwner = async () => {
+      const userExternalId = session.profile.sub;
+      const res = await checkIfUserIsTaleOwner(taleId, userExternalId);
+      const isUserOwnerOfTale = await res.json();
+
+      console.log(`isUserTaleOwner - ${isUserTaleOwner}`);
+      setIsUserTaleOwner(isUserOwnerOfTale);
+    };
+
+    if (status === AUTHENTICATED) {
+      checkIfUserIsOwner();
+    } else {
+      setIsUserTaleOwner(false);
+    }
+  }, [status, taleId, session?.profile.sub, isUserTaleOwner]);
 
   useEffect(
     () => () => {
@@ -124,9 +131,11 @@ const TaleOverview = () => {
             <IonBackButton defaultHref="/tabs/explore"></IonBackButton>
           </IonButtons>
           <IonTitle className={'lg:text-center'}>{title + (edit ? ' (Edit Mode)' : '')}</IonTitle>
-          <IonButton fill={'clear'} slot={'end'} onClick={() => setEdit(!edit)}>
-            {edit ? 'Done' : 'Edit'}
-          </IonButton>
+          {isUserTaleOwner && (
+            <IonButton fill={'clear'} slot={'end'} onClick={() => setEdit(!edit)}>
+              {edit ? 'Done' : 'Edit'}
+            </IonButton>
+          )}
         </IonToolbar>
       </IonHeader>
       <IonContent ref={contentRef} className={''}>

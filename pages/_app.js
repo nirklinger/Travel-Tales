@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import Script from 'next/script';
 import { setupIonicReact } from '@ionic/react';
+import { SessionProvider } from "next-auth/react"
 
 import 'tailwindcss/tailwind.css';
 /* Core CSS required for Ionic components to work properly */
@@ -24,7 +25,10 @@ import '../styles/variables.css';
 import NonSSRWrapper from '../components/NonSSRWrapper';
 import { RecoilRoot } from 'recoil';
 
-function MyApp({ Component, pageProps }) {
+function MyApp({ 
+  Component,
+pageProps: { session, ...pageProps }
+}) {
   return (
     <>
       <Head>
@@ -34,7 +38,9 @@ function MyApp({ Component, pageProps }) {
         ></meta>
       </Head>
       <RecoilRoot>
-        <Component {...pageProps} />
+        <SessionProvider session={session}>
+          <Component {...pageProps} />
+        </SessionProvider>
       </RecoilRoot>
       <Script
         type="module"

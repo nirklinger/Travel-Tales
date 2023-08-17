@@ -50,6 +50,10 @@ export type TaleCoverPhotoUploadRes = {
   coverPhotoUrl: string;
 };
 
+export type UserProfilePhotoUploadRes = {
+  profilePhotoUrl: string;
+};
+
 export type TalesResponse = {
   tales: (Trips & Users)[];
 };
@@ -99,3 +103,7 @@ export interface LocalFile {
 export type NewTrip = Omit<Trips, 'trip_id' | 'cover_photo_url'>;
 
 export type Override<T1, T2> = Omit<T1, keyof T2> & T2;
+
+export type ExternalUser = Omit<Users, 'user_id'> & {
+  external_id: string;
+};

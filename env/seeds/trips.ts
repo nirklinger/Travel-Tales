@@ -58,6 +58,7 @@ const trips: Trips[] = [
 const users: Users[] = [
   {
     user_id: 1,
+    external_id: '',
     email: 'nirkl@mta.ac.il',
     first_name: 'Nir',
     last_name: 'Klinger',
@@ -65,6 +66,7 @@ const users: Users[] = [
   },
   {
     user_id: 2,
+    external_id: '',
     email: 'orSamu@mta.ac.il',
     first_name: 'Or',
     last_name: 'Samu',
@@ -72,6 +74,7 @@ const users: Users[] = [
   },
   {
     user_id: 3,
+    external_id: '',
     email: 'darEini@mta.ac.il',
     first_name: 'Dar',
     last_name: 'Eini',
@@ -101,6 +104,7 @@ const usersTrips: UsersTrips[] = [
     trip_id: 4,
   },
 ];
+
 
 const destinations: TripDestinations[] = [
   {
@@ -1139,7 +1143,7 @@ export async function seed(knex: Knex): Promise<void> {
   await knex.insert(activityCategories).into(Table.ActivityCategories);
   await knex.insert(activityEmbeddings).into(Table.ActivityEmbeddings);
   await knex.raw(`select setval(\'trips_trip_id_seq\', max(trip_id)) from ${Table.Trips}`);
-  await knex.raw(`select setval(\'users_user_id_seq\', max(user_id)) from ${Table.Users}`);
+  //await knex.raw(`select setval(\'users_user_id_seq\', max(user_id)) from ${Table.Users}`);
   await knex.raw(`select setval(\'users_trips_id_seq\', max(id)) from ${Table.UsersTrips}`);
   await knex.raw(
     `select setval(\'trip_destinations_id_seq\', max(id)) from ${Table.TripDestinations}`
