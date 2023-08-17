@@ -47,9 +47,8 @@ function Story({ isEditMode, contentRef }: StoryProps) {
   const router = useIonRouter();
   const [focusDestination, setFocusDestination] = useRecoilState(focusOnDestination);
   const [focusActivity, setFocusActivity] = useRecoilState(focusOnActivity);
-  const tripDurationInDays = Math.floor(
-    (tale.end_date.getTime() - tale.start_date.getTime()) / (1000 * 60 * 60 * 24)
-  );
+  const tripDurationInDays =
+    Math.floor((tale.end_date.getTime() - tale.start_date.getTime()) / (1000 * 60 * 60 * 24)) + 1;
   const resetStory = useRecoilRefresher_UNSTABLE(currentTaleStory);
 
   useEffect(() => () => resetStory(), []);

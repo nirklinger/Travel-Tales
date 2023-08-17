@@ -84,7 +84,7 @@ const CreateTale = () => {
     setEndDate(new Date(newDate));
     setShowEndDateModal(false);
   };
-  
+
   const createTaleHandler = async () => {
     if (isTripNameValid && isCatchphraseValid && isDatesValid) {
       console.log(session);
@@ -147,6 +147,7 @@ const CreateTale = () => {
                   <IonDatetime
                     id="startDatetime"
                     presentation="date"
+                    showDefaultButtons={true}
                     onIonChange={startDateChangeHandler}
                   ></IonDatetime>
                 </IonModal>
@@ -163,6 +164,7 @@ const CreateTale = () => {
                   <IonDatetime
                     id="endDatetime"
                     presentation="date"
+                    showDefaultButtons={true}
                     onIonChange={endDateChangeHandler}
                   ></IonDatetime>
                 </IonModal>

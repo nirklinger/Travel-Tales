@@ -57,7 +57,7 @@ export async function getTalesByUserId(userId: string) {
     });
     return envFitTales;
   }
-  
+
   return tales;
 }
 
@@ -143,12 +143,12 @@ export async function getTaleActivityMedia(taleId: number) {
     )
     .join(Table.ActivityMedia, `${Table.Activities}.id`, `${Table.ActivityMedia}.activity_id`)
     .where(`${Table.TripDestinations}.trip_id`, taleId);
-    if (!isDevEnvironment) {
-      const envFitMedia = media.map(mediaObj => {
-        return { ...mediaObj, media_url: `${S3_URL}${mediaObj.media_url}` };
-      });
-      return envFitMedia;
-    }
+  if (!isDevEnvironment) {
+    const envFitMedia = media.map(mediaObj => {
+      return { ...mediaObj, media_url: `${S3_URL}${mediaObj.media_url}` };
+    });
+    return envFitMedia;
+  }
 
   return media;
 }
@@ -226,9 +226,9 @@ export const fetchTaleByActivityId = async (activityId: number) => {
 export const getTaleOwnerIdByTaleId = async (taleId: number) => {
   const connection = getConnection();
   const userIds = await connection
-    .select<number[]>(`${Table.UsersTrips}.user_id`)
+    .select<{ user_id: number }[]>(`${Table.UsersTrips}.user_id`)
     .from(Table.UsersTrips)
     .where(`${Table.UsersTrips}.trip_id`, taleId);
 
-    return userIds[0];
-}
+  return userIds[0];
+};

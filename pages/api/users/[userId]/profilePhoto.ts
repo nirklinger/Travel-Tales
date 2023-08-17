@@ -13,13 +13,13 @@ const updateProfilePhoto = async (
   const form = new IncomingForm();
   const [fields, files] = await form.parse(req);
   const profilePhoto = files['profilePhoto']?.[0];
-  const profilePhotoUrl = await updateUserProfilePhoto(taleId, profilePhoto);
+  const { avatar_photo: profilePhotoUrl } = await updateUserProfilePhoto(taleId, profilePhoto);
 
   res.status(StatusCodes.OK).json({ profilePhotoUrl });
 };
 
 export default createApiHandler().put<NextApiRequest, NextApiResponse<UserProfilePhotoUploadRes>>(
-    updateProfilePhoto
+  updateProfilePhoto
 );
 
 export const config = {

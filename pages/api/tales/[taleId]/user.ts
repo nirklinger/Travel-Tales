@@ -5,7 +5,7 @@ import { checkIfUserIsTaleOwnerByExternalId } from '../../../../server/services/
 
 async function checkTaleOwnership(req: NextApiRequest, res: NextApiResponse) {
   const taleId = Number(req.query.taleId);
-  const userExternalId = req.query.external_id;
+  const userExternalId = req.query.external_id as string;
   const isUserTaleOwner = await checkIfUserIsTaleOwnerByExternalId(taleId, userExternalId);
 
   res.status(StatusCodes.OK).send(isUserTaleOwner);

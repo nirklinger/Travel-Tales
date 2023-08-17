@@ -3,16 +3,8 @@ import path from 'path';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 
 import { getConnection } from '../db/connections';
-import {
-  Activities,
-  ActivityMedia,
-  Table,
-  TripDestinations,
-  Trips,
-  Users,
-} from '../../types/db-schema-definitions';
+import { Table, Users } from '../../types/db-schema-definitions';
 import { logger } from '../../utils/server-logger';
-import { UserChangeRequest } from '../../types/awsTypes';
 import { CognitoIdentityProvider } from '@aws-sdk/client-cognito-identity-provider';
 import { ExternalUser } from '../../types/types';
 import formidable from 'formidable';
@@ -66,14 +58,14 @@ export const insertUserToDb = async (newUser: Users | ExternalUser) => {
 
 export const UpdateUserProfile = async (userId: number, updateData: Partial<Users>) => {
   const connection = getConnection();
-  const changes = await connection(Table.Users)
+  const changes = (await connection(Table.Users)
     .where('user_id', userId)
-    .update(updateData, Object.keys(updateData));
+    .update(updateData, Object.keys(updateData))) as Users[];
 
   return changes[0];
 };
 
-export const UpdateUserAttributesCommand = async (updateData: UserChangeRequest) => {
+export const UpdateUserAttributesCommand = async updateData => {
   const { userName, attribute } = updateData;
   const provider = new CognitoIdentityProvider({
     region: process.env.AWS_REGION,

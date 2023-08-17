@@ -15,9 +15,7 @@ import {
   IonIcon,
 } from '@ionic/react';
 import { useSession } from 'next-auth/react';
-import {
-  pencil,
-} from 'ionicons/icons';
+import { pencil } from 'ionicons/icons';
 import {
   useRecoilRefresher_UNSTABLE,
   useRecoilState,
@@ -66,24 +64,23 @@ const TaleOverview = () => {
 
   useEffect(() => {
     setCoverPhoto(tale?.cover_photo_url);
-  },[tale]);
+  }, [tale]);
 
   useEffect(() => {
-   const checkIfUserIsOwner = async () => {
-    const userExternalId = session.profile.sub;
-    const res = await checkIfUserIsTaleOwner(taleId, userExternalId);
-    const isUserOwnerOfTale = await res.json();
+    const checkIfUserIsOwner = async () => {
+      const userExternalId = session.profile.sub;
+      const res = await checkIfUserIsTaleOwner(taleId, userExternalId);
+      const isUserOwnerOfTale = await res.json();
 
-    console.log(`isUserTaleOwner - ${isUserTaleOwner}`);
-    setIsUserTaleOwner(isUserOwnerOfTale);
-   }
+      console.log(`isUserTaleOwner - ${isUserTaleOwner}`);
+      setIsUserTaleOwner(isUserOwnerOfTale);
+    };
 
-   if(status === AUTHENTICATED) {
-     checkIfUserIsOwner();
-   }
-   else {
-    setIsUserTaleOwner(false);
-   }
+    if (status === AUTHENTICATED) {
+      checkIfUserIsOwner();
+    } else {
+      setIsUserTaleOwner(false);
+    }
   }, [status, taleId, session?.profile.sub, isUserTaleOwner]);
 
   useEffect(
@@ -108,7 +105,7 @@ const TaleOverview = () => {
   }, [currentTaleId, setSegment]);
 
   const uploadCoverPhoto = async (coverPhoto: File) => {
-    const newCoverPhoto = await updateUserProfilePhoto(taleId, coverPhoto);
+    const newCoverPhoto = await updateTaleCoverPhoto(taleId, coverPhoto);
     setCoverPhoto(newCoverPhoto);
   };
 
@@ -134,9 +131,11 @@ const TaleOverview = () => {
             <IonBackButton defaultHref="/tabs/explore"></IonBackButton>
           </IonButtons>
           <IonTitle className={'lg:text-center'}>{title + (edit ? ' (Edit Mode)' : '')}</IonTitle>
-          {isUserTaleOwner && <IonButton fill={'clear'} slot={'end'} onClick={() => setEdit(!edit)}>
-          {edit ? 'Done' : 'Edit'}
-          </IonButton>}
+          {isUserTaleOwner && (
+            <IonButton fill={'clear'} slot={'end'} onClick={() => setEdit(!edit)}>
+              {edit ? 'Done' : 'Edit'}
+            </IonButton>
+          )}
         </IonToolbar>
       </IonHeader>
       <IonContent ref={contentRef} className={''}>

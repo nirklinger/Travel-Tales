@@ -14,8 +14,8 @@ export async function fetchUserTalesById(userId: number): Promise<Tale[]> {
         throw new Error('could not fetch tales');
     }
   }
-  const tales = (await res.json()) as TalesResponse;
-    
+  const { tales } = (await res.json()) as TalesResponse;
+
   return tales.map(tale => ({
     ...tale,
     author: `${tale.first_name} ${tale.last_name}`,
