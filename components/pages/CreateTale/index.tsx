@@ -42,8 +42,6 @@ const CreateTale = () => {
   const { data: session, status } = useSession();
   const router = useIonRouter();
 
-  const userExternalId: string = session.profile.sub;
-
   useEffect(() => {
     setIsFileSelected(false);
     if (coverPhoto.name !== '') {

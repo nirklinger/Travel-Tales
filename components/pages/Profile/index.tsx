@@ -1,7 +1,4 @@
-import {
-  IonItem,
-  IonLabel,
-} from '@ionic/react';
+import { IonItem, IonLabel } from '@ionic/react';
 import { useSession } from 'next-auth/react';
 import GuestProfilePage from './GuestProfilePage';
 import UserProfilePage from './UserProfilePage';
@@ -18,19 +15,10 @@ const TaleEntry = ({ tale, ...props }) => (
 const Explore = () => {
   const [isUserValid, setIsUserValid] = useState(false);
   const { data: session, status } = useSession();
-  const AUTHENTICATED = 'authenticated';
-  
-  useEffect(() => {
-    const isUserLoggedIn = (status === AUTHENTICATED) && (session?.profile?.user_id !== undefined);
-    setIsUserValid(isUserLoggedIn);
-  },[session?.profile?.user_id]);
 
+  const isLoggedIn = status === 'authenticated' && session?.profile?.user_id;
 
-  return (
-    <>
-      {isUserValid ? <UserProfilePage session={session} /> : <GuestProfilePage />}
-    </>
-  );
+  return <>{isLoggedIn ? <UserProfilePage session={session} /> : <GuestProfilePage />}</>;
 };
 
 export default Explore;

@@ -19,7 +19,6 @@ const BUCKET_NAME = 'travel-tales-s3';
 const S3_REGION = 'us-east-1';
 const PUBLIC_FOLDER = 'public';
 const TALES_FOLDER = 'Tales';
-const COVER_PHOTO_FILE_NAME = 'coverPhoto.jpg';
 const S3_URL = 'https://travel-tales-s3.s3.amazonaws.com';
 const isDevEnvironment = process.env.NODE_ENV === 'development';
 const client = new S3Client({
@@ -176,12 +175,12 @@ export const uploadTaleCoverPhoto = async (taleId: number, coverPhoto: formidabl
   if (isDevEnvironment) {
     const taleFolderPath = path.join(TALES_FOLDER, taleId.toString());
     const directoryPath = path.join(PUBLIC_FOLDER, taleFolderPath);
-    const envFullFilePath = path.join(directoryPath, COVER_PHOTO_FILE_NAME);
+    const envFullFilePath = path.join(directoryPath, coverPhoto.originalFilename);
     logger.info(`upload cover photo dal - fullFilePath: ${envFullFilePath}`);
     await fs.promises.mkdir(directoryPath, { recursive: true });
     await fs.promises.writeFile(envFullFilePath, buffer);
   } else {
-    const filePath = `Tales/${taleId.toString()}/${COVER_PHOTO_FILE_NAME}`;
+    const filePath = `Tales/${taleId.toString()}/${coverPhoto.originalFilename}`;
     logger.info(`upload cover photo dal - fullFilePath: ${filePath}`);
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
@@ -200,9 +199,9 @@ export const uploadTaleCoverPhoto = async (taleId: number, coverPhoto: formidabl
   }
 };
 
-export const updateTaleDbCoverPhoto = async (taleId: number) => {
+export const updateTaleDbCoverPhoto = async (taleId: number, fileName: string) => {
   logger.info(`updateTaleDbCoverPhoto - taleId ${taleId}`);
-  const coverPhotoUrl = `/Tales/${taleId}/${COVER_PHOTO_FILE_NAME}`;
+  const coverPhotoUrl = `/Tales/${taleId}/${fileName}`;
   logger.info(`updateTaleDbCoverPhoto - coverPhotoUrl ${coverPhotoUrl}`);
   const connection = getConnection();
   await connection(Table.Trips)
@@ -231,4 +230,17 @@ export const getTaleOwnerIdByTaleId = async (taleId: number) => {
     .where(`${Table.UsersTrips}.trip_id`, taleId);
 
   return userIds[0];
+};
+
+export const updateTaleById = async (id: number, patches: Partial<Omit<Trips, 'trip_id'>>) => {
+  const connection = getConnection();
+  const changes = await connection(Table.Trips)
+    .where('trip_id', id)
+    .update(patches, Object.keys(patches));
+  return changes[0];
+};
+
+export const deleteTaleAndMedia = async (taleId: number) => {
+  const connection = getConnection();
+  return connection(Table.Trips).where('trip_id', taleId).delete(); // DELETE has cascade options deleting its destinations activities and media
 };

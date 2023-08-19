@@ -21,7 +21,7 @@ export const authOptions: NextAuthOptions = {
       console.log('isNewUser:', isNewUser);
       console.log('user:', user);
       console.groupEnd();*/
-     
+
       if (account) {
         token.accessToken = account.access_token;
       }
@@ -36,7 +36,6 @@ export const authOptions: NextAuthOptions = {
     // Send properties to the client, like an access_token from a provider.
     async session({ session, token, user }) {
       session.accessToken = token.accessToken;
-      session.profile = token.profile;
 
       if (token) {
         try {
@@ -45,19 +44,19 @@ export const authOptions: NextAuthOptions = {
             external_id: token.sub,
             email: token.email,
             first_name: partsOfName[0],
-            last_name: partsOfName.slice(1).join(' ')
-          }
-          console.log("##################################################################");
-          console.log("##################################################################");
-          console.log("##################################################################");
+            last_name: partsOfName.slice(1).join(' '),
+          };
+          console.log('##################################################################');
+          console.log('##################################################################');
+          console.log('##################################################################');
           const user = await insertUserOnFirstSignIn(signedInUser);
           console.log(`user is: ${JSON.stringify(user)}`);
-          console.log("##################################################################");
-          console.log("##################################################################");
-          console.log("##################################################################");
-          token.profile = {...token.profile, ...user};
+          console.log('##################################################################');
+          console.log('##################################################################');
+          console.log('##################################################################');
+          session.profile = { ...token.profile, ...user };
         } catch (err) {
-          logger.error({err}, 'Error inserting user on first sign in');
+          logger.error({ err }, 'Error inserting user on first sign in');
         }
       }
 

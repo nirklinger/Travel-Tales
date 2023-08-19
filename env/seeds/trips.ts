@@ -58,7 +58,7 @@ const trips: Trips[] = [
 const users: Users[] = [
   {
     user_id: 1,
-    external_id: '',
+    external_id: 'a46844e8-5011-704b-7779-65af12ee8980',
     email: 'nirkl@mta.ac.il',
     first_name: 'Nir',
     last_name: 'Klinger',
@@ -104,7 +104,6 @@ const usersTrips: UsersTrips[] = [
     trip_id: 4,
   },
 ];
-
 
 const destinations: TripDestinations[] = [
   {

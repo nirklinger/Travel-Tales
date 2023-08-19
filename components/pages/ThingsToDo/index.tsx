@@ -27,6 +27,7 @@ import ActivityModal from './ActivityModal';
 import { OverlayEventDetail } from '@ionic/core/components';
 import { search } from '../../../managers/activity-manager';
 import { debounce } from 'lodash';
+import ProfileWidget from '../Profile/ProfileWidget';
 
 const ThingsToDo = () => {
   const activities = useRecoilValue(activitiesWithCategoriesSelector);
@@ -115,11 +116,12 @@ const ThingsToDo = () => {
           <IonButtons slot="start">
             <IonMenuButton />
           </IonButtons>
-          <IonButtons slot="end">
-            <IonButton onClick={() => setShowNotifications(true)}>
-              <IonIcon icon={notificationsOutline} />
-            </IonButton>
-          </IonButtons>
+          <ProfileWidget />
+          {/*<IonButtons slot="end">*/}
+          {/*  <IonButton onClick={() => setShowNotifications(true)}>*/}
+          {/*    <IonIcon icon={notificationsOutline} />*/}
+          {/*  </IonButton>*/}
+          {/*</IonButtons>*/}
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding" fullscreen>

@@ -12,23 +12,33 @@ import {
   IonInput,
 } from '@ionic/react';
 import Notifications from '../Notifications';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { notificationsOutline } from 'ionicons/icons';
 import TripCard from '../../ui/TripCard';
-import { useRecoilValue } from 'recoil';
-import { currentTale, tales } from '../../../states/explore';
+import { useRecoilRefresher_UNSTABLE, useRecoilState, useRecoilValue } from 'recoil';
+import { shouldResetTalesState, tales } from '../../../states/explore';
 import { useIonRouter } from '@ionic/react';
 import { debounce } from 'lodash';
-import parse from 'postgres-interval';
 import { search } from '../../../managers/tales-manager';
-import { Tale } from '../../../types/types';
+import Image from 'next/image';
+import ProfileWidget from '../Profile/ProfileWidget';
 
 const Explore = () => {
+  const [shouldResetTales, setShouldResetTales] = useRecoilState(shouldResetTalesState);
+  const resetTales = useRecoilRefresher_UNSTABLE(tales);
   const tripList = useRecoilValue(tales);
   const [searchedTales, setSearchedTales] = useState<number[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchText, setSearchText] = useState('');
   const router = useIonRouter();
+  const isMyPathname = router.routeInfo.pathname === '/tabs/explore';
+
+  useEffect(() => {
+    if (shouldResetTales && isMyPathname) {
+      resetTales();
+      setShouldResetTales(false);
+    }
+  }, [shouldResetTales, setShouldResetTales, isMyPathname, resetTales]);
 
   const searchActivities = useCallback(
     debounce(async searchText => {
@@ -59,7 +69,7 @@ const Explore = () => {
     return searchedTales.length && searchText.length
       ? tripList.filter(tale => searchedTales.includes(tale.trip_id))
       : tripList;
-  }, [searchText, searchedTales]);
+  }, [searchText, searchedTales, tripList]);
 
   return (
     <IonPage>
@@ -69,11 +79,12 @@ const Explore = () => {
           <IonButtons slot="start">
             <IonMenuButton />
           </IonButtons>
-          <IonButtons slot="end">
-            <IonButton onClick={() => setShowNotifications(true)}>
-              <IonIcon icon={notificationsOutline} />
-            </IonButton>
-          </IonButtons>
+          <ProfileWidget />
+          {/*<IonButtons slot="end">*/}
+          {/*  <IonButton onClick={() => setShowNotifications(true)}>*/}
+          {/*    <IonIcon icon={notificationsOutline} />*/}
+          {/*  </IonButton>*/}
+          {/*</IonButtons>*/}
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding" fullscreen>
