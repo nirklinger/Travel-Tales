@@ -63,10 +63,10 @@ const Tabs = () => {
           <IonIcon icon={personCircleOutline} />
           <IonLabel>Profile</IonLabel>
         </IonTabButton>
-        <IonTabButton tab="tab4" href="/tabs/settings">
-          <IonIcon icon={cog} />
-          <IonLabel>Settings</IonLabel>
-        </IonTabButton>
+        {/*<IonTabButton tab="tab4" href="/tabs/settings">*/}
+        {/*  <IonIcon icon={cog} />*/}
+        {/*  <IonLabel>Settings</IonLabel>*/}
+        {/*</IonTabButton>*/}
       </IonTabBar>
     </IonTabs>
   );

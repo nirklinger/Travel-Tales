@@ -28,7 +28,7 @@ const TripCard = ({
     <div className="flex flex-col sm:h-72 md:h-60 px-4 py-4 bg-white rounded-b-xl dark:bg-gray-900">
       <h2 className="font-bold text-2xl text-gray-800 dark:text-gray-100">{title}</h2>
       <span className="font-bold py-0 text-gray-400 dark:text-gray-500 uppercase">
-        {start_date.toLocaleDateString()} - {end_date.toLocaleDateString()}
+        {start_date.toLocaleDateString('en-GB')} - {end_date.toLocaleDateString('en-GB')}
       </span>
       <div className="sm:text-sm flex-grow text-gray-500 mr-1 my-2 dark:text-gray-400">
         {catch_phrase}

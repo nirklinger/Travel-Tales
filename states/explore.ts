@@ -40,6 +40,11 @@ export const currentTaleIdState = atom<number>({
   default: null,
 });
 
+export const shouldResetTalesState = atom<boolean>({
+  key: 'shouldResetTalesState',
+  default: false,
+});
+
 export const currentTale = selector<Tale>({
   key: 'currentTale',
   get: async ({ get }) => {

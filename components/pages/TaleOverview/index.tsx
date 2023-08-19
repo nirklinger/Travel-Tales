@@ -13,6 +13,11 @@ import {
   IonButton,
   IonFabButton,
   IonIcon,
+  IonTextarea,
+  IonItem,
+  IonDatetimeButton,
+  IonModal,
+  IonDatetime,
 } from '@ionic/react';
 import { useSession } from 'next-auth/react';
 import { pencil } from 'ionicons/icons';
@@ -28,43 +33,57 @@ import {
   currentTaleStory,
   focusOnActivity,
   focusOnDestination,
+  shouldResetTalesState,
+  tales,
 } from '../../../states/explore';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Story from './Story';
 import Map from './Map';
-import { LocalFile, ParsedDestination } from '../../../types/types';
-import { checkIfUserIsTaleOwner, updateTaleCoverPhoto } from '../../../managers/tales-manager';
+import { ParsedDestination, Tale } from '../../../types/types';
+import {
+  checkIfUserIsTaleOwner,
+  patchTale,
+  updateTaleCoverPhoto,
+} from '../../../managers/tales-manager';
 import ImageUpload from '../../common/ImageUpload';
+import Image from 'next/image';
+import { patchActivity } from '../../../managers/activity-manager';
+import { debounce } from 'lodash';
+import parse from 'postgres-interval';
 
 enum Segments {
   viewOnMap = 'View on map',
   story = 'Story',
 }
 
-const IMAGE_DIR = 'stored-images';
-
 const TaleOverview = () => {
   const [edit, setEdit] = useState(false);
   const [isUserTaleOwner, setIsUserTaleOwner] = useState(false);
   const [currentTaleId, setCurrentTaleId] = useRecoilState(currentTaleIdState);
   const resetStory = useRecoilRefresher_UNSTABLE(currentTaleStory);
-  const tale = useRecoilValue(currentTale);
+  const taleReadonly = useRecoilValue(currentTale);
+  const resetTales = useRecoilRefresher_UNSTABLE(tales);
   const [segment, setSegment] = useState<Segments>(Segments.story);
-  const [coverPhoto, setCoverPhoto] = useState<string>(tale?.cover_photo_url || '');
+  const [coverPhoto, setCoverPhoto] = useState<string>('');
   const contentRef = useRef<HTMLIonContentElement>();
   const setFocusDestination = useSetRecoilState(focusOnDestination);
   const setFocusActivity = useSetRecoilState(focusOnActivity);
+  const [tale, setTale] = useState<Tale>(null);
+  const setShouldResetTales = useSetRecoilState(shouldResetTalesState);
 
-  const modal = useRef<HTMLIonModalElement>(null);
   let { taleId } = useParams();
   const { data: session, status } = useSession();
 
   const AUTHENTICATED = 'authenticated';
 
   useEffect(() => {
-    setCoverPhoto(tale?.cover_photo_url);
-  }, [tale]);
+    setTale(taleReadonly);
+  }, [taleReadonly]);
+
+  useEffect(() => {
+    setCoverPhoto(tale?.cover_photo_url + `?t=${Date.now()}`);
+  }, [tale?.cover_photo_url]);
 
   useEffect(() => {
     const checkIfUserIsOwner = async () => {
@@ -107,6 +126,7 @@ const TaleOverview = () => {
   const uploadCoverPhoto = async (coverPhoto: File) => {
     const newCoverPhoto = await updateTaleCoverPhoto(taleId, coverPhoto);
     setCoverPhoto(newCoverPhoto);
+    setShouldResetTales(true);
   };
 
   const viewDestinationInStory = useCallback(
@@ -117,11 +137,88 @@ const TaleOverview = () => {
     [setSegment, setFocusDestination]
   );
 
-  if (!tale) {
+  const updateTale = useCallback(
+    debounce(changes => {
+      setShouldResetTales(true);
+      patchTale(tale.trip_id, changes);
+    }, 2000),
+    [tale?.trip_id, setShouldResetTales]
+  );
+
+  const handleCatchPhraseChange = useCallback(
+    e => {
+      setTale({ ...tale, catch_phrase: e.detail.value });
+      updateTale({ catch_phrase: e.detail.value });
+    },
+    [setTale, tale, updateTale]
+  );
+
+  const handleStartDateChange = useCallback(
+    e => {
+      const start_date = new Date(e.detail.value);
+
+      if (start_date.getTime() > tale.end_date.getTime()) {
+        return;
+      }
+
+      setTale({ ...tale, start_date });
+      updateTale({ start_date });
+    },
+    [setTale, tale, updateTale]
+  );
+
+  const handleEndDateChange = useCallback(
+    e => {
+      const end_date = new Date(e.detail.value);
+
+      if (end_date.getTime() < tale.start_date.getTime()) {
+        return;
+      }
+
+      setTale({ ...tale, end_date });
+      updateTale({ end_date });
+    },
+    [setTale, tale, updateTale]
+  );
+
+  if (!tale || !taleReadonly) {
     return <div>no tail</div>;
   }
 
   const { title } = tale;
+
+  const taleDates = edit ? (
+    <>
+      <div className={'flex flex-row'}>
+        <IonButton color={'dark'} size={'small'} fill={'outline'} id={'start-date'}>
+          {tale.start_date.toLocaleDateString('en-GB')}
+        </IonButton>
+        <IonButton color={'dark'} size={'small'} fill={'outline'} id={'end-date'}>
+          {tale.end_date.toLocaleDateString('en-GB')}
+        </IonButton>
+      </div>
+      <IonModal id={'start-date-pick'} keepContentsMounted={true} trigger={'start-date'}>
+        <IonDatetime
+          id="startDatetime"
+          presentation="date"
+          showDefaultButtons={true}
+          onIonChange={handleStartDateChange}
+        ></IonDatetime>
+      </IonModal>
+      <IonModal id={'end-date-pick'} keepContentsMounted={true} trigger={'end-date'}>
+        <IonDatetime
+          id="endDatetime"
+          presentation="date"
+          showDefaultButtons={true}
+          onIonChange={handleEndDateChange}
+        ></IonDatetime>
+      </IonModal>
+    </>
+  ) : (
+    <span className="font-bold text-gray-800 dark:text-gray-500 uppercase">
+      {tale.start_date.toLocaleDateString('en-GB')} - {tale.end_date.toLocaleDateString('en-GB')}
+    </span>
+  );
 
   return (
     <IonPage>
@@ -140,14 +237,33 @@ const TaleOverview = () => {
       </IonHeader>
       <IonContent ref={contentRef} className={''}>
         {segment === Segments.story && (
-          <div className="relative">
-            <img
-              className="lg:h-96 lg:w-3/6 m-auto object-cover sm:h-full sm:w-48"
+          <div className={'relative lg:h-96 lg:w-3/6 m-auto sm:h-full sm:w-48'}>
+            <Image
+              unoptimized={true}
+              alt={`profile's picture`}
+              height={100}
+              width={100}
+              className="object-cover min-w-full min-h-full max-w-full max-h-full"
               src={coverPhoto}
             />
+            <div
+              className={
+                'absolute bottom-2 left-4 bg-white bg-opacity-70 w-2/3 h-1/3 rounded-md p-2 overflow-y-scroll'
+              }
+            >
+              {taleDates}
+              <IonTextarea
+                onIonChange={handleCatchPhraseChange}
+                placeholder={'Cool catch phrase...'}
+                color={edit ? 'purple' : ''}
+                autoGrow={true}
+                value={tale.catch_phrase}
+                readonly={!edit}
+              ></IonTextarea>
+            </div>
             {edit && (
               <>
-                <IonFabButton className="absolute bottom-0 right-0">
+                <IonFabButton className="absolute bottom-2 right-2">
                   <IonIcon id="fab-trigger" icon={pencil} />
                 </IonFabButton>
                 <ImageUpload

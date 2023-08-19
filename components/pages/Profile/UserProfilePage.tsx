@@ -138,7 +138,7 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ session }) => {
             </IonCardSubtitle>
           </IonCardHeader>
         </Card>
-        <div className="justify-center text-center	flex-col">
+        <div className="justify-center text-center flex-col">
           <IonButton
             onClick={() => {
               router.push(`/tabs/tale/create`);
@@ -146,7 +146,7 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ session }) => {
           >
             Create New Tale
           </IonButton>
-          <IonTitle>Your Tales:</IonTitle>
+          <h3>Your Tales:</h3>
         </div>
         {userTales.length > 0 ? (
           <div className="grid grid-flow-row gap-8 text-neutral-600 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

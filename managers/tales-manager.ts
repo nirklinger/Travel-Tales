@@ -70,6 +70,19 @@ export const search = async (searchText: string): Promise<number[]> => {
   return talesIds;
 };
 
+export const patchTale = async (
+  taleId: number,
+  patch: Partial<Omit<Trips, 'trip_id'>>
+): Promise<void> => {
+  const res = await fetchWrapper.patch(`/api/tales/${taleId}`, patch);
+  if (!res.ok) {
+    switch (res.status) {
+      default:
+        throw new Error('could not update tale');
+    }
+  }
+};
+
 export const updateTaleCoverPhoto = async (taleId: number, coverPhoto: File): Promise<string> => {
   const formData = new FormData();
   formData.append('taleId', taleId.toString());
@@ -92,13 +105,13 @@ export const updateTaleCoverPhoto = async (taleId: number, coverPhoto: File): Pr
 };
 
 export const checkIfUserIsTaleOwner = async (taleId: number, userExternalId: string) => {
-  const res = await fetchWrapper.get(`/api/tales/${taleId}/user`, {external_id: userExternalId});
+  const res = await fetchWrapper.get(`/api/tales/${taleId}/user`, { external_id: userExternalId });
   if (!res.ok) {
     switch (res.status) {
       default:
         throw new Error('could not validate the owner of the tale');
     }
   }
-  
+
   return res;
-}
+};
