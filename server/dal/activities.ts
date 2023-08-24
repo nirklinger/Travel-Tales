@@ -26,7 +26,7 @@ const BUCKET_NAME = 'travel-tales-s3';
 const S3_REGION = 'us-east-1';
 const PUBLIC_FOLDER = 'public';
 const TALES_FOLDER = 'Tales';
-const S3_URL = 'https://travel-tales-s3.s3.amazonaws.com';
+const S3_URL = process.env.AWS_S3_URL;
 const isDevEnvironment = process.env.NODE_ENV === 'development';
 
 const client = new S3Client({

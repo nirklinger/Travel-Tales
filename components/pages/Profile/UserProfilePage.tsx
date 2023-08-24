@@ -76,7 +76,7 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ session }) => {
 
   const uploadProfilePhoto = async (profilePhoto: File) => {
     const newProfilePhoto = await updateUserProfilePhoto(session.profile.user_id, profilePhoto);
-    setTimeout(() => setProfilePhoto(newProfilePhoto + `?t=${Date.now()}`), 2000);
+    setProfilePhoto(newProfilePhoto + `?t=${Date.now()}`);
   };
 
   const userNameField = edit ? (

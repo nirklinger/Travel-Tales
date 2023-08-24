@@ -21,6 +21,8 @@ import { classifyCategories } from '../dal/categories';
 import { fetchTaleByActivityId } from '../dal/tales';
 import formidable from 'formidable';
 
+const S3_URL = process.env.AWS_S3_URL;
+
 export const createNewActivity = async (newActivity: NewActivitiesWithMedia) => {
   const { media, ...activity } = newActivity;
   const activityId = await insertNewActivity(activity);
@@ -1611,5 +1613,11 @@ export const uploadActivityMediaToServer = async (id: number, uploadPhotos: form
     return await updateDbActivityMediaTable(taleId, id, uploadPhoto);
   });
 
-  return await Promise.all(promises);
+  let medias = await Promise.all(promises);
+
+  if (process.env.NODE_ENV !== 'development') {
+    medias = medias.map(media => ({ ...media, media_url: S3_URL + media.media_url }));
+  }
+
+  return medias;
 };
