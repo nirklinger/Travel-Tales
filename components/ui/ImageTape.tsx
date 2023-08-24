@@ -20,7 +20,7 @@ function ImageTape({
 
   const uploadMedia = async (photos: File[]) => {
     const mediaUploaded = await uploadActivityMedias(activityId, photos);
-    setMedia([...media, ...mediaUploaded]);
+    setTimeout(() => setMedia([...media, ...mediaUploaded]), 2000);
   };
 
   if (!media.length && !isEdit) return;

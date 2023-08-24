@@ -82,7 +82,7 @@ const TaleOverview = () => {
   }, [taleReadonly]);
 
   useEffect(() => {
-    setCoverPhoto(tale?.cover_photo_url + `?t=${Date.now()}`);
+    setTimeout(() => setCoverPhoto(tale?.cover_photo_url + `?t=${Date.now()}`), 2000);
   }, [tale?.cover_photo_url]);
 
   useEffect(() => {
