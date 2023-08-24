@@ -15,11 +15,11 @@ export const authOptions: NextAuthOptions = {
     // Persist the OAuth access_token to the token right after signin
     async jwt({ token, account, profile, isNewUser, user }) {
       /*console.group('jwt');
-      console.log('token:', token);
-      console.log('account:', account);
-      console.log('profile:', profile);
-      console.log('isNewUser:', isNewUser);
-      console.log('user:', user);
+     // console.log('token:', token);
+     // console.log('account:', account);
+     // console.log('profile:', profile);
+     // console.log('isNewUser:', isNewUser);
+     // console.log('user:', user);
       console.groupEnd();*/
 
       if (account) {
@@ -46,14 +46,14 @@ export const authOptions: NextAuthOptions = {
             first_name: partsOfName[0],
             last_name: partsOfName.slice(1).join(' '),
           };
-          console.log('##################################################################');
-          console.log('##################################################################');
-          console.log('##################################################################');
+          // console.log('##################################################################');
+          // console.log('##################################################################');
+          // console.log('##################################################################');
           const user = await insertUserOnFirstSignIn(signedInUser);
-          console.log(`user is: ${JSON.stringify(user)}`);
-          console.log('##################################################################');
-          console.log('##################################################################');
-          console.log('##################################################################');
+          // console.log(`user is: ${JSON.stringify(user)}`);
+          // console.log('##################################################################');
+          // console.log('##################################################################');
+          // console.log('##################################################################');
           session.profile = { ...token.profile, ...user };
         } catch (err) {
           logger.error({ err }, 'Error inserting user on first sign in');
@@ -61,9 +61,9 @@ export const authOptions: NextAuthOptions = {
       }
 
       console.group('session');
-      console.log('session:', session);
-      console.log('token:', token);
-      console.log('user:', user);
+      // console.log('session:', session);
+      // console.log('token:', token);
+      // console.log('user:', user);
       console.groupEnd();
 
       return session;

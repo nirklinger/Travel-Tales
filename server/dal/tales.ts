@@ -34,7 +34,11 @@ export async function getTales() {
     .join(Table.Users, `${Table.Users}.user_id`, `${Table.UsersTrips}.user_id`);
   if (!isDevEnvironment) {
     const envFitTales = tales.map(taleObj => {
-      return { ...taleObj, cover_photo_url: `${S3_URL}${taleObj.cover_photo_url}` };
+      return {
+        ...taleObj,
+        cover_photo_url: `${S3_URL}${taleObj.cover_photo_url}`,
+        avatar_photo: `${S3_URL}${taleObj.avatar_photo}`,
+      };
     });
     return envFitTales;
   }
@@ -52,7 +56,11 @@ export async function getTalesByUserId(userId: string) {
     .where(`${Table.Users}.user_id`, userId);
   if (!isDevEnvironment) {
     const envFitTales = tales.map(taleObj => {
-      return { ...taleObj, cover_photo_url: `${S3_URL}${taleObj.cover_photo_url}` };
+      return {
+        ...taleObj,
+        cover_photo_url: `${S3_URL}${taleObj.cover_photo_url}`,
+        avatar_photo: `${S3_URL}${taleObj.avatar_photo}`,
+      };
     });
     return envFitTales;
   }

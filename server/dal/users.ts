@@ -10,7 +10,6 @@ import { ExternalUser } from '../../types/types';
 import formidable from 'formidable';
 
 const USERS_FOLDER = 'Users';
-export const PROFILE_PHOTO_FILE_NAME = 'profilePhoto.jpg';
 const PUBLIC_FOLDER = 'public';
 const BUCKET_NAME = process.env.BUCKET_NAME;
 const S3_REGION = process.env.AWS_REGION;
@@ -89,12 +88,12 @@ export const uploadUserProfilePhoto = async (userId: number, profilePhoto: formi
   if (isDevEnvironment) {
     const userFolderPath = path.join(USERS_FOLDER, userId.toString());
     const directoryPath = path.join(PUBLIC_FOLDER, userFolderPath);
-    const envFullFilePath = path.join(directoryPath, PROFILE_PHOTO_FILE_NAME);
+    const envFullFilePath = path.join(directoryPath, profilePhoto.originalFilename);
     logger.info(`upload cover photo dal - fullFilePath: ${envFullFilePath}`);
     await fs.promises.mkdir(directoryPath, { recursive: true });
     await fs.promises.writeFile(envFullFilePath, buffer);
   } else {
-    const filePath = `Users/${userId.toString()}/${PROFILE_PHOTO_FILE_NAME}`;
+    const filePath = `Users/${userId.toString()}/${profilePhoto.originalFilename}`;
     logger.info(`upload cover photo dal - fullFilePath: ${filePath}`);
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
