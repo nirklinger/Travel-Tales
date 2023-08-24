@@ -93,6 +93,7 @@ const saveCoverPhoto = async (buffer: Buffer, fileName: string) => {
       Bucket: BUCKET_NAME,
       Key: fileName,
       Body: buffer,
+      ContentType: 'image/jpeg',
     });
     try {
       logger.info(
@@ -186,6 +187,7 @@ export const uploadTaleCoverPhoto = async (taleId: number, coverPhoto: formidabl
       Bucket: BUCKET_NAME,
       Key: filePath,
       Body: buffer,
+      ContentType: 'image/jpeg',
     });
     try {
       logger.info(

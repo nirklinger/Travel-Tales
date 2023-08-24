@@ -100,6 +100,7 @@ export const uploadUserProfilePhoto = async (userId: number, profilePhoto: formi
       Bucket: BUCKET_NAME,
       Key: filePath,
       Body: buffer,
+      ContentType: 'image/jpeg',
     });
     try {
       logger.info(

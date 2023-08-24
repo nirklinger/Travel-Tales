@@ -148,6 +148,7 @@ export const uploadActivityMedia = async (
       Bucket: BUCKET_NAME,
       Key: filePath,
       Body: buffer,
+      ContentType: 'image/jpeg',
     });
     try {
       const response = await client.send(command);
