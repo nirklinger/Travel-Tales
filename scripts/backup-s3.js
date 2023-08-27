@@ -4,10 +4,9 @@ const path = require('path');
 
 // Set up AWS configuration
 AWS.config.update({
-  accessKeyId: 'ASIAZLWMNPA7EVVDPULN',
-  secretAccessKey: 'puOZ0eprlILFywCBgn5pfcSC9EhhPB+crC/n6TPy',
-  sessionToken:
-    'FwoGZXIvYXdzEMT//////////wEaDPqbyY5AG8MlUGnH2yLGAdOjS9itTRSb5IggufwSbr8DoYHsZku7aKRO1+vj+lCGaz2XSW6ZvYkh54yxfLPISR2tmV0NyyPLJVq5PbVX4Is2HYsOihBlXN1VKwjkBskgDGNM5MrVoB7F4tJ5I1psewdhoXi3atIMP1M3e/u2t+61AwzODvYnXYWiiscrUSVbKJhlXim3ZMaxafQWywY1e3IfPXyPDnN1+rkmIouqohM51lCe/VXS7cV+jMi3CB5tG0b3vvxp4DNs2/7sxoRI2oXdTns0Lyi+sK6nBjItqN+j9mFRw5qPpqstLqr1uy65ln1yDkLLbXaUHeRl/uPO0X+gJohDKh4BAcoJ',
+  accessKeyId: '',
+  secretAccessKey: '',
+  sessionToken: '',
   region: 'us-east-1',
 });
 
