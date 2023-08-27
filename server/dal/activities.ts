@@ -27,6 +27,8 @@ const S3_REGION = 'us-east-1';
 const PUBLIC_FOLDER = 'public';
 const TALES_FOLDER = 'Tales';
 const S3_URL = process.env.AWS_S3_URL;
+const SEARCH_PRECISION = process.env.SEARCH_PRECISION || 0.75;
+const MAX_SEARCH_RESULTS = process.env.MAX_SEARCH_RESULTS || 10;
 const isDevEnvironment = process.env.NODE_ENV === 'development';
 
 const client = new S3Client({
@@ -74,7 +76,9 @@ export const searchCosineSimilarity = async (
 ): Promise<ActivityEmbedding[]> => {
   const connection = getConnection();
   const actsEmbeddings = await connection.raw(
-    `SELECT * FROM ${SCHEMA_NAME}.match_activities('[${searchEmbeddings.join(',')}]', 0.75,30)`
+    `SELECT * FROM ${SCHEMA_NAME}.match_activities('[${searchEmbeddings.join(
+      ','
+    )}]', ${SEARCH_PRECISION}, ${MAX_SEARCH_RESULTS})`
   );
   return actsEmbeddings.rows;
 };
