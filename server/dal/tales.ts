@@ -212,9 +212,6 @@ export const uploadTaleCoverPhoto = async (taleId: number, coverPhoto: formidabl
 export const updateTaleDbCoverPhoto = async (taleId: number, fileName: string) => {
   logger.info(`updateTaleDbCoverPhoto - taleId ${taleId}`);
   let coverPhotoUrl = `/Tales/${taleId}/${fileName}`;
-  if (!isDevEnvironment) {
-    coverPhotoUrl = S3_URL + coverPhotoUrl;
-  }
   logger.info(`updateTaleDbCoverPhoto - coverPhotoUrl ${coverPhotoUrl}`);
   const connection = getConnection();
   await connection(Table.Trips)
