@@ -217,6 +217,10 @@ export const updateTaleDbCoverPhoto = async (taleId: number, fileName: string) =
   await connection(Table.Trips)
     .where(`${Table.Trips}.trip_id`, taleId)
     .update({ cover_photo_url: coverPhotoUrl });
+
+  if (!isDevEnvironment) {
+    return `${S3_URL}${coverPhotoUrl}`;
+  }
   return coverPhotoUrl;
 };
 
