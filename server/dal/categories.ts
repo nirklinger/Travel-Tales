@@ -18,7 +18,7 @@ export const classifyCategories = async (
 ): Promise<CategoryEmbedding[]> => {
   const connection = getConnection();
   const categories = await connection.raw(
-    `SELECT * FROM ${SCHEMA_NAME}.classify_categories('[${searchEmbeddings.join(',')}]', 0.8,3)`
+    `SELECT * FROM ${SCHEMA_NAME}.classify_categories('[${searchEmbeddings.join(',')}]', 0.7,3)`
   );
   return categories.rows;
 };
