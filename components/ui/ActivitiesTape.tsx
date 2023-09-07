@@ -14,11 +14,13 @@ function ActivitiesTape({
   if (!activities.length) return;
   return (
     <div className="flex flex-row overflow-scroll gap-4 w-full">
-      {activities.map(activity => (
-        <div key={activity.id} className={'flex-shrink-0 w-64 lg:w-72'}>
-          <ActivityCard activity={activity} onClick={() => onActivityClick(activity.id)} />
-        </div>
-      ))}
+      {activities
+        .sort((a, b) => b.media.length - a.media.length)
+        .map(activity => (
+          <div key={activity.id} className={'flex-shrink-0 w-64 lg:w-72'}>
+            <ActivityCard activity={activity} onClick={() => onActivityClick(activity.id)} />
+          </div>
+        ))}
     </div>
   );
 }
