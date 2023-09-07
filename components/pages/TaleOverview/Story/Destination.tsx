@@ -223,12 +223,20 @@ export function Destination({
           }`}
         >
           {destinationName}
-          <div className={'h-full -mb-4 flex flex-row items-center gap-1 text-lg font-medium'}>
+          <div
+            className={
+              'h-full -mb-4 flex flex-row items-center gap-1 text-xs lg:text-lg font-medium'
+            }
+          >
             {days}
             <IonIcon color={'tertiary'} icon={todayOutline} />
           </div>
         </div>
-        <div className={'h-full -mb-4 ml-1 flex flex-row items-center gap-1 text-lg font-medium'}>
+        <div
+          className={
+            'h-full -mb-4 ml-1 flex flex-row items-center gap-1 text-xs lg:text-lg font-medium'
+          }
+        >
           {location}
         </div>
         <IonReorder slot="end"></IonReorder>
