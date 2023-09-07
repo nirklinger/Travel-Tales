@@ -70,7 +70,7 @@ export default function ActivityModal({ activity, onDismiss }: ActivityModalProp
           }
         >
           {activity.media.map(media => (
-            <div key={media.media_url} className={'flex-shrink-0 w-full h-96'}>
+            <div key={media.media_url} className={'flex-shrink-0 w-full h-48 lg:h-96'}>
               <div className=" rounded-md overflow-hidden relative w-full h-full">
                 <Image
                   fill
