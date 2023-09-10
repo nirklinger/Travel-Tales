@@ -10,6 +10,10 @@ import {
   IonMenuButton,
   IonItem,
   IonInput,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonRouterLink,
 } from '@ionic/react';
 import Notifications from '../Notifications';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -22,6 +26,7 @@ import { debounce } from 'lodash';
 import { search } from '../../../managers/tales-manager';
 import Image from 'next/image';
 import ProfileWidget from '../Profile/ProfileWidget';
+import Logo from '../../../public/img/Logo.png';
 
 const Explore = () => {
   const [shouldResetTales, setShouldResetTales] = useRecoilState(shouldResetTalesState);
@@ -75,16 +80,14 @@ const Explore = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
+        <IonRouterLink routerLink="/tabs/explore">
+          <Image className="" src={Logo} alt="Travel-Tales-Logo"/>
+          </IonRouterLink>
           <IonTitle>Explore</IonTitle>
           <IonButtons slot="start">
             <IonMenuButton />
           </IonButtons>
           <ProfileWidget />
-          {/*<IonButtons slot="end">*/}
-          {/*  <IonButton onClick={() => setShowNotifications(true)}>*/}
-          {/*    <IonIcon icon={notificationsOutline} />*/}
-          {/*  </IonButton>*/}
-          {/*</IonButtons>*/}
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding" fullscreen>

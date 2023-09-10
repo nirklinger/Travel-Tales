@@ -180,7 +180,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, trigger, onUpl
       <IonModal ref={modal} trigger={trigger} onWillDismiss={ev => onWillDismiss(ev)}>
         <IonHeader>
           <IonToolbar>
-            <IonTitle>Select New Cover Photo</IonTitle>
+            <IonTitle>{isMultiUpload ? 'Select Activity Photo' : 'Select A Photo'}</IonTitle>
             <IonButtons slot="end">
               <IonButton onClick={() => modal.current?.dismiss()}>
                 <IonIcon icon={close}></IonIcon>
@@ -231,7 +231,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isMultiUpload, trigger, onUpl
               <IonToolbar color="primary">
                 <IonButton fill="clear" expand="full" color="light" onClick={selectPhotoHandler}>
                   <IonIcon icon={cameraOutline}></IonIcon>
-                  {isMultiUpload ? 'Select Activity Photo' : 'Select A Cover Photo'}
+                  {isMultiUpload ? ' Select Activity Photo' : ' Select A Photo'}
                 </IonButton>
               </IonToolbar>
             </IonItem>

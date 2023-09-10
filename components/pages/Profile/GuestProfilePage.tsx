@@ -13,10 +13,13 @@ import {
   IonCardTitle,
   IonCardContent,
   IonCardHeader,
+  IonRouterLink,
 } from '@ionic/react';
 import Notifications from '../Notifications';
 import { notificationsOutline } from 'ionicons/icons';
 import { signIn } from 'next-auth/react';
+import Image from 'next/image';
+import Logo from '../../../public/img/logo.png';
 
 const GuestProfilePage = () => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -25,6 +28,9 @@ const GuestProfilePage = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
+        <IonRouterLink routerLink="/tabs/explore">
+          <Image className="" src={Logo} alt="Travel-Tales-Logo"/>
+          </IonRouterLink>
           <IonTitle>Profile</IonTitle>
           <IonButtons slot="start">
             <IonMenuButton />

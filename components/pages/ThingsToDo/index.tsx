@@ -11,6 +11,7 @@ import {
   IonItem,
   IonInput,
   useIonModal,
+  IonRouterLink,
 } from '@ionic/react';
 import Notifications from '../Notifications';
 import { useCallback, useMemo, useState } from 'react';
@@ -28,6 +29,8 @@ import { OverlayEventDetail } from '@ionic/core/components';
 import { search } from '../../../managers/activity-manager';
 import { debounce } from 'lodash';
 import ProfileWidget from '../Profile/ProfileWidget';
+import Image from 'next/image';
+import Logo from '../../../public/img/Logo.png'
 
 const ThingsToDo = () => {
   const activities = useRecoilValue(activitiesWithCategoriesSelector);
@@ -112,6 +115,9 @@ const ThingsToDo = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
+        <IonRouterLink routerLink="/tabs/explore">
+          <Image className="" src={Logo} alt="Travel-Tales-Logo"/>
+          </IonRouterLink>
           <IonTitle>Things To Do</IonTitle>
           <IonButtons slot="start">
             <IonMenuButton />
