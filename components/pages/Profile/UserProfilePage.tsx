@@ -10,6 +10,7 @@ import {
   IonIcon,
   IonInput,
   IonPage,
+  IonRouterLink,
   IonTitle,
   IonToolbar,
   useIonRouter,
@@ -29,6 +30,8 @@ import TripCard from '../../ui/TripCard';
 import { pencil } from 'ionicons/icons';
 import ImageUpload from '../../common/ImageUpload';
 import { Session } from 'next-auth';
+
+import Logo from '../../../public/img/logo.png';
 
 interface UserProfilePageProps {
   session: Session;
@@ -95,6 +98,9 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ session }) => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
+        <IonRouterLink routerLink="/tabs/explore">
+          <Image className="" src={Logo} alt="Travel-Tales-Logo"/>
+          </IonRouterLink>
           <IonTitle>Profile</IonTitle>
         </IonToolbar>
       </IonHeader>

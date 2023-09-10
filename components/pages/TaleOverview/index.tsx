@@ -18,6 +18,7 @@ import {
   IonDatetimeButton,
   IonModal,
   IonDatetime,
+  IonRouterLink,
 } from '@ionic/react';
 import { useSession } from 'next-auth/react';
 import { pencil } from 'ionicons/icons';
@@ -51,6 +52,7 @@ import Image from 'next/image';
 import { patchActivity } from '../../../managers/activity-manager';
 import { debounce } from 'lodash';
 import parse from 'postgres-interval';
+import Logo from '../../../public/img/Logo.png';
 
 enum Segments {
   viewOnMap = 'View on map',
@@ -227,6 +229,9 @@ const TaleOverview = () => {
           <IonButtons slot="start">
             <IonBackButton defaultHref="/tabs/explore"></IonBackButton>
           </IonButtons>
+          <IonRouterLink routerLink="/tabs/explore">
+          <Image className="" src={Logo} alt="Travel-Tales-Logo"/>
+          </IonRouterLink>
           <IonTitle className={'lg:text-center'}>{title + (edit ? ' (Edit Mode)' : '')}</IonTitle>
           {isUserTaleOwner && (
             <IonButton fill={'clear'} slot={'end'} onClick={() => setEdit(!edit)}>
