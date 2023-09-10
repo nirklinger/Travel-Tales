@@ -19,7 +19,7 @@ import Notifications from '../Notifications';
 import { notificationsOutline } from 'ionicons/icons';
 import { signIn } from 'next-auth/react';
 import Image from 'next/image';
-import Logo from '../../../public/img/logo.png';
+import Logo from '../../../public/img/Logo.png';
 
 const GuestProfilePage = () => {
   const [showNotifications, setShowNotifications] = useState(false);

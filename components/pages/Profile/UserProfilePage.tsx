@@ -31,7 +31,7 @@ import { pencil } from 'ionicons/icons';
 import ImageUpload from '../../common/ImageUpload';
 import { Session } from 'next-auth';
 
-import Logo from '../../../public/img/logo.png';
+import Logo from '../../../public/img/Logo.png';
 
 interface UserProfilePageProps {
   session: Session;
