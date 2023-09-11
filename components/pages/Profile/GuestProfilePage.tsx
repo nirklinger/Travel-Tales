@@ -28,18 +28,15 @@ const GuestProfilePage = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-        <IonRouterLink routerLink="/tabs/explore">
-          <Image className="" src={Logo} alt="Travel-Tales-Logo"/>
-          </IonRouterLink>
-          <IonTitle>Profile</IonTitle>
+          <div className={'flex flex-row'}>
+            <IonRouterLink routerLink="/tabs/explore">
+              <Image className="lg:h-20 lg:w-36 h-14 w-24" src={Logo} alt="Travel-Tales-Logo" />
+            </IonRouterLink>
+            <IonTitle>Profile</IonTitle>
+          </div>
           <IonButtons slot="start">
             <IonMenuButton />
           </IonButtons>
-          {/*<IonButtons slot="end">*/}
-          {/*  <IonButton onClick={() => setShowNotifications(true)}>*/}
-          {/*    <IonIcon icon={notificationsOutline} />*/}
-          {/*  </IonButton>*/}
-          {/*</IonButtons>*/}
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding" fullscreen>

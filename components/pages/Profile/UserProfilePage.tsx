@@ -98,10 +98,12 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ session }) => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-        <IonRouterLink routerLink="/tabs/explore">
-          <Image className="" src={Logo} alt="Travel-Tales-Logo"/>
-          </IonRouterLink>
-          <IonTitle>Profile</IonTitle>
+          <div className={'flex flex-row'}>
+            <IonRouterLink routerLink="/tabs/explore">
+              <Image className="lg:h-20 lg:w-36 h-14 w-24" src={Logo} alt="Travel-Tales-Logo" />
+            </IonRouterLink>
+            <IonTitle>Profile</IonTitle>
+          </div>
         </IonToolbar>
       </IonHeader>
       <IonContent>

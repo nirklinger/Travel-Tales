@@ -30,7 +30,7 @@ import { search } from '../../../managers/activity-manager';
 import { debounce } from 'lodash';
 import ProfileWidget from '../Profile/ProfileWidget';
 import Image from 'next/image';
-import Logo from '../../../public/img/Logo.png'
+import Logo from '../../../public/img/Logo.png';
 
 const ThingsToDo = () => {
   const activities = useRecoilValue(activitiesWithCategoriesSelector);
@@ -115,19 +115,16 @@ const ThingsToDo = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-        <IonRouterLink routerLink="/tabs/explore">
-          <Image className="" src={Logo} alt="Travel-Tales-Logo"/>
-          </IonRouterLink>
-          <IonTitle>Things To Do</IonTitle>
+          <div className={'flex flex-row'}>
+            <IonRouterLink routerLink="/tabs/explore">
+              <Image className="lg:h-20 lg:w-36 h-14 w-24" src={Logo} alt="Travel-Tales-Logo" />
+            </IonRouterLink>
+            <IonTitle>Things To Do</IonTitle>
+          </div>
           <IonButtons slot="start">
             <IonMenuButton />
           </IonButtons>
           <ProfileWidget />
-          {/*<IonButtons slot="end">*/}
-          {/*  <IonButton onClick={() => setShowNotifications(true)}>*/}
-          {/*    <IonIcon icon={notificationsOutline} />*/}
-          {/*  </IonButton>*/}
-          {/*</IonButtons>*/}
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding" fullscreen>

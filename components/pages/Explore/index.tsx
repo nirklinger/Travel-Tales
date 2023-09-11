@@ -80,10 +80,12 @@ const Explore = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-        <IonRouterLink routerLink="/tabs/explore">
-          <Image className="" src={Logo} alt="Travel-Tales-Logo"/>
-          </IonRouterLink>
-          <IonTitle>Explore</IonTitle>
+          <div className={'flex flex-row'}>
+            <IonRouterLink routerLink="/tabs/explore">
+              <Image className="lg:h-20 lg:w-36 h-14 w-24" src={Logo} alt="Travel-Tales-Logo" />
+            </IonRouterLink>
+            <IonTitle className={'m-auto'}>Explore</IonTitle>
+          </div>
           <IonButtons slot="start">
             <IonMenuButton />
           </IonButtons>
