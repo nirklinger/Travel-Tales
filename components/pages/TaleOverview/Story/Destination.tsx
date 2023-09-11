@@ -241,7 +241,7 @@ export function Destination({
         </div>
         <IonReorder slot="end"></IonReorder>
       </IonItem>
-      <div className="flex flex-col gap-8 bg-gray-50 py-4" slot="content">
+      <div className="flex flex-col gap-8 bg-gray-50 dark:bg-gray-800 py-4" slot="content">
         <>
           {isEditMode && (
             <IonButton onClick={handleAddActivity} fill={'outline'}>

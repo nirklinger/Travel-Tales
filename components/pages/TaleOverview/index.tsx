@@ -254,6 +254,7 @@ const TaleOverview = () => {
               <IonTextarea
                 onIonChange={handleCatchPhraseChange}
                 placeholder={'Cool catch phrase...'}
+                className={'dark:text-gray-600'}
                 color={edit ? 'purple' : ''}
                 autoGrow={true}
                 value={tale.catch_phrase}

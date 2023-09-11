@@ -63,7 +63,7 @@ export function Activity({ activity: activityReadonly, canEdit, onDeleteActivity
   const activityName = canEdit ? (
     <div className={'w-max-10'}>
       <IonInput
-        className={'bg-blue-50'}
+        className={'bg-blue-50 dark:bg-gray-800'}
         placeholder="Enter activity name"
         onIonChange={handleActivityNameChange}
         value={activity.name}
@@ -115,7 +115,7 @@ export function Activity({ activity: activityReadonly, canEdit, onDeleteActivity
     <div
       id={`activity-${activity.id}`}
       className={
-        'border border-gray-400 rounded-md bg-blue-50 lg:shadow-lg md:shadow-lg px-4 mx-2 py-4'
+        'border border-gray-400 rounded-md bg-blue-50 dark:bg-gray-900 lg:shadow-lg md:shadow-lg px-4 mx-2 py-4'
       }
       key={activity.id}
     >
@@ -160,7 +160,7 @@ export function Activity({ activity: activityReadonly, canEdit, onDeleteActivity
         <IonTextarea
           onIonChange={handleActivityDescriptionChange}
           placeholder={'Share you experience here...'}
-          color={canEdit ? 'purple' : ''}
+          className={canEdit ? 'text-purple-900 dark:text-purple-300' : ''}
           autoGrow={true}
           value={activity.description}
           readonly={!canEdit}
